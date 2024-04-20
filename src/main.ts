@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
-import { ValidationError } from 'class-validator';
+import { ValidationError, useContainer } from 'class-validator';
 
 async function bootstrap() {
   dotenv.config();
@@ -22,6 +22,7 @@ async function bootstrap() {
       }
     })
   );
+  useContainer(app.select(AppModule), { fallbackOnErrors: true })
   await app.listen(port);
 }
 

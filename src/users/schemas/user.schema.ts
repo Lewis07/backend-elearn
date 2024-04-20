@@ -16,10 +16,10 @@ export class User {
     @Prop()
     usr_lastname?: string;
 
-    @Prop({ required: true })
+    @Prop({ required: true, unique: true })
     usr_email: string;
 
-    @Prop({ required: true, unique: true })
+    @Prop({ required: true })
     usr_password: string;
 
     @Prop({ required: true, default: new Date().toISOString() })
@@ -27,3 +27,4 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+

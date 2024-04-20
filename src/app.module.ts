@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { IsUniqueConstraint } from './validation/isUniqueConstraint';
 
 @Module({
   imports: [AuthModule, 
@@ -16,6 +17,6 @@ import { ConfigModule } from '@nestjs/config';
             MongooseModule.forRoot(process.env.MONGO_URI)
           ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, IsUniqueConstraint],
 })
 export class AppModule {}
