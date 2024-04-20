@@ -10,7 +10,7 @@ export class AuthController {
 
     @Post("login")
     signIn(@Body() signInDto: SignInDto ) {
-        return this.authService.singIn(signInDto.usr_username, signInDto.usr_password);
+        return this.authService.singIn(signInDto);
     }
 
     @UseGuards(AuthGuard)

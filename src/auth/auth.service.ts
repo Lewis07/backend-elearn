@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { validatePassword } from '../utils/validatePassword.utils';
+import { SignInDto } from './dto/singIn.dto';
 import { RegisterDto } from './dto/register.dto';
 import { hashPassword } from '../utils/hashPassword.utils';
 import { InjectModel } from '@nestjs/mongoose';
@@ -15,17 +17,16 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>
   ) {}
 
-  async singIn(
-    usr_username: string,
-    usr_password: string,
-  ) {
-    const user = await this.usersService.findOneByUsername(usr_username);
+  async singIn(signInDto: SignInDto) {
+    const user = await this.usersService.findOneByUsername(signInDto.usr_username);
 
     if (!user) {
         throw new BadRequestException("Username not valid");
     }
 
-    if (user?.usr_password !== usr_password) {
+    const is_valid_password = await validatePassword(signInDto.usr_password, user.usr_password);
+
+    if (!is_valid_password) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
