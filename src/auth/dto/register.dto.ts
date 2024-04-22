@@ -1,5 +1,5 @@
-import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
-import { IsUnique } from "../../validation/isUnique";
+import { IsEmail, IsNotEmpty, MinLength, validate } from "class-validator";
+import { IsUserEmailUnique } from "../validation/isUserEmailAlreadyExist";
 
 export class RegisterDto {
 
@@ -12,7 +12,9 @@ export class RegisterDto {
 
     @IsEmail({}, {message: 'Enter an email valid'})
     @IsNotEmpty({message: 'Email should not be empty'})
-    // @IsUnique({modelName: 'users', property: "usr_email"})
+    @IsUserEmailUnique({collectionProperty: "usr_email", modelName: "userModel", collectionName: "users"}, 
+                        {message: "Email is already exist in this plateform, choose another"}
+                    )
     usr_email: string;
 
     @MinLength(8, {message: "Password should at least 8 characters"})

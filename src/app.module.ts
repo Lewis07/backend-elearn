@@ -5,7 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { IsUniqueConstraint } from './validation/isUniqueConstraint';
+import { IsUserEmailAlreadyExistConstraint } from './auth/validation/isUserEmailAlreadyExistConstraint';
 
 @Module({
   imports: [AuthModule, 
@@ -17,6 +17,6 @@ import { IsUniqueConstraint } from './validation/isUniqueConstraint';
             MongooseModule.forRoot(process.env.MONGO_URI)
           ],
   controllers: [AppController],
-  providers: [AppService, IsUniqueConstraint],
+  providers: [AppService, IsUserEmailAlreadyExistConstraint],
 })
 export class AppModule {}
