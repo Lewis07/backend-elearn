@@ -18,10 +18,10 @@ export class AuthService {
   ) {}
 
   async singIn(signInDto: SignInDto) {
-    const user = await this.usersService.findOneByUsername(signInDto.usr_username);
+    const user = await this.usersService.findOneByEmail(signInDto.usr_email);
 
     if (!user) {
-      throw new BadRequestException("Username not valid");
+      throw new BadRequestException("Email is not found");
     }
 
     const is_valid_password = await validatePassword(signInDto.usr_password, user.usr_password);
@@ -30,7 +30,7 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const payload = { id: user.id, username: user.usr_username };
+    const payload = { id: user.id, username: user.usr_username, email: user.usr_email };
     const access_token = await this.jwtService.signAsync(payload);
 
     return { access_token };
