@@ -19,7 +19,7 @@ export class User {
     @Prop({ required: true, unique: true })
     usr_email: string;
 
-    @Prop({ required: true, select: false })
+    @Prop({ required: true })
     usr_password: string;
 
     @Prop({ required: true, default: new Date().toISOString() })

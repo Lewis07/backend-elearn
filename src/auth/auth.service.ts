@@ -21,7 +21,7 @@ export class AuthService {
     const user = await this.usersService.findOneByUsername(signInDto.usr_username);
 
     if (!user) {
-        throw new BadRequestException("Username not valid");
+      throw new BadRequestException("Username not valid");
     }
 
     const is_valid_password = await validatePassword(signInDto.usr_password, user.usr_password);
