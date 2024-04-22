@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ClassSerializerInterceptor, Injectable, UnauthorizedException, UseInterceptors } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { validatePassword } from '../utils/validatePassword.utils';
@@ -8,6 +8,7 @@ import { hashPassword } from '../utils/hashPassword.utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>
   ) {}
 
-  async singIn(signInDto: SignInDto) {
+  async singIn(signInDto: SignInDto): Promise<{ access_token: string }> {
     const user = await this.usersService.findOneByUsername(signInDto.usr_username);
 
     if (!user) {
@@ -36,10 +37,12 @@ export class AuthService {
     return { access_token };
   }
 
-  async signUp(registerDto: RegisterDto) {
+  @UseInterceptors(ClassSerializerInterceptor)
+  async signUp(registerDto: RegisterDto): Promise<User> {
     const hash_password = await hashPassword(registerDto.usr_password);
     const data = {...registerDto, usr_password: hash_password};
+    const user = await this.userModel.create(data);
 
-    return this.userModel.create(data);
+    return plainToClass(User, user, { excludeExtraneousValues: true});
   }
 }
