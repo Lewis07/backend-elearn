@@ -53,7 +53,7 @@ export class AuthController {
         `;
 
         try {
-            this.sendMailService.send(process.env.EMAIL_MAILHOG_FROM, email, subject_reset_password, template);
+            await this.sendMailService.send(process.env.EMAIL_MAILHOG_FROM, email, subject_reset_password, template);
         } catch (error) {
             throw new InternalServerErrorException();
         }

@@ -19,9 +19,9 @@ export class UsersService {
     return this.userResetModel.findOne({ usr_rest_email: email, usr_rest_token: token});;
   }
 
-  async changePassword(id: mongoose.Types.ObjectId, password: string): Promise<User> {
-    return this.userModel.findByIdAndUpdate(id, {
-      usr_password: hashPassword(password)
+  async changePassword(id: mongoose.Types.ObjectId, password: string) {
+    return await this.userModel.findByIdAndUpdate(id, {
+      usr_password: await hashPassword(password)
     });
   }
 }

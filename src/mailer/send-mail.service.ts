@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 export class SendMailService {
     constructor(private mailerService: MailerService) {}
 
-    send (from: string, to: string, subject: string, html: string) {
+    async send (from: string, to: string, subject: string, html: string) {
         this.mailerService.sendMail({
             from,
             to,
