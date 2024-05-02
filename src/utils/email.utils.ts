@@ -1,0 +1,1 @@
+export const subject_reset_password = "Resetting password"; 

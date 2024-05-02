@@ -5,7 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { IsUserEmailAlreadyExistConstraint } from './auth/validation/isUserEmailAlreadyExistConstraint';
+import { IsUserEmailAlreadyExistConstraint } from './auth/validation/unique-user-email/isUserEmailAlreadyExistConstraint';
 
 @Module({
   imports: [AuthModule, 
@@ -14,7 +14,7 @@ import { IsUserEmailAlreadyExistConstraint } from './auth/validation/isUserEmail
               isGlobal: true,
               envFilePath: '.env'
             }),
-            MongooseModule.forRoot(process.env.MONGO_URI)
+            MongooseModule.forRoot(process.env.MONGO_URI),
           ],
   controllers: [AppController],
   providers: [AppService, IsUserEmailAlreadyExistConstraint],

@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, MinLength, validate } from "class-validator";
-import { IsUserEmailUnique } from "../validation/isUserEmailAlreadyExist";
+import { IsUserEmailUnique } from "../validation/unique-user-email/isUserEmailAlreadyExist";
 
 export class RegisterDto {
 

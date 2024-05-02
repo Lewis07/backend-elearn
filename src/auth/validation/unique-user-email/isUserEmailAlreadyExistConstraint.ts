@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
 import { InjectConnection, SchemaFactory } from "@nestjs/mongoose";
-import { UserSchema } from "../../users/schemas/user.schema";
+import { UserSchema } from "../../../users/schemas/user.schema";
 import { Connection } from "mongoose";
 import { IsUniqueConstraintInput } from "./isUserEmailAlreadyExist";
 

@@ -9,13 +9,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { plainToClass } from 'class-transformer';
+import { UserReset } from '../users/schemas/user-reset.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    @InjectModel(User.name) private userModel: Model<User>
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(UserReset.name) private userResetModel: Model<UserReset>
   ) {}
 
   async singIn(signInDto: SignInDto): Promise<{ access_token: string }> {
@@ -44,5 +46,18 @@ export class AuthService {
     const user = await this.userModel.create(data);
 
     return plainToClass(User, user, { excludeExtraneousValues: true});
+  }
+
+  async resetPassword(email: string, token: string): Promise<UserReset> {
+    const now = new Date();
+    const tokenExpiredAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const data = {
+      usr_rest_email: email,
+      usr_rest_token: token,
+      usr_rest_expired_at: tokenExpiredAt
+    };
+
+    return await this.userResetModel.create(data);
   }
 }
