@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, InternalServerErrorException, NotFoundException, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, InternalServerErrorException, NotFoundException, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/singIn.dto';
 import { AuthGuard } from './auth.guard';
@@ -11,6 +11,7 @@ import { generateToken } from 'src/utils/generateToken.utils';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { UserReset } from 'src/users/schemas/user-reset.schema';
 import { User } from 'src/users/schemas/user.schema';
+import { Response } from 'express';
 
 @Controller('')
 export class AuthController {
@@ -62,7 +63,7 @@ export class AuthController {
     }
 
     @Post("forgot-password/:token")
-    async forgotPassword(@Param('token') token: string, @Body() forgotPasswordDto: ForgotPasswordDto) {
+    async forgotPassword(@Param('token') token: string, @Body() forgotPasswordDto: ForgotPasswordDto, @Res() res: Response) {
         const { email, password } = forgotPasswordDto;
         const isChecked = await this.usersService.checkEmailTokenForgetPassword(email, token);
 
@@ -76,6 +77,9 @@ export class AuthController {
             throw new NotFoundException("User is not found");
         }
 
-        return await this.usersService.changePassword(user._id, password);
+        await this.usersService.changePassword(user._id, password);
+        await this.usersService.deleteEmailTokenForgetPassword(email, token);
+
+        return res.status(200).json({ status: "success" });
     }
 }

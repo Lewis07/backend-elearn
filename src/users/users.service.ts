@@ -20,8 +20,12 @@ export class UsersService {
   }
 
   async changePassword(id: mongoose.Types.ObjectId, password: string) {
-    return await this.userModel.findByIdAndUpdate(id, {
+    return this.userModel.findByIdAndUpdate(id, {
       usr_password: await hashPassword(password)
     });
+  }
+
+  async deleteEmailTokenForgetPassword(email: string, token: string): Promise<UserReset> {
+    return this.userResetModel.findOneAndDelete({usr_rest_email: email, usr_rest_token: token});
   }
 }
