@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, InternalServerErrorException, NotFoundException, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, GoneException, HttpCode, InternalServerErrorException, NotFoundException, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/singIn.dto';
 import { AuthGuard } from './auth.guard';
@@ -10,8 +10,8 @@ import { subject_reset_password } from '../utils/email.utils';
 import { generateToken } from 'src/utils/generateToken.utils';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { UserReset } from 'src/users/schemas/user-reset.schema';
-import { User } from 'src/users/schemas/user.schema';
 import { Response } from 'express';
+import * as moment from 'moment';
 
 @Controller('')
 export class AuthController {
@@ -77,9 +77,13 @@ export class AuthController {
             throw new NotFoundException("User is not found");
         }
 
+        if (moment().format("YYYY-MM-DD h:mm") > moment(isChecked.usr_rest_expired_at).format("YYYY-MM-DD h:mm")) {
+            throw new GoneException("the reset token has expired");
+        }
+
         await this.usersService.changePassword(user._id, password);
         await this.usersService.deleteEmailTokenForgetPassword(email, token);
 
-        return res.status(200).json({ status: "success" });
+        return res.status(200).json({ status: "success" }); 
     }
 }
