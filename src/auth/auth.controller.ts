@@ -1,4 +1,4 @@
-import { Body, Controller, Get, GoneException, HttpCode, InternalServerErrorException, NotFoundException, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, GoneException, HttpCode, InternalServerErrorException, NotFoundException, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/singIn.dto';
 import { AuthGuard } from './auth.guard';
@@ -12,6 +12,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { UserReset } from 'src/users/schemas/user-reset.schema';
 import { Response } from 'express';
 import * as moment from 'moment';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('')
 export class AuthController {
@@ -85,5 +86,13 @@ export class AuthController {
         await this.usersService.deleteEmailTokenForgetPassword(email, token);
 
         return res.status(200).json({ status: "success" }); 
+    }
+
+    @UseGuards(AuthGuard)
+    @Patch("change-password")
+    async changePassword(@Req() req: any, @Res() res: Response, @Body() changePasswordDto: ChangePasswordDto) {
+        await this.usersService.changePassword(req.user.id, changePasswordDto.password);
+        
+        return res.status(200).json({ status: "success" });
     }
 }
