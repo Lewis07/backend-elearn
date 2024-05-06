@@ -87,12 +87,4 @@ export class AuthController {
 
         return res.status(200).json({ status: "success" }); 
     }
-
-    @UseGuards(AuthGuard)
-    @Patch("change-password")
-    async changePassword(@Req() req: any, @Res() res: Response, @Body() changePasswordDto: ChangePasswordDto) {
-        await this.usersService.changePassword(req.user.id, changePasswordDto.password);
-        
-        return res.status(200).json({ status: "success" });
-    }
 }
