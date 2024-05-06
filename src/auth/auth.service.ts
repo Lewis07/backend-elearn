@@ -10,7 +10,7 @@ import mongoose, { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { plainToClass } from 'class-transformer';
 import { UserReset } from '../users/schemas/user-reset.schema';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateProfileDto } from '../users/dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
