@@ -6,10 +6,11 @@ import { SignInDto } from './dto/singIn.dto';
 import { RegisterDto } from './dto/register.dto';
 import { hashPassword } from '../utils/hashPassword.utils';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { plainToClass } from 'class-transformer';
 import { UserReset } from '../users/schemas/user-reset.schema';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -59,5 +60,9 @@ export class AuthService {
     };
 
     return await this.userResetModel.create(data);
+  }
+
+  async updateProfile(id: mongoose.Types.ObjectId, updateProfileDto: UpdateProfileDto) {
+    return this.userModel.findByIdAndUpdate(id, updateProfileDto);
   }
 }

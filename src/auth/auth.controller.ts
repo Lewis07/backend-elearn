@@ -13,6 +13,7 @@ import { UserReset } from 'src/users/schemas/user-reset.schema';
 import { Response } from 'express';
 import * as moment from 'moment';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('')
 export class AuthController {
@@ -93,6 +94,14 @@ export class AuthController {
     async changePassword(@Req() req: any, @Res() res: Response, @Body() changePasswordDto: ChangePasswordDto) {
         await this.usersService.changePassword(req.user.id, changePasswordDto.password);
         
+        return res.status(200).json({ status: "success" });
+    }
+
+    @UseGuards(AuthGuard)
+    @Post("update-profile")
+    async updateProfile(@Req() req: any, @Res() res: Response, @Body() updateProfileDto: UpdateProfileDto) {
+        await this.authService.updateProfile(req.user.id, updateProfileDto);
+
         return res.status(200).json({ status: "success" });
     }
 }
