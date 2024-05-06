@@ -61,8 +61,4 @@ export class AuthService {
 
     return await this.userResetModel.create(data);
   }
-
-  async updateProfile(id: mongoose.Types.ObjectId, updateProfileDto: UpdateProfileDto) {
-    return this.userModel.findByIdAndUpdate(id, updateProfileDto);
-  }
 }

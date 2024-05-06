@@ -5,7 +5,6 @@ import { User, UserSchema } from './schemas/user.schema';
 import { UserReset, UserResetSchema } from './schemas/user-reset.schema';
 import { UsersController } from './users.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from '../auth/auth.service';
 
 @Module({
   imports: [
@@ -21,7 +20,7 @@ import { AuthService } from '../auth/auth.service';
       }),
     }),
   ],
-  providers: [UsersService, AuthService],
+  providers: [UsersService],
   exports: [UsersService],
   controllers: [UsersController]
 })
