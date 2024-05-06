@@ -14,12 +14,11 @@ async function bootstrap() {
         return new BadRequestException(
           validationErrors.map((error) => ({
             field: error.property,
-            error: (Object.values(error.constraints)).length > 1 
-                    ? Object.values(error.constraints)[0]
-                    : Object.values(error.constraints).join(', ') 
+            error: Object.values(error.constraints)
           }))
         );
-      }
+      },
+      stopAtFirstError: true
     })
   );
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
