@@ -33,10 +33,14 @@ export class SectionsService {
     }
 
     async update(id: string, section: SaveSectionDto) {
+        await this.findById(id);
+
         return this.sectionModel.findByIdAndUpdate(id, section, { new: true });
     }
 
     async delete(id: string) {
+        await this.findById(id);
+
         return this.sectionModel.findByIdAndDelete(id);
     }
 }

@@ -29,15 +29,12 @@ export class SectionsController {
     @UseGuards(AuthGuard)
     @Patch('update/:id')
     async update(@Param('id') id: string, @Body() saveSectionDto: SaveSectionDto) {
-        await this.sectionService.findById(id);
-
         return await this.sectionService.update(id, saveSectionDto);
     }
 
     @UseGuards(AuthGuard)
     @Delete('delete/:id')
     async delete(@Param('id') id: string, @Res() res: Response) {
-        await this.sectionService.findById(id);
         await this.sectionService.delete(id);
 
         return res.json({ sectionId: id });
