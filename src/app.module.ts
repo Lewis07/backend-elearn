@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { IsUserEmailAlreadyExistConstraint } from './auth/validation/unique-user-email/isUserEmailAlreadyExistConstraint';
 import { CoursesModule } from './courses/courses.module';
+import { SectionsModule } from './sections/sections.module';
 
 @Module({
   imports: [AuthModule, 
@@ -17,6 +18,7 @@ import { CoursesModule } from './courses/courses.module';
             }),
             MongooseModule.forRoot(process.env.MONGO_URI),
             CoursesModule,
+            SectionsModule,
           ],
   controllers: [AppController],
   providers: [AppService, IsUserEmailAlreadyExistConstraint],
