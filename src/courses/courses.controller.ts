@@ -12,21 +12,15 @@ export class CoursesController {
     @UseGuards(AuthGuard)
     @Get('list')
     async list(@Res() res: Response) {
-        const courses = await this.courseService.findAll();
-
-        return res.json({ courses });
+        const course = await this.courseService.findAll();
+       
+        return course;
     }
 
     @UseGuards(AuthGuard)
     @Get('show/:id')
     async show(@Param('id') id: string, @Res() res: Response) {
-        const course = await this.courseService.findById(id);
-
-        if (!course) {
-            throw new NotFoundException("Unable to get the course, it doesn't exist"); 
-        }
-
-        return res.json({ course });
+       return await this.courseService.findById(id);
     }
 
     @UseGuards(AuthGuard)

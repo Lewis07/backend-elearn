@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Expose } from "class-transformer";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose, { Document } from "mongoose";
 import { User } from "../../users/schemas/user.schema";
 import { LevelEnum } from "../../utils/enum/level-enum.utils";
 
 @Schema({
     timestamps: true
 })
-export class Course {
+export class Course extends Document {
     @Expose()
     _id: mongoose.Types.ObjectId;
 
