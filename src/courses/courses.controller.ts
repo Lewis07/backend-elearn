@@ -11,57 +11,33 @@ export class CoursesController {
 
     @UseGuards(AuthGuard)
     @Get('list')
-    async list(@Res() res: Response) {
-        const courses = await this.courseService.findAll();
-
-        return res.json({ courses });
+    async list() {
+        return await this.courseService.findAll();
     }
 
     @UseGuards(AuthGuard)
     @Get('show/:id')
-    async show(@Param('id') id: string, @Res() res: Response) {
-        const course = await this.courseService.findById(id);
-
-        if (!course) {
-            throw new NotFoundException("Unable to get the course, it doesn't exist"); 
-        }
-
-        return res.json({ course });
+    async show(@Param('id') id: string) {
+       return await this.courseService.findById(id);
     }
 
     @UseGuards(AuthGuard)
     @Post('add')
-    async add(@Req() req: any, @Body() createCourseDto: CreateCourseDto, @Res() res: Response) {
-       const course = await this.courseService.store(req.user.id, createCourseDto);
-
-       return res.json({ course });
+    async add(@Req() req: any, @Body() createCourseDto: CreateCourseDto) {
+       return await this.courseService.store(req.user.id, createCourseDto);
     }
 
     @UseGuards(AuthGuard)
     @Patch('update/:id')
-    async update(@Param('id') id: string, @Body() editCourseDto: EditCourseDto, @Res() res: Response) {
-        const course = await this.courseService.findById(id);
-
-        if (!course) {
-            throw new NotFoundException("Unable to get the course, it doesn't exist"); 
-        }
-
-        const courseUpdate = await this.courseService.update(id, editCourseDto);
-
-        return res.json({ course: courseUpdate });
+    async update(@Param('id') id: string, @Body() editCourseDto: EditCourseDto) {
+        return await this.courseService.update(id, editCourseDto);
     }
 
     @UseGuards(AuthGuard)
     @Delete('delete/:id')
     async delete(@Param('id') id: string, @Res() res: Response) {
-        const course = await this.courseService.findById(id);
-
-        if (!course) {
-            throw new NotFoundException("Unable to delete the course, it doesn't exist"); 
-        }
-
         await this.courseService.delete(id);
 
-        return res.json({ courseId: course._id });
+        return res.json({ courseId: id });
     }
 }

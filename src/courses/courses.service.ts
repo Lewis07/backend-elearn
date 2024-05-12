@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Course } from './schemas/course.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { EditCourseDto } from './dto/edit-course.dto';
 
 @Injectable()
@@ -14,7 +14,19 @@ export class CoursesService {
     }
     
     async findById(id: string) {
-        return this.courseModel.findById(id);
+        const isValidId = mongoose.isValidObjectId(id);
+
+        if (!isValidId) {
+            throw new BadRequestException("Wrong mongoose id, please enter valid id");
+        }
+
+        const course = await this.courseModel.findById(id);
+        
+        if (!course) {
+            throw new NotFoundException("Course not found"); 
+        }
+
+        return course;
     }
 
     async store (authorId: string, createCourseDto: CreateCourseDto) {
@@ -29,10 +41,14 @@ export class CoursesService {
     }
 
     async update(id: string, editCourseDto: EditCourseDto) {
+        await this.findById(id);
+
         return this.courseModel.findByIdAndUpdate(id, editCourseDto, { new: true });
     }
 
     async delete(id: string) {
+        await this.findById(id);
+
         return this.courseModel.findByIdAndDelete(id);
     }
 }
