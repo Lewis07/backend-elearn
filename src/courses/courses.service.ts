@@ -41,10 +41,14 @@ export class CoursesService {
     }
 
     async update(id: string, editCourseDto: EditCourseDto) {
+        await this.findById(id);
+
         return this.courseModel.findByIdAndUpdate(id, editCourseDto, { new: true });
     }
 
     async delete(id: string) {
+        await this.findById(id);
+
         return this.courseModel.findByIdAndDelete(id);
     }
 }
