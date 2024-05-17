@@ -4,6 +4,12 @@ import { Lesson } from './schemas/lesson.schema';
 import mongoose, { Model } from 'mongoose';
 import { SaveLessonDto } from './dto/save-lesson.dto';
 
+export type saveLesson = {
+    lssn_title: string;
+    lssn_video_link: string;
+    section_id: mongoose.ObjectId;
+}
+
 @Injectable()
 export class LessonsService {
     constructor(@InjectModel(Lesson.name) private lessonModel: Model<Lesson>) {}
@@ -28,11 +34,11 @@ export class LessonsService {
         return lesson;
     }
 
-    async store (lesson: SaveLessonDto) {
+    async store (lesson: saveLesson) {
         return this.lessonModel.create(lesson);
     }
 
-    async update(id: string, lesson: SaveLessonDto) {
+    async update(id: string, lesson: saveLesson) {
         await this.findById(id);
 
         return this.lessonModel.findByIdAndUpdate(id, lesson, { new: true });

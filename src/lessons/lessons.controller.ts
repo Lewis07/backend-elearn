@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpStatus, InternalServerErrorException, Param, ParseFilePipeBuilder, Patch, Post, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { LessonsService } from './lessons.service';
+import { LessonsService, saveLesson } from './lessons.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { SaveLessonDto } from './dto/save-lesson.dto';
 import { Response } from 'express';
@@ -29,14 +29,61 @@ export class LessonsController {
 
     @UseGuards(AuthGuard)
     @Post('add')
-    async add(@Body() saveLessonDto: SaveLessonDto) {
-      return await this.lessonsService.store(saveLessonDto);
+    @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+    async add(@Body() saveLessonDto: SaveLessonDto, 
+                @UploadedFile(
+                    new ParseFilePipeBuilder()
+                        .addValidator(new CustomUploadFileTypeValidatorOptions({
+                            fileType: VALID_IMAGE_MIME_TYPES
+                        }))
+                        .addMaxSizeValidator({ maxSize: MAX_SIZE_IN_BYTES_UPLOAD })
+                        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY })
+        ) file: Express.Multer.File
+    ) {
+        let data = {};
+
+        try {
+            let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
+
+            if (videoLink) {
+                data = {...saveLessonDto, lssn_video_link: videoLink.filename}
+            }
+        } catch (error) {
+            console.error(error);
+            throw new InternalServerErrorException();
+        }
+
+       return await this.lessonsService.store(data as saveLesson);
     }
 
     @UseGuards(AuthGuard)
     @Patch('update/:id')
-    async update(@Param('id') id: string, @Body() saveLessonDto: SaveLessonDto) {
-        return await this.lessonsService.update(id, saveLessonDto);
+    @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+    async update(@Param('id') id: string, 
+                @Body() saveLessonDto: SaveLessonDto,
+                @UploadedFile(
+                    new ParseFilePipeBuilder()
+                        .addValidator(new CustomUploadFileTypeValidatorOptions({
+                            fileType: VALID_IMAGE_MIME_TYPES
+                        }))
+                        .addMaxSizeValidator({ maxSize: MAX_SIZE_IN_BYTES_UPLOAD })
+                        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY })
+        ) file: Express.Multer.File
+    ) {
+        let data = {};
+
+        try {
+            let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
+
+            if (videoLink) {
+                data = {...saveLessonDto, lssn_video_link: videoLink.filename}
+            }
+        } catch (error) {
+            console.error(error);
+            throw new InternalServerErrorException();
+        }
+
+        return await this.lessonsService.update(id, data as saveLesson);
     }
 
     @UseGuards(AuthGuard)

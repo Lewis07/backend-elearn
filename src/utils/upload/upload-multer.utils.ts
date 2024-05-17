@@ -28,5 +28,5 @@ export function UploadMulter(file: Express.Multer.File, uploadPath: string) {
 
     fs.writeFileSync(fullPath, file.buffer);
 
-    return { path: fullPath, ...file };
+    return { path: fullPath, ...file, filename };
 }
