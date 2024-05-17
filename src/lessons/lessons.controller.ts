@@ -4,12 +4,12 @@ import { AuthGuard } from '../auth/auth.guard';
 import { SaveLessonDto } from './dto/save-lesson.dto';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { maxSizeInMegaByteInUpload } from '../utils/upload/max-size-upload.utils';
 import { CustomUploadFileTypeValidatorOptions } from '../utils/validation/CustomUploadFileTypeValidator';
 import { memoryStorage } from 'multer';
 import { UploadMulter } from '../utils/upload/upload-multer.utils';
 import { PATH_UPLOAD_LESSON } from '../utils/constant/path-upload.utils';
 import { VALID_IMAGE_MIME_TYPES } from '../utils/constant/mime-types';
+import { MAX_SIZE_IN_BYTES_UPLOAD } from '../utils/constant/max-size-upload';
 
 @Controller('lessons')
 export class LessonsController {
@@ -54,7 +54,7 @@ export class LessonsController {
             .addValidator(new CustomUploadFileTypeValidatorOptions({
                 fileType: VALID_IMAGE_MIME_TYPES
             }))
-            .addMaxSizeValidator({ maxSize: maxSizeInMegaByteInUpload(3) })
+            .addMaxSizeValidator({ maxSize: MAX_SIZE_IN_BYTES_UPLOAD })
             .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY })
     ) file: Express.Multer.File)
     {
