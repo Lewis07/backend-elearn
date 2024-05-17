@@ -1,0 +1,1 @@
+export const PATH_UPLOAD_LESSON = "src/uploads/lessons";
