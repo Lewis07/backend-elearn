@@ -59,7 +59,7 @@ export class LessonsController {
     ) file: Express.Multer.File)
     {
         try {
-            return UploadMulter(file, "src/uploads/lessons");
+            return UploadMulter(file, PATH_UPLOAD_LESSON);
         } catch (error) {
             console.error(error);
             throw new InternalServerErrorException();
