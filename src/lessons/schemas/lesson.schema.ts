@@ -9,8 +9,8 @@ export class Lesson {
     @Prop({ trim: true, required: true })
     lssn_title: string;
 
-    @Prop({ trim: true, required: true })
-    lssn_video_link: string;
+    @Prop({ trim: true })
+    lssn_video_link?: string;
 
     @Prop({ type: mongoose.Types.ObjectId, ref: 'Section', required: true })
     section_id: Section;

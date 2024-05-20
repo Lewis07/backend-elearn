@@ -1,52 +1,94 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Lesson } from './schemas/lesson.schema';
 import mongoose, { Model } from 'mongoose';
+import { PATH_UPLOAD_LESSON } from '../utils/constant/path-upload.utils';
+import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
+import { join } from 'path';
+import { existsSync } from 'fs';
+import { UploadMulter } from '../utils/upload/upload-multer.utils';
 import { SaveLessonDto } from './dto/save-lesson.dto';
 
 export type saveLesson = {
-    lssn_title: string;
-    lssn_video_link: string;
-    section_id: mongoose.ObjectId;
-}
+  lssn_title: string;
+  lssn_video_link?: string;
+  section_id: mongoose.ObjectId;
+};
 
 @Injectable()
 export class LessonsService {
-    constructor(@InjectModel(Lesson.name) private lessonModel: Model<Lesson>) {}
+  constructor(@InjectModel(Lesson.name) private lessonModel: Model<Lesson>) {}
 
-    async findAll() {
-        return this.lessonModel.find();
-    }
-    
-    async findById(id: string) {
-        const isvalidId = mongoose.isValidObjectId(id);
+  async findAll(): Promise<Lesson[]> {
+    return this.lessonModel.find();
+  }
 
-        if (!isvalidId) {
-            throw new BadRequestException("Wrong mongoose id, please enter a valid id");
-        }
+  async findById(id: string): Promise<Lesson> {
+    const isvalidId = mongoose.isValidObjectId(id);
 
-        const lesson = await this.lessonModel.findById(id);
-
-        if (!lesson) {
-            throw new NotFoundException("Lesson not found");
-        }
-
-        return lesson;
+    if (!isvalidId) {
+      throw new BadRequestException(
+        'Wrong mongoose id, please enter a valid id',
+      );
     }
 
-    async store (lesson: saveLesson) {
-        return this.lessonModel.create(lesson);
+    const lesson = await this.lessonModel.findById(id);
+
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found');
     }
 
-    async update(id: string, lesson: saveLesson) {
-        await this.findById(id);
+    return lesson;
+  }
 
-        return this.lessonModel.findByIdAndUpdate(id, lesson, { new: true });
+  async store(data: saveLesson) {
+    return this.lessonModel.create(data);
+  }
+
+  async update(id: string, data: any) {
+    return this.lessonModel.findByIdAndUpdate(id, data, { new: true });
+  }
+
+  async delete(id: string) {
+    const lesson = await this.findById(id);
+
+    if (existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
+      removeFileIfExist(PATH_UPLOAD_LESSON, lesson.lssn_video_link);
     }
 
-    async delete(id: string) {
-        await this.findById(id);
+    return this.lessonModel.findByIdAndDelete(id);
+  }
 
-        return this.lessonModel.findByIdAndDelete(id);
+  async dataUpdate(id: string, file: Express.Multer.File, saveLessonDto: SaveLessonDto) {
+    const response = await this.findById(id);
+
+    let data = {};
+
+    if (file != undefined) {
+      if (existsSync(join(PATH_UPLOAD_LESSON, response.lssn_video_link))) {
+        removeFileIfExist(PATH_UPLOAD_LESSON, response.lssn_video_link);
+      }
+
+      let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
+
+      if (videoLink) {
+        data = {
+          ...data,
+          ...saveLessonDto,
+          lssn_video_link: videoLink.filename,
+        };
+      }
+    } else {
+      data = {
+        ...data,
+        ...saveLessonDto,
+      };
     }
+
+    return data;
+  }
 }
