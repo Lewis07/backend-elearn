@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   HttpStatus,
-  InternalServerErrorException,
   Param,
   ParseFilePipeBuilder,
   Patch,
@@ -20,8 +19,6 @@ import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CustomUploadFileTypeValidatorOptions } from '../utils/validation/CustomUploadFileTypeValidator';
 import { memoryStorage } from 'multer';
-import { UploadMulter } from '../utils/upload/upload-multer.utils';
-import { PATH_UPLOAD_LESSON } from '../utils/constant/path-upload.utils';
 import { MAX_SIZE_IN_BYTES_UPLOAD_VIDEO } from '../utils/constant/max-size-upload';
 import { VALID_VIDEO_MIME_TYPES } from '../utils/constant/mime-types';
 import { SaveLessonDto } from './dto/save-lesson.dto';
@@ -62,24 +59,7 @@ export class LessonsController {
     )
     file: Express.Multer.File,
   ) {
-    let data = {};
-
-    try {
-      let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
-
-      if (videoLink) {
-        data = {
-          ...data,
-          ...saveLessonDto,
-          lssn_video_link: videoLink.filename,
-        };
-      }
-    } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException();
-    }
-
-    return await this.lessonsService.store(data as saveLesson);
+    return await this.lessonsService.store(saveLessonDto, file);
   }
 
   @UseGuards(AuthGuard)
@@ -103,9 +83,7 @@ export class LessonsController {
     )
     file: Express.Multer.File,
   ) {
-    const data = await this.lessonsService.dataUpdate(id, file, saveLessonDto);
-
-    return await this.lessonsService.update(id, data);
+    return await this.lessonsService.update(id, saveLessonDto, file);
   }
 
   @UseGuards(AuthGuard)

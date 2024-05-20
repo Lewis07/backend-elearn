@@ -16,7 +16,7 @@ import { SaveLessonDto } from './dto/save-lesson.dto';
 export type saveLesson = {
   lssn_title: string;
   lssn_video_link?: string;
-  section_id: mongoose.ObjectId;
+  section_id: string;
 };
 
 @Injectable()
@@ -45,32 +45,34 @@ export class LessonsService {
     return lesson;
   }
 
-  async store(data: saveLesson) {
+  async store(saveLessonDto: SaveLessonDto, file: Express.Multer.File) {
+    let data = {};
+
+    let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
+
+    if (videoLink) {
+      data = {
+        ...data,
+        ...saveLessonDto,
+        lssn_video_link: videoLink.filename,
+      };
+    }
+
     return this.lessonModel.create(data);
   }
 
-  async update(id: string, data: any) {
-    return this.lessonModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id: string) {
+  async update(
+    id: string,
+    saveLessonDto: SaveLessonDto,
+    file: Express.Multer.File,
+  ) {
     const lesson = await this.findById(id);
-
-    if (existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
-      removeFileIfExist(PATH_UPLOAD_LESSON, lesson.lssn_video_link);
-    }
-
-    return this.lessonModel.findByIdAndDelete(id);
-  }
-
-  async dataUpdate(id: string, file: Express.Multer.File, saveLessonDto: SaveLessonDto) {
-    const response = await this.findById(id);
 
     let data = {};
 
     if (file != undefined) {
-      if (existsSync(join(PATH_UPLOAD_LESSON, response.lssn_video_link))) {
-        removeFileIfExist(PATH_UPLOAD_LESSON, response.lssn_video_link);
+      if (existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
+        removeFileIfExist(PATH_UPLOAD_LESSON, lesson.lssn_video_link);
       }
 
       let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
@@ -89,6 +91,16 @@ export class LessonsService {
       };
     }
 
-    return data;
+    return this.lessonModel.findByIdAndUpdate(id, data as saveLesson, { new: true });
+  }
+
+  async delete(id: string) {
+    const lesson = await this.findById(id);
+
+    if (existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
+      removeFileIfExist(PATH_UPLOAD_LESSON, lesson.lssn_video_link);
+    }
+
+    return this.lessonModel.findByIdAndDelete(id);
   }
 }
