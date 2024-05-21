@@ -9,6 +9,7 @@ import { IsUserEmailAlreadyExistConstraint } from './auth/validation/unique-user
 import { CoursesModule } from './courses/courses.module';
 import { SectionsModule } from './sections/sections.module';
 import { LessonsModule } from './lessons/lessons.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [AuthModule, 
@@ -21,6 +22,7 @@ import { LessonsModule } from './lessons/lessons.module';
             CoursesModule,
             SectionsModule,
             LessonsModule,
+            CommentsModule,
           ],
   controllers: [AppController],
   providers: [AppService, IsUserEmailAlreadyExistConstraint],
