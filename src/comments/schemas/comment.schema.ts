@@ -13,8 +13,8 @@ export class Comment {
     @Prop({ trim: true, required: true })
     comm_content: string;
 
-    @Prop({ type: mongoose.Schema.ObjectId, ref: "User" })
-    auhor_id: User;
+    @Prop({ type: mongoose.Schema.ObjectId, ref: "User", required: true })
+    author_id: User;
 
     @Prop({ type: mongoose.Schema.ObjectId, ref: "Course", required: true })
     course_id: Course;

@@ -9,7 +9,7 @@ export class AddCommentDto {
     @IsNotEmpty({ message: "Content is required" })
     comm_content: string;
 
-    auhor_id: User;
+    author_id: User;
 
     @IsNotEmpty({ message: "Course is required" })
     course_id: Course;
