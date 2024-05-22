@@ -30,16 +30,16 @@ export class CoursesService {
       });
 
       if (totalCommentByCourse !== 0) {
-        let totalRatingCourse = comments.reduce((accumulator, currentItem) => accumulator + Number(currentItem.comm_rating), 0);
-        averageRating = Number(totalRatingCourse) / Number(comments.length);
+        let totalRatingByCourse = comments.reduce((accumulator: number, comment: Comment) => accumulator + Number(comment.comm_rating), 0);
+        averageRating = Number(totalRatingByCourse) / Number(totalCommentByCourse);
         averageRating = Number(averageRating.toFixed(2));
       } 
 
-      courseWithAverageRating.push({
+      courseWithAverageRating = [...courseWithAverageRating, {
         course,
         averageRating,
         totalCommentByCourse
-      });
+      }]
     }
 
     return courseWithAverageRating;
