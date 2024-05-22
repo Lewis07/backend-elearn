@@ -40,11 +40,4 @@ export class CommentsController {
 
         return res.json({ commentId: id });
     }
-
-    @Get("average/:id")
-    async average(@Param('id') id: string, @Res() res: Response) {
-        const ratingCourse = await this.commentsService.getAverageRating(id);
-
-        return res.json({ ratingCourse });
-    }
 }

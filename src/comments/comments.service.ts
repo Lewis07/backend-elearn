@@ -11,8 +11,10 @@ export class CommentsService {
     constructor(@InjectModel(Comment.name) private commentModel: Model<Comment>, 
                 private courseService: CoursesService) {}
 
-    async findAll(): Promise<Comment[]> {
-        return this.commentModel.find();
+    async findAll(){
+        const comments = await this.commentModel.find();
+
+        return comments;
     }
 
     async findById(id: string): Promise<Comment> {
@@ -52,20 +54,5 @@ export class CommentsService {
         await this.findById(id);
 
         return this.commentModel.findByIdAndDelete(id);
-    }
-
-    async getAverageRating(id: string): Promise<number> {
-        await this.courseService.findById(id);
-
-        const comments = await this.commentModel.find({ course_id: id }).select('comm_rating');
-
-        let averageRating = 0;
-        let totalCommentByCourse = await this.commentModel.countDocuments({ course_id: id });
-
-        if (totalCommentByCourse !== 0) {
-            averageRating = comments.reduce((accumulator, currentItem) => accumulator + Number(currentItem.comm_rating), 0) / totalCommentByCourse;
-        }
-
-        return averageRating;
     }
 }
