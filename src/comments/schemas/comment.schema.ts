@@ -24,6 +24,12 @@ export class Comment {
 
     @Prop({ type: [mongoose.Schema.ObjectId], ref: "User" })
     comm_liked_by: User[];
+
+    @Prop({ default: 0 })
+    comm_count_dislike: number;
+
+    @Prop({ type: [mongoose.Schema.ObjectId], ref: "User" })
+    comm_disliked_by: User[];
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
