@@ -41,7 +41,9 @@ export class CommentsService {
             ...addCommentDto,
             author_id: authorId,
             comm_count_like: 0,
-            comm_liked_by: []
+            comm_liked_by: [],
+            comm_count_dislike: 0,
+            comm_disliked_by: []
         };
 
         return this.commentModel.create(data);
@@ -87,6 +89,40 @@ export class CommentsService {
                 { 
                     comm_count_like: countLike,
                     $push: { comm_liked_by: likeByUserId }
+                }, 
+                { new: true }
+            );
+        }
+    }
+
+    async dislike(id: string, dislikeByUserId: string): Promise<Comment> {
+        const dislikeByUser = await this.userModel.findById(dislikeByUserId); 
+
+        if (!dislikeByUser) {
+            throw new NotFoundException("User not found"); 
+        }
+
+        let countDislike = 0;
+        const hasAlreadyLiked = await this.commentModel.findOne({ comm_disliked_by: dislikeByUserId });
+        const comment = await this.findById(id);
+
+        if (hasAlreadyLiked && hasAlreadyLiked.comm_count_dislike > 0) {
+            countDislike = Number(comment.comm_count_dislike) - 1;
+
+            return this.commentModel.findByIdAndUpdate(id, 
+                { 
+                    comm_count_dislike: countDislike,
+                    $pull: { comm_disliked_by: dislikeByUserId }
+                }, 
+                { new: true }
+            );
+        } else {
+            countDislike = Number(comment.comm_count_dislike) + 1;
+
+            return this.commentModel.findByIdAndUpdate(id, 
+                { 
+                    comm_count_dislike: countDislike,
+                    $push: { comm_disliked_by: dislikeByUserId }
                 }, 
                 { new: true }
             );

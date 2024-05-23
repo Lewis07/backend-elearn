@@ -46,4 +46,10 @@ export class CommentsController {
     async like(@Param('id') id: string, @Req() req: any) {
         return await this.commentsService.like(id, req.user.id);
     }
+
+    @UseGuards(AuthGuard)
+    @Patch('/dislike/:id')
+    async dislike(@Param('id') id: string, @Req() req: any) {
+        return await this.commentsService.dislike(id, req.user.id);
+    }
 }
