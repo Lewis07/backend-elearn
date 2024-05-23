@@ -40,4 +40,10 @@ export class CommentsController {
 
         return res.json({ commentId: id });
     }
+
+    @UseGuards(AuthGuard)
+    @Patch('/like/:id')
+    async like(@Param('id') id: string, @Req() req: any) {
+        return await this.commentsService.like(id, req.user.id);
+    }
 }
