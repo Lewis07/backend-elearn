@@ -10,6 +10,7 @@ import { CoursesModule } from './courses/courses.module';
 import { SectionsModule } from './sections/sections.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { CommentsModule } from './comments/comments.module';
+import { PurchasesModule } from './purchases/purchases.module';
 
 @Module({
   imports: [AuthModule, 
@@ -23,6 +24,7 @@ import { CommentsModule } from './comments/comments.module';
             SectionsModule,
             LessonsModule,
             CommentsModule,
+            PurchasesModule,
           ],
   controllers: [AppController],
   providers: [AppService, IsUserEmailAlreadyExistConstraint],
