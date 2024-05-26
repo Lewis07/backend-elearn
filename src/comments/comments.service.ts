@@ -6,6 +6,8 @@ import { AddCommentDto } from './dto/add-comment.dto';
 import { EditCommentDto } from './dto/edit-comment.dto';
 import { User } from '../users/schemas/user.schema';
 
+type ReactionComment = 'like' | 'dislike';
+
 @Injectable()
 export class CommentsService {
     constructor(@InjectModel(Comment.name) private commentModel: Model<Comment>, 
@@ -62,70 +64,47 @@ export class CommentsService {
     }
 
     async like(id: string, likeByUserId: string): Promise<Comment> {
-        const likeByUser = await this.userModel.findById(likeByUserId); 
-
-        if (!likeByUser) {
-            throw new NotFoundException("User not found"); 
-        }
-
-        let countLike = 0;
-        const hasAlreadyLiked = await this.commentModel.findOne({ comm_liked_by: likeByUserId });
-        const comment = await this.findById(id);
-
-        if (hasAlreadyLiked && hasAlreadyLiked.comm_count_like > 0) {
-            countLike = Number(comment.comm_count_like) - 1;
-
-            return this.commentModel.findByIdAndUpdate(id, 
-                { 
-                    comm_count_like: countLike,
-                    $pull: { comm_liked_by: likeByUserId }
-                }, 
-                { new: true }
-            );
-        } else {
-            countLike = Number(comment.comm_count_like) + 1;
-
-            return this.commentModel.findByIdAndUpdate(id, 
-                { 
-                    comm_count_like: countLike,
-                    $push: { comm_liked_by: likeByUserId }
-                }, 
-                { new: true }
-            );
-        }
+        return this.handleLikeDislike(id, likeByUserId, "like");
     }
 
     async dislike(id: string, dislikeByUserId: string): Promise<Comment> {
-        const dislikeByUser = await this.userModel.findById(dislikeByUserId); 
-
-        if (!dislikeByUser) {
-            throw new NotFoundException("User not found"); 
-        }
-
-        let countDislike = 0;
-        const hasAlreadyLiked = await this.commentModel.findOne({ comm_disliked_by: dislikeByUserId });
-        const comment = await this.findById(id);
-
-        if (hasAlreadyLiked && hasAlreadyLiked.comm_count_dislike > 0) {
-            countDislike = Number(comment.comm_count_dislike) - 1;
-
-            return this.commentModel.findByIdAndUpdate(id, 
-                { 
-                    comm_count_dislike: countDislike,
-                    $pull: { comm_disliked_by: dislikeByUserId }
-                }, 
-                { new: true }
-            );
-        } else {
-            countDislike = Number(comment.comm_count_dislike) + 1;
-
-            return this.commentModel.findByIdAndUpdate(id, 
-                { 
-                    comm_count_dislike: countDislike,
-                    $push: { comm_disliked_by: dislikeByUserId }
-                }, 
-                { new: true }
-            );
-        }
+        return this.handleLikeDislike(id, dislikeByUserId, "dislike");
     }
+
+    async handleLikeDislike(id: string, userId: string, reaction: ReactionComment) {
+        const user = await this.userModel.findById(userId);
+        if (!user) throw new NotFoundException("User not found");
+    
+        const comment = await this.findById(id);
+        if (!comment) throw new NotFoundException("Comment not found");
+    
+        const reactionFields = {
+            like: { count: 'comm_count_like', users: 'comm_liked_by' },
+            dislike: { count: 'comm_count_dislike', users: 'comm_disliked_by' }
+        };
+    
+        const currentField = reactionFields[reaction];
+        const oppositeField = reactionFields[reaction === 'like' ? 'dislike' : 'like'];
+    
+        const hasReacted = comment[currentField.users].includes(userId);
+        const hasOppositeReacted = comment[oppositeField.users].includes(userId);
+    
+        const update: any = {
+            [currentField.count]: hasReacted ? comment[currentField.count] - 1 : comment[currentField.count] + 1
+        };
+    
+        if (hasReacted) {
+            update.$pull = { [currentField.users]: userId };
+        } else {
+            update.$push = { [currentField.users]: userId };
+        }
+    
+        if (hasOppositeReacted) {
+            update[oppositeField.count] = comment[oppositeField.count] - 1;
+            update.$pull = { ...update.$pull, [oppositeField.users]: userId };
+        }
+    
+        return await this.commentModel.findByIdAndUpdate(id, update, { new: true });
+    }
+    
 }
