@@ -84,10 +84,7 @@ export class CommentsService {
         };
     
         const currentField = reactionFields[reaction];
-        const oppositeField = reactionFields[reaction === 'like' ? 'dislike' : 'like'];
-    
         const hasReacted = comment[currentField.users].includes(userId);
-        const hasOppositeReacted = comment[oppositeField.users].includes(userId);
     
         const update: any = {
             [currentField.count]: hasReacted ? comment[currentField.count] - 1 : comment[currentField.count] + 1
@@ -98,6 +95,9 @@ export class CommentsService {
         } else {
             update.$push = { [currentField.users]: userId };
         }
+
+        const oppositeField = reactionFields[reaction === 'like' ? 'dislike' : 'like'];
+        const hasOppositeReacted = comment[oppositeField.users].includes(userId);
     
         if (hasOppositeReacted) {
             update[oppositeField.count] = comment[oppositeField.count] - 1;
