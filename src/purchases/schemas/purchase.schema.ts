@@ -7,6 +7,8 @@ import mongoose from "mongoose";
     timestamps: true
 })
 export class Purchase {
+    _id: mongoose.Types.ObjectId;
+
     @Prop({ trim: true, required: true })
     purch_reference: string;
 

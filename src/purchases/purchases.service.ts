@@ -12,21 +12,55 @@ import { Course } from '../courses/schemas/course.schema';
 import { PurchaseItem } from './schemas/purchase-item.schema';
 
 interface dataPurchaseItem {
-    crs_price_at_purchase: number,
-    purchase_id: string,
-    course_id: string
+  crs_price_at_purchase: number,
+  purchase_id: string,
+  course_id: string
 }
 
 @Injectable()
 export class PurchasesService {
   constructor(
     @InjectModel(Purchase.name) private purchaseModel: Model<Purchase>,
-    @InjectModel(PurchaseItem.name) private purchaseItemModel: Model<Purchase>,
+    @InjectModel(PurchaseItem.name) private purchaseItemModel: Model<PurchaseItem>,
     @InjectModel(Course.name) private courseModel: Model<Course>,
   ) {}
 
-  async findAll(): Promise<Purchase[]> {
-    return this.purchaseModel.find();
+  async findAll() {
+    let purchases = await this.purchaseModel.find();
+    let data = await Promise.all(purchases.map(async (purchase) => {
+      const purchaseId = purchase._id;
+      let purchaseItemsData = [];
+      const purchaseItems = await this.purchaseItemModel.find({ purchase_id: purchaseId });
+
+      if (purchaseItems.length > 0) {
+        for (const purchaseItem of purchaseItems) {
+          purchaseItemsData.push({
+            _id: purchaseItem._id,
+            crs_price_at_purchase: purchaseItem.crs_price_at_purchase,
+            purchase_id: purchaseItem.purchase_id,
+            course_id: purchaseItem.course_id
+          });
+        }
+      }
+
+      return {
+            purch_reference: purchase.purch_reference,
+            purch_firstname: purchase.purch_firstname,
+            purch_lastname: purchase.purch_lastname,
+            purch_zipcode: purchase.purch_zipcode,
+            purch_country: purchase.purch_country,
+            purch_address: purchase.purch_address,
+            purch_card_number: purchase.purch_card_number,
+            purch_date_at: purchase.purch_date_at,
+            user_id: purchase.user_id,
+            payment_method_id: purchase.payment_method_id,
+            _id: purchaseId,
+            purchase_items: purchaseItemsData
+        }
+      })
+    );
+
+    return data;
   }
 
   async findById(id: string): Promise<Purchase> {
@@ -116,28 +150,28 @@ export class PurchasesService {
     return course;
   }
 
-    async purchaseItem(purchaseId: string, savePurchaseDto: SavePurchaseDto) {
-        const coursesPurchaseItems = savePurchaseDto.purchaseItems;
-        let data: dataPurchaseItem[] = [];
-        
-        if (coursesPurchaseItems.length > 0) {
+  async purchaseItem(purchaseId: string, savePurchaseDto: SavePurchaseDto) {
+    const coursesPurchaseItems = savePurchaseDto.purchaseItems;
+    let data: dataPurchaseItem[] = [];
+    
+    if (coursesPurchaseItems.length > 0) {
 
-            await Promise.all(coursesPurchaseItems.map(async (course) => {
-                const courseId = course.course_id;
+        await Promise.all(coursesPurchaseItems.map(async (course) => {
+            const courseId = course.course_id;
 
-                if (courseId) {
-                    const foundCourse = await this.findCourseById(courseId);
-                    const price = foundCourse.crs_new_price > 0 ? foundCourse.crs_new_price : foundCourse.crs_price;
+            if (courseId) {
+                const foundCourse = await this.findCourseById(courseId);
+                const price = foundCourse.crs_new_price > 0 ? foundCourse.crs_new_price : foundCourse.crs_price;
 
-                    data.push({
-                        crs_price_at_purchase: price,
-                        purchase_id: purchaseId,
-                        course_id: courseId
-                    });
-                }
-            }));
-        }
-
-        return await this.purchaseItemModel.insertMany(data);
+                data.push({
+                    crs_price_at_purchase: price,
+                    purchase_id: purchaseId,
+                    course_id: courseId
+                });
+            }
+        }));
     }
+
+    return await this.purchaseItemModel.insertMany(data);
+  }
 }
