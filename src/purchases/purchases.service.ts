@@ -60,7 +60,32 @@ export class PurchasesService {
       user_id: userId,
     };
 
-    return await this.purchaseModel.create(data);
+    const purchase = await this.purchaseModel.create(data);
+    const purchaseId = String(purchase._id);
+
+    const purchaseItemsData = await this.purchaseItem(purchaseId, addPurchase);
+
+    const purchaseWithDetail = {
+        purch_reference: purchase.purch_reference,
+        purch_firstname: purchase.purch_firstname,
+        purch_lastname: purchase.purch_lastname,
+        purch_zipcode: purchase.purch_zipcode,
+        purch_country: purchase.purch_country,
+        purch_address: purchase.purch_address,
+        purch_card_number: purchase.purch_card_number,
+        purch_date_at: purchase.purch_date_at,
+        user_id: purchase.user_id,
+        payment_method_id: purchase.payment_method_id,
+        _id: purchase._id,
+        purchaseItems: purchaseItemsData.map(item => ({
+          crs_price_at_purchase: item.crs_price_at_purchase,
+          purchase_id: item.purchase_id,
+          course_id: item.course_id,
+          _id: item._id
+        }))
+    };
+
+    return purchaseWithDetail;
   }
 
   async update(id: string, purchase: SavePurchaseDto) {
