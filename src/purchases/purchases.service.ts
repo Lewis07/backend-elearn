@@ -44,18 +44,18 @@ export class PurchasesService {
       }
 
       return {
-            purch_reference: purchase.purch_reference,
-            purch_firstname: purchase.purch_firstname,
-            purch_lastname: purchase.purch_lastname,
-            purch_zipcode: purchase.purch_zipcode,
-            purch_country: purchase.purch_country,
-            purch_address: purchase.purch_address,
-            purch_card_number: purchase.purch_card_number,
-            purch_date_at: purchase.purch_date_at,
-            user_id: purchase.user_id,
-            payment_method_id: purchase.payment_method_id,
-            _id: purchaseId,
-            purchase_items: purchaseItemsData
+          purch_reference: purchase.purch_reference,
+          purch_firstname: purchase.purch_firstname,
+          purch_lastname: purchase.purch_lastname,
+          purch_zipcode: purchase.purch_zipcode,
+          purch_country: purchase.purch_country,
+          purch_address: purchase.purch_address,
+          purch_card_number: purchase.purch_card_number,
+          purch_date_at: purchase.purch_date_at,
+          user_id: purchase.user_id,
+          payment_method_id: purchase.payment_method_id,
+          _id: purchaseId,
+          purchase_items: purchaseItemsData
         }
       })
     );
@@ -100,23 +100,23 @@ export class PurchasesService {
     const purchaseItemsData = await this.purchaseItem(purchaseId, addPurchase);
 
     const purchaseWithDetail = {
-        purch_reference: purchase.purch_reference,
-        purch_firstname: purchase.purch_firstname,
-        purch_lastname: purchase.purch_lastname,
-        purch_zipcode: purchase.purch_zipcode,
-        purch_country: purchase.purch_country,
-        purch_address: purchase.purch_address,
-        purch_card_number: purchase.purch_card_number,
-        purch_date_at: purchase.purch_date_at,
-        user_id: purchase.user_id,
-        payment_method_id: purchase.payment_method_id,
-        _id: purchase._id,
-        purchaseItems: purchaseItemsData.map(item => ({
-          crs_price_at_purchase: item.crs_price_at_purchase,
-          purchase_id: item.purchase_id,
-          course_id: item.course_id,
-          _id: item._id
-        }))
+      purch_reference: purchase.purch_reference,
+      purch_firstname: purchase.purch_firstname,
+      purch_lastname: purchase.purch_lastname,
+      purch_zipcode: purchase.purch_zipcode,
+      purch_country: purchase.purch_country,
+      purch_address: purchase.purch_address,
+      purch_card_number: purchase.purch_card_number,
+      purch_date_at: purchase.purch_date_at,
+      user_id: purchase.user_id,
+      payment_method_id: purchase.payment_method_id,
+      _id: purchase._id,
+      purchaseItems: purchaseItemsData.map(item => ({
+        crs_price_at_purchase: item.crs_price_at_purchase,
+        purchase_id: item.purchase_id,
+        course_id: item.course_id,
+        _id: item._id
+      }))
     };
 
     return purchaseWithDetail;
@@ -129,7 +129,15 @@ export class PurchasesService {
   }
 
   async delete(id: string) {
-    await this.findById(id);
+    const purchase = await this.findById(id);
+    const purchaseId = purchase._id;
+    const purchaseItems = await this.purchaseItemModel.find({
+      purchase_id: purchaseId,
+    });
+
+    if (purchaseItems.length > 0) {
+      await this.purchaseItemModel.deleteMany({ purchase_id: purchaseId });
+    }
 
     return this.purchaseModel.findByIdAndDelete(id);
   }
@@ -155,21 +163,20 @@ export class PurchasesService {
     let data: dataPurchaseItem[] = [];
     
     if (coursesPurchaseItems.length > 0) {
+      await Promise.all(coursesPurchaseItems.map(async (course) => {
+        const courseId = course.course_id;
 
-        await Promise.all(coursesPurchaseItems.map(async (course) => {
-            const courseId = course.course_id;
+        if (courseId) {
+          const course = await this.findCourseById(courseId);
+          const price = course.crs_new_price > 0 ? course.crs_new_price : course.crs_price;
 
-            if (courseId) {
-                const foundCourse = await this.findCourseById(courseId);
-                const price = foundCourse.crs_new_price > 0 ? foundCourse.crs_new_price : foundCourse.crs_price;
-
-                data.push({
-                    crs_price_at_purchase: price,
-                    purchase_id: purchaseId,
-                    course_id: courseId
-                });
-            }
-        }));
+          data.push({
+            crs_price_at_purchase: price,
+            purchase_id: purchaseId,
+            course_id: courseId
+          });
+        }
+      }));
     }
 
     return await this.purchaseItemModel.insertMany(data);
