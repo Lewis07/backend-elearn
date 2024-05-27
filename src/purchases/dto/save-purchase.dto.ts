@@ -1,6 +1,10 @@
 import { IsEnum, IsNotEmpty, IsOptional, ValidationArguments } from "class-validator";
 import { PaymentMethodEnum } from "../../utils/enum/payment-method-enum.utils";
 
+interface PurchaseItem {
+    course_id: string;
+}
+
 export class SavePurchaseDto {
     @IsOptional()
     @IsNotEmpty({ message: "Firstname is required" })
@@ -37,4 +41,7 @@ export class SavePurchaseDto {
         },    
     })
     payment_method_id: PaymentMethodEnum;
+
+    @IsOptional()
+    purchaseItems: PurchaseItem[];
 }

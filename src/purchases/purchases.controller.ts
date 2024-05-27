@@ -22,8 +22,15 @@ export class PurchasesController {
 
     @UseGuards(AuthGuard)
     @Post('add')
-    async add(@Req() req: any, @Body() savePurchaseDto: SavePurchaseDto) {
-       return await this.purchaseService.store(req.user.id, savePurchaseDto);
+    async add(@Req() req: any, @Body() savePurchaseDto: SavePurchaseDto, @Res() res: Response) {
+       const purchase = await this.purchaseService.store(req.user.id, savePurchaseDto);
+       const purchaseId = String(purchase._id);
+
+       const purchaseItem = await this.purchaseService.purchaseItem(purchaseId, savePurchaseDto);
+
+       console.log(purchase, purchaseItem);
+
+       return res.json({ success: true });
     }
 
     @UseGuards(AuthGuard)

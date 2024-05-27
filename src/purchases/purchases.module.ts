@@ -4,6 +4,8 @@ import { PurchasesController } from './purchases.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Purchase, PurchaseSchema } from './schemas/purchase.schema';
+import { Course, CourseSchema } from '../courses/schemas/course.schema';
+import { PurchaseItem, PurchaseItemSchema } from './schemas/purchase-item.schema';
 
 @Module({
   imports: [
@@ -15,7 +17,9 @@ import { Purchase, PurchaseSchema } from './schemas/purchase.schema';
       }),
     }),
     MongooseModule.forFeature([
-      { name: Purchase.name, schema: PurchaseSchema }
+      { name: Purchase.name, schema: PurchaseSchema },
+      { name: PurchaseItem.name, schema: PurchaseItemSchema },
+      { name: Course.name, schema: CourseSchema }
     ])
   ],
   providers: [PurchasesService],

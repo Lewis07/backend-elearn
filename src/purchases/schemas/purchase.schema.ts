@@ -2,6 +2,7 @@ import { PaymentMethodEnum } from "../../utils/enum/payment-method-enum.utils";
 import { Course } from "../../courses/schemas/course.schema";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
+// import { PurchaseItem } from "./purchase-item.schema";
 
 @Schema({
     timestamps: true
@@ -36,6 +37,9 @@ export class Purchase {
 
     @Prop({ type: String, enum: PaymentMethodEnum })
     payment_method_id: PaymentMethodEnum;
+
+    // @Prop({ type: [PurchaseItem], default: []})
+    // purchaseItems: PurchaseItem[];
 }
 
 export const PurchaseSchema = SchemaFactory.createForClass(Purchase);
