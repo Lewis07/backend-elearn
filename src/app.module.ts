@@ -11,6 +11,7 @@ import { LessonsModule } from './lessons/lessons.module';
 import { CommentsModule } from './comments/comments.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { IsUniqueConstraint } from './utils/validation/unique-field/isUniqueConstraint';
+import { TeachersModule } from './teachers/teachers.module';
 
 @Module({
   imports: [AuthModule, 
@@ -25,6 +26,7 @@ import { IsUniqueConstraint } from './utils/validation/unique-field/isUniqueCons
             LessonsModule,
             CommentsModule,
             PurchasesModule,
+            TeachersModule,
           ],
   controllers: [AppController],
   providers: [AppService, IsUniqueConstraint],
