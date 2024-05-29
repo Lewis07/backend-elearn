@@ -6,11 +6,10 @@ import { SignInDto } from './dto/singIn.dto';
 import { RegisterDto } from './dto/register.dto';
 import { hashPassword } from '../utils/hashPassword.utils';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { plainToClass } from 'class-transformer';
 import { UserReset } from '../users/schemas/user-reset.schema';
-import { UpdateProfileDto } from '../users/dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Exclude, Expose } from "class-transformer";
+import { UserTypeEnum } from "../../utils/enum/user-type-enum.utils";
 
 @Schema({
     timestamps: true,
@@ -38,6 +39,10 @@ export class User {
   
     @Expose()
     updatedAt: Date;
+
+    @Prop({ default: UserTypeEnum.STUDENT })
+    @Expose()
+    usr_type: UserTypeEnum;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

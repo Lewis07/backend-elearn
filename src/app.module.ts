@@ -5,12 +5,12 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { IsUserEmailAlreadyExistConstraint } from './auth/validation/unique-user-email/isUserEmailAlreadyExistConstraint';
 import { CoursesModule } from './courses/courses.module';
 import { SectionsModule } from './sections/sections.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { CommentsModule } from './comments/comments.module';
 import { PurchasesModule } from './purchases/purchases.module';
+import { IsUniqueConstraint } from './utils/validation/unique-field/isUniqueConstraint';
 
 @Module({
   imports: [AuthModule, 
@@ -27,6 +27,6 @@ import { PurchasesModule } from './purchases/purchases.module';
             PurchasesModule,
           ],
   controllers: [AppController],
-  providers: [AppService, IsUserEmailAlreadyExistConstraint],
+  providers: [AppService, IsUniqueConstraint],
 })
 export class AppModule {}

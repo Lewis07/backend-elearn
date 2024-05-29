@@ -1,13 +1,12 @@
 import { ValidationOptions, registerDecorator } from "class-validator";
-import { IsUserEmailAlreadyExistConstraint } from "./isUserEmailAlreadyExistConstraint";
+import { IsUniqueConstraint } from "./isUniqueConstraint";
 
 export type IsUniqueConstraintInput = {
-    modelName: string;
     collectionProperty: string;
     collectionName: string;
 }; 
 
-export function IsUserEmailUnique(options?: IsUniqueConstraintInput, validationOptions?: ValidationOptions) {
+export function IsUnique(options?: IsUniqueConstraintInput, validationOptions?: ValidationOptions) {
     return function(object: Object, propertyName: string) {
         return registerDecorator({
             name: 'is-unique',
@@ -15,7 +14,7 @@ export function IsUserEmailUnique(options?: IsUniqueConstraintInput, validationO
             propertyName,
             options: validationOptions,
             constraints: [options],
-            validator: IsUserEmailAlreadyExistConstraint, 
+            validator: IsUniqueConstraint, 
         });
     }
 }
