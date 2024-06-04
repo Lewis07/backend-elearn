@@ -12,6 +12,7 @@ import { CommentsModule } from './comments/comments.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { IsUniqueConstraint } from './utils/validation/unique-field/isUniqueConstraint';
 import { TeachersModule } from './teachers/teachers.module';
+import { StripesModule } from './stripes/stripes.module';
 
 @Module({
   imports: [AuthModule, 
@@ -27,6 +28,7 @@ import { TeachersModule } from './teachers/teachers.module';
             CommentsModule,
             PurchasesModule,
             TeachersModule,
+            StripesModule,
           ],
   controllers: [AppController],
   providers: [AppService, IsUniqueConstraint],
