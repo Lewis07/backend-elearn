@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { StripeCustomerService } from './stripe-customer.service';
-import { StripeCustomersController } from './stripes-customers.controller';
+import { StripeCustomersController } from './controller/stripes-customers.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StripeCustomer, StripeCustomerSchema } from './schemas/stripe-customer.schema';
+import { StripeCustomerService } from './service/stripe-customer.service';
+import { StripePaymentIntentsController } from './controller/stripe-payment-intents.controller';
+import { StripePaymentIntentService } from './service/stripe-payment-intent.service';
 
 @Module({
   imports: [
@@ -10,7 +12,7 @@ import { StripeCustomer, StripeCustomerSchema } from './schemas/stripe-customer.
       { name: StripeCustomer.name, schema: StripeCustomerSchema }
     ])
   ],
-  controllers: [StripeCustomersController],
-  providers: [StripeCustomerService]
+  controllers: [StripeCustomersController, StripePaymentIntentsController],
+  providers: [StripeCustomerService, StripePaymentIntentService]
 })
 export class StripesModule {}

@@ -1,18 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import Stripe from 'stripe';
 import { InjectModel } from '@nestjs/mongoose';
-import { StripeCustomer } from './schemas/stripe-customer.schema';
 import { Model } from 'mongoose';
+import { StripeCustomer } from '../schemas/stripe-customer.schema';
+import { StripeService } from './stripe.service';
 
 @Injectable()
-export class StripeCustomerService {
-  private stripe: Stripe;
+export class StripeCustomerService extends StripeService {
 
   constructor(@InjectModel(StripeCustomer.name) private stripeCustomerModel: Model<StripeCustomer>) {
-    const apiVersion = process.env.STRIPE_API_VERSION;
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: apiVersion as Stripe.StripeConfig['apiVersion'],
-    });
+    super();
   }
 
   async createcustomer(name: string, email: string) {

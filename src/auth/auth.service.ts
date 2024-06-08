@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { plainToClass } from 'class-transformer';
 import { UserReset } from '../users/schemas/user-reset.schema';
-import { StripeCustomerService } from '../stripes/stripe-customer.service';
+import { StripeCustomerService } from '../stripes/service/stripe-customer.service';
 
 @Injectable()
 export class AuthService {
@@ -49,7 +49,7 @@ export class AuthService {
 
     const stripeCustomer = await this.stripeCustomerService.createcustomer(user.usr_username, user.usr_email);
 
-    const userWithCustomerIdStripe = await this.userModel.findByIdAndUpdate(user._id, { stripe_customer_id: stripeCustomer.id });
+    const userWithCustomerIdStripe = await this.userModel.findByIdAndUpdate(user._id, { stripe_customer_id: stripeCustomer.customer_id });
 
     return plainToClass(User, userWithCustomerIdStripe, { excludeExtraneousValues: true});
   }

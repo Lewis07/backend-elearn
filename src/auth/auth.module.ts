@@ -7,8 +7,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { SendMailModule } from '../mailer/send-mail.module';
 import { UserReset, UserResetSchema } from '../users/schemas/user-reset.schema';
-import { StripeCustomerService } from '../stripes/stripe-customer.service';
 import { StripeCustomer, StripeCustomerSchema } from '../stripes/schemas/stripe-customer.schema';
+import { StripeCustomerService } from 'src/stripes/service/stripe-customer.service';
 
 @Module({
   imports: [
