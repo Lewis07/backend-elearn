@@ -6,24 +6,29 @@ import { StripeService } from './stripe.service';
 
 @Injectable()
 export class StripeCustomerService extends StripeService {
-
-  constructor(@InjectModel(StripeCustomer.name) private stripeCustomerModel: Model<StripeCustomer>) {
+  constructor(
+    @InjectModel(StripeCustomer.name)
+    private stripeCustomerModel: Model<StripeCustomer>,
+  ) {
     super();
   }
 
   async createcustomer(name: string, email: string) {
     const customerStripe = await this.stripe.customers.create({
-        name,
-        email
+      name,
+      email,
     });
 
     const data = {
-        customer_id: customerStripe.id,
-        strp_cus_email: email,
-        strp_cus_name: name,
-        strp_cus_city: null,
-        strp_cus_country: null,
-        strp_cus_postal_code: null
+      customer_id: customerStripe.id,
+      strp_cus_email: email,
+      strp_cus_name: name,
+      strp_cus_city: null,
+      strp_cus_country: null,
+      strp_cus_postal_code: null,
+      strp_cus_postal_address_line1: null,
+      strp_cus_postal_address_line2: null,
+      strp_cus_phone: null
     };
 
     return await this.stripeCustomerModel.create(data);

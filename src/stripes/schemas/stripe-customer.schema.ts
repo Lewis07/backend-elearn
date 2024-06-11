@@ -23,6 +23,15 @@ export class StripeCustomer {
     strp_cus_postal_code?: string;
 
     @Prop()
+    strp_cus_phone?: string;
+
+    @Prop()
+    strp_cus_postal_address_line1?: string;
+
+    @Prop()
+    strp_cus_postal_address_line2?: string;
+
+    @Prop({ default: new Date().toISOString() })
     strp_cus_created: Date;
 }
 
