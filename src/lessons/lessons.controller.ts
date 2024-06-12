@@ -13,7 +13,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { LessonsService, saveLesson } from './lessons.service';
+import { LessonsService } from './lessons.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -22,9 +22,6 @@ import { memoryStorage } from 'multer';
 import { MAX_SIZE_IN_BYTES_UPLOAD_VIDEO } from '../utils/constant/max-size-upload';
 import { VALID_VIDEO_MIME_TYPES } from '../utils/constant/mime-types';
 import { SaveLessonDto } from './dto/save-lesson.dto';
-import { existsSync } from 'fs';
-import { join } from 'path';
-import { removeFileIfExist } from 'src/utils/removeFileIfExist.utils';
 
 @Controller('lessons')
 export class LessonsController {
