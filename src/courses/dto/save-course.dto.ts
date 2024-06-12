@@ -11,10 +11,12 @@ export class SaveCourseDto {
     @IsNotEmpty({ message: "Price is required" })
     crs_price: number;
 
-    crs_new_price: number;
+    crs_new_price?: number;
 
     @IsNotEmpty({ message: "Is paid ?" })
     crs_isPaid: boolean;
+
+    crs_photo?: string;
 
     @IsNotEmpty()
     level_id: LevelEnum;

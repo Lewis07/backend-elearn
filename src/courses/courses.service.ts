@@ -9,6 +9,11 @@ import { Course } from './schemas/course.schema';
 import mongoose, { Model } from 'mongoose';
 import { EditCourseDto } from './dto/edit-course.dto';
 import { Comment } from '../comments/schemas/comment.schema';
+import { existsSync } from 'fs';
+import { join } from 'path';
+import { PATH_UPLOAD_COURSE } from '../utils/constant/path-upload.utils';
+import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
+import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
 
 @Injectable()
 export class CoursesService {
@@ -18,7 +23,7 @@ export class CoursesService {
   ) {}
 
   async findAll() {
-    let courses = await this.courseModel.find();
+    let courses = await this.courseModel.find().sort({ _id: -1 });
     let courseWithAverageRating = [];
 
     for (const course of courses) {
@@ -61,25 +66,59 @@ export class CoursesService {
     return course;
   }
 
-  async store(authorId: string, createCourseDto: CreateCourseDto) {
-    let data = {};
-    data = {
-      ...data,
+  async store(authorId: string, createCourseDto: CreateCourseDto, file: Express.Multer.File) {
+    let data = {
       ...createCourseDto,
-      author_id: authorId,
+      author_id: authorId
     };
+
+    let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
+
+    if (photoLink) {
+      data = { ...data, crs_photo: photoLink.filename };
+    } else {
+      data = { ...data, crs_photo: null };
+    }
 
     return this.courseModel.create(data);
   }
 
-  async update(id: string, editCourseDto: EditCourseDto) {
-    await this.findById(id);
+  async update(id: string, editCourseDto: EditCourseDto, file: Express.Multer.File) {
+    const course = await this.findById(id);
 
-    return this.courseModel.findByIdAndUpdate(id, editCourseDto, { new: true });
+    let data = {
+      ...editCourseDto
+    };
+
+    if (file != undefined) {
+      if (existsSync(join(PATH_UPLOAD_COURSE, course.crs_photo))) {
+        removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);
+      }
+
+      let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
+
+      if (photoLink) {
+        data = {
+          ...data,
+          crs_photo: photoLink.filename,
+        };
+      }
+    } else {
+      data = {
+        ...data,
+        crs_photo: null,
+      };
+    }
+
+    return this.courseModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id: string) {
-    await this.findById(id);
+    const course = await this.findById(id);
+
+    if (existsSync(join(PATH_UPLOAD_COURSE, course.crs_photo))) {
+      removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);
+    }
 
     return this.courseModel.findByIdAndDelete(id);
   }
