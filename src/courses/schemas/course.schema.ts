@@ -23,13 +23,17 @@ export class Course extends Document {
     @Expose()
     crs_price: number;
 
-    @Prop()
+    @Prop({ default: 0 })
     @Expose()
     crs_new_price: number;
 
     @Prop({ default: false })
     @Expose()
     crs_isPaid: boolean;
+
+    @Prop()
+    @Expose()
+    crs_photo: string;
 
     @Expose()
     createdAt: Date;
