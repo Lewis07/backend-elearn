@@ -7,6 +7,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { SendMailModule } from '../mailer/send-mail.module';
 import { UserReset, UserResetSchema } from '../users/schemas/user-reset.schema';
+import { StripeCustomer, StripeCustomerSchema } from '../stripes/schemas/stripe-customer.schema';
+import { StripeCustomerService } from 'src/stripes/service/stripe-customer.service';
 
 @Module({
   imports: [
@@ -20,11 +22,12 @@ import { UserReset, UserResetSchema } from '../users/schemas/user-reset.schema';
     }),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
-      { name: UserReset.name, schema: UserResetSchema }
+      { name: UserReset.name, schema: UserResetSchema },
+      { name: StripeCustomer.name, schema: StripeCustomerSchema }
     ]),
     SendMailModule
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, StripeCustomerService],
 })
 export class AuthModule {}

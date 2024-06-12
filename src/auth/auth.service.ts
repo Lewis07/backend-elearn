@@ -10,6 +10,7 @@ import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { plainToClass } from 'class-transformer';
 import { UserReset } from '../users/schemas/user-reset.schema';
+import { StripeCustomerService } from '../stripes/service/stripe-customer.service';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(UserReset.name) private userResetModel: Model<UserReset>
+    @InjectModel(UserReset.name) private userResetModel: Model<UserReset>,
+    private stripeCustomerService: StripeCustomerService
   ) {}
 
   async singIn(signInDto: SignInDto): Promise<{ access_token: string }> {
@@ -45,7 +47,11 @@ export class AuthService {
     const data = {...registerDto, usr_password: hash_password};
     const user = await this.userModel.create(data);
 
-    return plainToClass(User, user, { excludeExtraneousValues: true});
+    const stripeCustomer = await this.stripeCustomerService.createcustomer(user.usr_username, user.usr_email);
+
+    const userWithCustomerIdStripe = await this.userModel.findByIdAndUpdate(user._id, { stripe_customer_id: stripeCustomer.customer_id });
+
+    return plainToClass(User, userWithCustomerIdStripe, { excludeExtraneousValues: true});
   }
 
   async resetPassword(email: string, token: string): Promise<UserReset> {
