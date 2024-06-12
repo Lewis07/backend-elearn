@@ -12,7 +12,7 @@ export class TeachersService {
                 @InjectModel(User.name) private userModel: Model<Teacher>) {}
 
     async findAll() {
-        return this.teacherModel.find();
+        return this.teacherModel.find().sort({ _id: -1 });
     }
 
     async findById(id: string) {
