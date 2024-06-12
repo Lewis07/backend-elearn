@@ -14,10 +14,8 @@ export class CommentsService {
                 @InjectModel(User.name) private userModel: Model<User>, 
                 ) {}
 
-    async findAll(){
-        const comments = await this.commentModel.find();
-
-        return comments;
+    async findAll()  {
+        return await this.commentModel.find().sort({ _id: -1 });
     }
 
     async findById(id: string): Promise<Comment> {
@@ -37,9 +35,7 @@ export class CommentsService {
     }
 
     async store (authorId: string, addCommentDto: AddCommentDto): Promise<Comment> {
-        let data = {};
-        data = {
-            ...data,
+        let data = {
             ...addCommentDto,
             author_id: authorId,
             comm_count_like: 0,
