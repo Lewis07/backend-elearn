@@ -47,15 +47,14 @@ export class PurchasesService {
           purch_reference: purchase.purch_reference,
           purch_firstname: purchase.purch_firstname,
           purch_lastname: purchase.purch_lastname,
-          purch_zipcode: purchase.purch_zipcode,
+          purch_postal_code: purchase.purch_postal_code,
           purch_country: purchase.purch_country,
           purch_address: purchase.purch_address,
-          purch_card_number: purchase.purch_card_number,
           purch_date_at: purchase.purch_date_at,
           user_id: purchase.user_id,
-          payment_method_id: purchase.payment_method_id,
+          payment_method_id: purchase.pay_method_id,
           _id: purchaseId,
-          purchase_items: purchaseItemsData
+          purchase_items: purchaseItemsData,
         }
       })
     );
@@ -82,13 +81,11 @@ export class PurchasesService {
   }
 
   async store(userId: string, addPurchase: SavePurchaseDto) {
-    let data = {};
     const timestamp = Date.now().toString();
     const randomString = generateToken(8).substring(0, 7).toUpperCase();
     const purchaseReference = `${timestamp}${randomString}`;
 
-    data = {
-      ...data,
+    let data = {
       ...addPurchase,
       purch_reference: purchaseReference,
       user_id: userId,
@@ -103,13 +100,12 @@ export class PurchasesService {
       purch_reference: purchase.purch_reference,
       purch_firstname: purchase.purch_firstname,
       purch_lastname: purchase.purch_lastname,
-      purch_zipcode: purchase.purch_zipcode,
+      purch_zipcode: purchase.purch_postal_code,
       purch_country: purchase.purch_country,
       purch_address: purchase.purch_address,
-      purch_card_number: purchase.purch_card_number,
       purch_date_at: purchase.purch_date_at,
       user_id: purchase.user_id,
-      payment_method_id: purchase.payment_method_id,
+      payment_method_id: purchase.pay_method_id,
       _id: purchase._id,
       purchaseItems: purchaseItemsData.map(item => ({
         crs_price_at_purchase: item.crs_price_at_purchase,

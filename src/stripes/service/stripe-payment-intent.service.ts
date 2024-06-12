@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { StripeService } from './stripe.service';
-import { SaveStripePaymentIntentDto } from '../dto/save-stripe-payment-intent.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { StripePaymentIntent } from '../schemas/stripe-payment-intent.schema';
 import { Model } from 'mongoose';
 import { StripeCustomer } from '../schemas/stripe-customer.schema';
+import { SavePurchaseDto } from '../../purchases/dto/save-purchase.dto';
 
 @Injectable()
 export class StripePaymentIntentService extends StripeService {
@@ -18,18 +18,19 @@ export class StripePaymentIntentService extends StripeService {
   }
 
   async create(
-    saveStripePaymentIntentDto: SaveStripePaymentIntentDto,
+    savePurchaseDto: SavePurchaseDto,
     customerId: string,
-    paymentMethodId: string
+    // paymentMethodId: string,
+    purchase_id: string
   ) {
-    const { amount, currency, purchase_id } = saveStripePaymentIntentDto;
+    const { amount, currency } = savePurchaseDto;
 
     const dataPaymentIntent = {
       payment_method_types: ['card'],
       amount: amount * 100,
       currency,
       customer: customerId,
-      payment_method: paymentMethodId,
+      // payment_method: paymentMethodId,
       metadata: {
         purchase_id,
       },

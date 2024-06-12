@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Param,
   Patch,
   Post,
@@ -14,10 +15,16 @@ import { PurchasesService } from './purchases.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { SavePurchaseDto } from './dto/save-purchase.dto';
 import { Response } from 'express';
+import { StripePaymentIntentService } from '../stripes/service/stripe-payment-intent.service';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('purchases')
 export class PurchasesController {
-  constructor(private purchaseService: PurchasesService) {}
+  constructor(
+    private purchaseService: PurchasesService,
+    private stripePaymentIntentService: StripePaymentIntentService,
+    private userService: UsersService
+  ) {}
 
   @UseGuards(AuthGuard)
   @Get('list')
@@ -33,11 +40,31 @@ export class PurchasesController {
 
   @UseGuards(AuthGuard)
   @Post('add')
-  async add(
-    @Req() req: any,
-    @Body() savePurchaseDto: SavePurchaseDto,
-  ) {
-    return await this.purchaseService.store(req.user.id, savePurchaseDto);
+  async add(@Req() req: any, @Body() savePurchaseDto: SavePurchaseDto) {
+    const stripeCustomer = await this.userService.findOneById(req.user.id);
+
+    if (!stripeCustomer) {
+      throw new InternalServerErrorException("Error from server, You don't have registered to payment plateform");
+    }
+
+    const purchase = await this.purchaseService.store(
+      req.user.id,
+      savePurchaseDto,
+    );
+
+    const { payment_method_id } = purchase;
+    const stripeCustomerId = stripeCustomer.stripe_customer_id;
+    const paymentMethodId = String(payment_method_id);
+    const purchaseId = String(purchase._id);
+
+    await this.stripePaymentIntentService.create(
+      savePurchaseDto,
+      stripeCustomerId,
+      // paymentMethodId,
+      purchaseId,
+    );
+
+    return purchase;
   }
 
   @UseGuards(AuthGuard)

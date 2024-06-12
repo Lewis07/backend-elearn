@@ -12,23 +12,20 @@ export class Purchase {
     @Prop({ trim: true, required: true })
     purch_reference: string;
 
-    @Prop({ trim: true, required: true })
+    @Prop({ trim: true })
     purch_firstname: string;
 
-    @Prop({ trim: true, required: true })
+    @Prop({ trim: true })
     purch_lastname: string;
 
-    @Prop({ required: true })
-    purch_zipcode: number
+    @Prop()
+    purch_postal_code: number
 
-    @Prop({ trim: true, required: true })
+    @Prop()
     purch_country: string;
 
-    @Prop({ trim: true, required: true })
+    @Prop({ trim: true })
     purch_address: string;
-
-    @Prop({ required: true })
-    purch_card_number: number;
 
     @Prop({ default: new Date().toISOString() })
     purch_date_at: Date;
@@ -37,7 +34,7 @@ export class Purchase {
     user_id: Course;
 
     @Prop({ type: String, enum: PaymentMethodEnum })
-    payment_method_id: PaymentMethodEnum;
+    pay_method_id: PaymentMethodEnum;
 }
 
 export const PurchaseSchema = SchemaFactory.createForClass(Purchase);
