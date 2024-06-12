@@ -3,13 +3,8 @@ import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface 
 @ValidatorConstraint({ name: 'passwordMatch', async: false })
 export class PasswordMatchConstraint implements ValidatorConstraintInterface {
   validate(value: any, validationArguments?: ValidationArguments): boolean {
-    const forgotPasswordDto = {};
-
-    for (const [key, value] of Object.entries(validationArguments.object)) {
-      forgotPasswordDto[key] = value;
-    }
-
-    const { password } = Object(forgotPasswordDto);
+    let bodyForgotPassword = {...validationArguments.object};
+    const { password } = Object(bodyForgotPassword);
 
     return value === password;
   }
