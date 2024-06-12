@@ -20,14 +20,16 @@ export class StripePaymentIntentService extends StripeService {
   async create(
     saveStripePaymentIntentDto: SaveStripePaymentIntentDto,
     customerId: string,
+    paymentMethodId: string
   ) {
     const { amount, currency, purchase_id } = saveStripePaymentIntentDto;
 
     const dataPaymentIntent = {
+      payment_method_types: ['card'],
       amount: amount * 100,
       currency,
       customer: customerId,
-      payment_method_types: ['card'],
+      payment_method: paymentMethodId,
       metadata: {
         purchase_id,
       },
@@ -42,8 +44,6 @@ export class StripePaymentIntentService extends StripeService {
           return_url: process.env.FRONTEND_URL,
         },
       );
-
-      console.log(confirmPaymentIntent);
 
       const paymentMethodId = confirmPaymentIntent.payment_method as string;
 
