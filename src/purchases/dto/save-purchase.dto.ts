@@ -35,7 +35,7 @@ export class SavePurchaseDto {
       return `${value} is not a valid payment method. Valid options are: ${validKeys.join(', ')}`;
     },
   })
-  payment_method_id: PaymentMethodEnum;
+  pay_method_id: PaymentMethodEnum;
 
   @IsNotEmpty({ message: 'Postal code is required' })
   purch_postal_code: number;

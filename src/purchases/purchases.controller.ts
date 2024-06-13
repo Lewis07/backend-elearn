@@ -17,14 +17,17 @@ import { SavePurchaseDto } from './dto/save-purchase.dto';
 import { Response } from 'express';
 import { StripePaymentIntentService } from '../stripes/service/stripe-payment-intent.service';
 import { UsersService } from 'src/users/users.service';
+import { StripeService } from 'src/stripes/service/stripe.service';
 
 @Controller('purchases')
-export class PurchasesController {
+export class PurchasesController extends StripeService {
   constructor(
     private purchaseService: PurchasesService,
     private stripePaymentIntentService: StripePaymentIntentService,
-    private userService: UsersService
-  ) {}
+    private userService: UsersService,
+  ) {
+    super();
+  }
 
   @UseGuards(AuthGuard)
   @Get('list')
@@ -44,7 +47,9 @@ export class PurchasesController {
     const stripeCustomer = await this.userService.findOneById(req.user.id);
 
     if (!stripeCustomer) {
-      throw new InternalServerErrorException("Error from server, You don't have registered to payment plateform");
+      throw new InternalServerErrorException(
+        "Error from server, You don't have registered to payment plateform",
+      );
     }
 
     const purchase = await this.purchaseService.store(
@@ -60,7 +65,7 @@ export class PurchasesController {
     await this.stripePaymentIntentService.create(
       savePurchaseDto,
       stripeCustomerId,
-      // paymentMethodId,
+      paymentMethodId,
       purchaseId,
     );
 

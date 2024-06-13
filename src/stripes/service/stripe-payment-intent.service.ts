@@ -20,7 +20,7 @@ export class StripePaymentIntentService extends StripeService {
   async create(
     savePurchaseDto: SavePurchaseDto,
     customerId: string,
-    // paymentMethodId: string,
+    paymentMethodId: string,
     purchase_id: string
   ) {
     const { amount, currency } = savePurchaseDto;
@@ -30,7 +30,7 @@ export class StripePaymentIntentService extends StripeService {
       amount: amount * 100,
       currency,
       customer: customerId,
-      // payment_method: paymentMethodId,
+      payment_method: paymentMethodId,
       metadata: {
         purchase_id,
       },
@@ -47,6 +47,8 @@ export class StripePaymentIntentService extends StripeService {
       );
 
       const paymentMethodId = confirmPaymentIntent.payment_method as string;
+
+      console.log(paymentMethodId);
 
       if (!paymentMethodId) {
         throw new Error('Payment method ID is undefined');

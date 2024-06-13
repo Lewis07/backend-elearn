@@ -92,6 +92,7 @@ export class PurchasesService {
     };
 
     const purchase = await this.purchaseModel.create(data);
+
     const purchaseId = String(purchase._id);
 
     const purchaseItemsData = await this.purchaseItem(purchaseId, addPurchase);
