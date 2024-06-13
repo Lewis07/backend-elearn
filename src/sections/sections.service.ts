@@ -9,7 +9,7 @@ export class SectionsService {
     constructor(@InjectModel(Section.name) private sectionModel: Model<Section>) {}
 
     async findAll() {
-        return this.sectionModel.find().sort({ _id: -1 });
+        return this.sectionModel.find();
     }
     
     async findById(id: string) {
