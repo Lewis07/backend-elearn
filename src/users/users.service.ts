@@ -13,6 +13,10 @@ export class UsersService {
     @InjectModel(UserReset.name) private userResetModel: Model<UserReset>,
   ) {}
 
+  async findAll() {
+    return this.userModel.find().sort({ _id: -1 });
+  }
+
   async findOneByEmail(email: string) {
     return this.userModel
       .findOne({ usr_email: email })

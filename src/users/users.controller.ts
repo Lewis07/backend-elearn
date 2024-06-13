@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Response } from 'express';
@@ -8,6 +8,12 @@ import { ChangePasswordDto } from '../auth/dto/change-password.dto';
 @Controller('')
 export class UsersController {
     constructor(private usersService: UsersService) {}
+
+    @UseGuards(AuthGuard)
+    @Get("users")
+    async list() {
+        return this.usersService.findAll();
+    }
 
     @UseGuards(AuthGuard)
     @Post("update-profile")
