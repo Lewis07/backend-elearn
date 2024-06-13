@@ -18,7 +18,7 @@ export class LessonsService {
   constructor(@InjectModel(Lesson.name) private lessonModel: Model<Lesson>) {}
 
   async findAll(): Promise<Lesson[]> {
-    return this.lessonModel.find().sort({ _id: -1 });
+    return this.lessonModel.find();
   }
 
   async findById(id: string): Promise<Lesson> {
