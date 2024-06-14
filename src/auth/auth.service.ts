@@ -46,10 +46,16 @@ export class AuthService {
     const hash_password = await hashPassword(registerDto.usr_password);
     const data = {...registerDto, usr_password: hash_password};
     const user = await this.userModel.create(data);
+    let customerId = null;
 
-    const stripeCustomer = await this.stripeCustomerService.createcustomer(user.usr_username, user.usr_email);
+    try {
+      const stripeCustomer = await this.stripeCustomerService.createcustomer(user.usr_username, user.usr_email);
+      customerId = stripeCustomer.customer_id;
+    } catch (error) {
+      console.error(error);
+    }
 
-    const userWithCustomerIdStripe = await this.userModel.findByIdAndUpdate(user._id, { stripe_customer_id: stripeCustomer.customer_id });
+    const userWithCustomerIdStripe = await this.userModel.findByIdAndUpdate(user._id, { stripe_customer_id: customerId });
 
     return plainToClass(User, userWithCustomerIdStripe, { excludeExtraneousValues: true});
   }
