@@ -24,16 +24,16 @@ export class AuthService {
       throw new BadRequestException("Email is not found");
     }
 
-    const is_valid_password = await validatePassword(signInDto.usr_password, user.usr_password);
+    const isValidPassword = await validatePassword(signInDto.usr_password, user.usr_password);
 
-    if (!is_valid_password) {
+    if (!isValidPassword) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
     const payload = { id: user.id, username: user.usr_username, email: user.usr_email };
-    const access_token = await this.jwtService.signAsync(payload);
+    const accessToken = await this.jwtService.signAsync(payload);
 
-    return { access_token };
+    return { accessToken };
   }
 
   async signUp(registerDto: RegisterDto) {
