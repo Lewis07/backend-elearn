@@ -22,7 +22,7 @@ export class AuthService {
     private stripeCustomerService: StripeCustomerService
   ) {}
 
-  async singIn(signInDto: SignInDto): Promise<{ access_token: string }> {
+  async singIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
     const user = await this.usersService.findOneByEmail(signInDto.usr_email);
 
     if (!user) {
