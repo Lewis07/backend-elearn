@@ -25,13 +25,7 @@ export class AuthService {
   async singIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
     const user = await this.usersService.findOneByEmail(signInDto.usr_email);
 
-    if (!user) {
-      throw new BadRequestException("Email is not found");
-    }
-
-    const isValidPassword = await validatePassword(signInDto.usr_password, user.usr_password);
-
-    if (!isValidPassword) {
+    if (!user || !(await validatePassword(signInDto.usr_password, user?.usr_password))) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
