@@ -51,6 +51,11 @@ export class AuthService {
   async resetPassword(email: string, token: string): Promise<UserReset> {
     const now = new Date();
     const tokenExpiredAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException("Email is not found");
+    }
 
     const data = {
       usr_rest_email: email,
