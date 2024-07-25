@@ -1,6 +1,6 @@
 import { IsNotEmpty } from "class-validator";
 
 export class ResetPasswordDto {
-    @IsNotEmpty()
+    @IsNotEmpty({ message: "Email should not be empty" })
     email: string;
 }
