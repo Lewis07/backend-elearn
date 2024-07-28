@@ -40,12 +40,9 @@ export class UsersController {
     @Req() req: any,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
-    const user = await this.usersService.updateProfile(
+    return this.usersService.updateProfile(
       req.user.id,
       updateProfileDto,
     );
-    const { usr_username, usr_email, usr_firstname, usr_lastname } = user;
-
-    return { usr_username, usr_email, usr_firstname, usr_lastname };
   }
 }

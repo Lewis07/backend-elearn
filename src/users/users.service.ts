@@ -53,7 +53,27 @@ export class UsersService {
     id: mongoose.Types.ObjectId,
     updateProfileDto: UpdateProfileDto,
   ) {
-    return this.userModel.findByIdAndUpdate(id, updateProfileDto);
+    const response = await this.userModel.findByIdAndUpdate(id, updateProfileDto, { new: true });
+
+    const {
+      _id,
+      usr_username,
+      usr_email,
+      usr_registered_date,
+      usr_type,
+      usr_firstname,
+      usr_lastname,
+    } = response;
+
+    return {
+      _id,
+      usr_username,
+      usr_email,
+      usr_registered_date,
+      usr_type,
+      usr_firstname,
+      usr_lastname,
+    };
   }
 
   async findOneById(userId: string) {
