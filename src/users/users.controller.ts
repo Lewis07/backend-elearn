@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Patch, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Response } from 'express';
@@ -9,7 +9,7 @@ export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @UseGuards(AuthGuard)
-    @Post("update-profile")
+    @Patch("update-profile")
     async updateProfile(@Req() req: any, @Res() res: Response, @Body() updateProfileDto: UpdateProfileDto) {
         await this.usersService.updateProfile(req.user.id, updateProfileDto);
 
