@@ -1,10 +1,6 @@
 import {
-  IsEmpty,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
-  IsPositive,
-  IsString,
   Min,
 } from 'class-validator';
 import { LevelEnum } from '../../utils/enum/level-enum.utils';
