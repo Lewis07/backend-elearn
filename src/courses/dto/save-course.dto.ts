@@ -1,4 +1,4 @@
-import { IsNotEmpty, MinLength } from "class-validator";
+import { IsNotEmpty, IsOptional, MinLength } from "class-validator";
 import { LevelEnum } from "../../utils/enum/level-enum.utils";
 
 export class SaveCourseDto {
@@ -12,6 +12,7 @@ export class SaveCourseDto {
     @MinLength(0, { message: "Price should be greater than zero" })
     crs_price: number;
 
+    @IsOptional()
     @MinLength(0, { message: "Price should be greater than zero" })
     crs_new_price?: number;
 
