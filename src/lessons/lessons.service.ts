@@ -13,12 +13,6 @@ import { existsSync } from 'fs';
 import { UploadMulter } from '../utils/upload/upload-multer.utils';
 import { SaveLessonDto } from './dto/save-lesson.dto';
 
-export type saveLesson = {
-  lssn_title: string;
-  lssn_video_link?: string;
-  section_id: string;
-};
-
 @Injectable()
 export class LessonsService {
   constructor(@InjectModel(Lesson.name) private lessonModel: Model<Lesson>) {}
@@ -46,15 +40,21 @@ export class LessonsService {
   }
 
   async store(saveLessonDto: SaveLessonDto, file: Express.Multer.File) {
-    let data = {};
+    let data = {
+      ...saveLessonDto,
+    };
 
     let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
 
     if (videoLink) {
       data = {
         ...data,
-        ...saveLessonDto,
         lssn_video_link: videoLink.filename,
+      };
+    } else {
+      data = {
+        ...data,
+        lssn_video_link: null,
       };
     }
 
@@ -68,7 +68,9 @@ export class LessonsService {
   ) {
     const lesson = await this.findById(id);
 
-    let data = {};
+    let data = {
+      ...saveLessonDto,
+    };
 
     if (file != undefined) {
       if (existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
@@ -80,18 +82,17 @@ export class LessonsService {
       if (videoLink) {
         data = {
           ...data,
-          ...saveLessonDto,
           lssn_video_link: videoLink.filename,
         };
       }
     } else {
       data = {
         ...data,
-        ...saveLessonDto,
+        lssn_video_link: null,
       };
     }
 
-    return this.lessonModel.findByIdAndUpdate(id, data as saveLesson, { new: true });
+    return this.lessonModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id: string) {

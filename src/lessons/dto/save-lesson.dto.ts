@@ -7,4 +7,6 @@ export class SaveLessonDto {
 
     @IsNotEmpty({ message: "Section is required" })
     section_id: Section;
+
+    lssn_video_link: string;
 }

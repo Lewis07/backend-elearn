@@ -1,10 +1,15 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Exclude, Expose } from "class-transformer";
+import { UserTypeEnum } from "../../utils/enum/user-type-enum.utils";
+import mongoose from "mongoose";
 
 @Schema({
     timestamps: true,
 })
 export class User {
+    @Expose()
+    _id: mongoose.Types.ObjectId;
+
     @Prop({ trim: true})
     @Expose()
     usr_photo?: string;
@@ -38,6 +43,14 @@ export class User {
   
     @Expose()
     updatedAt: Date;
+
+    @Prop({ default: UserTypeEnum.STUDENT })
+    @Expose()
+    usr_type: UserTypeEnum;
+
+    @Prop({ trim: true })
+    @Expose()
+    stripe_customer_id: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

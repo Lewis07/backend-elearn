@@ -4,13 +4,13 @@ import { CommentsController } from './comments.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Comment, CommentSchema } from './schemas/comment.schema';
 import { JwtModule } from '@nestjs/jwt';
-import { CoursesService } from '../courses/courses.service';
-import { Course, CourseSchema } from '../courses/schemas/course.schema';
+import { UsersService } from '../users/users.service';
+import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
-    MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.registerAsync({
       useFactory: async () => ({
         global: true,
@@ -19,7 +19,7 @@ import { Course, CourseSchema } from '../courses/schemas/course.schema';
       }),
     }),
   ],
-  providers: [CommentsService, CoursesService],
+  providers: [CommentsService],
   controllers: [CommentsController],
 })
 export class CommentsModule {}

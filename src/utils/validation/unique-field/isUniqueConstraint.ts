@@ -1,19 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
-import { InjectConnection, SchemaFactory } from "@nestjs/mongoose";
-import { UserSchema } from "../../../users/schemas/user.schema";
+import { InjectConnection } from "@nestjs/mongoose";
 import { Connection } from "mongoose";
-import { IsUniqueConstraintInput } from "./isUserEmailAlreadyExist";
+import { IsUniqueConstraintInput } from "./IsUnique";
+import { ModelSchema } from "../../../utils/modelSchema";
 
-@ValidatorConstraint({name: 'IsUserEmailAlreadyExistConstraint', async: true})
+@ValidatorConstraint({name: 'is-already-exist-constraint', async: true})
 @Injectable()
-export class IsUserEmailAlreadyExistConstraint implements ValidatorConstraintInterface {
+export class IsUniqueConstraint implements ValidatorConstraintInterface {
     constructor(@InjectConnection() private readonly connection: Connection) {}
 
     async validate(value: string, validationArguments?: ValidationArguments): Promise<boolean> {
-        const {collectionProperty, modelName, collectionName}: IsUniqueConstraintInput = validationArguments.constraints[0];
+        const {collectionProperty, collectionName}: IsUniqueConstraintInput = validationArguments.constraints[0];
       
-        const model = this.connection.model(modelName, UserSchema, collectionName);
+        const model = (new ModelSchema(this.connection, collectionName)).generate();
         const isExist = await model.findOne({ [collectionProperty]: value }).select(collectionProperty);
 
         return isExist ? false : true;
@@ -22,6 +22,6 @@ export class IsUserEmailAlreadyExistConstraint implements ValidatorConstraintInt
     defaultMessage?(validationArguments?: ValidationArguments): string {
         const field: string = validationArguments.property;
 
-        return `${field} is already exist in this plateform, choose another`;
+        return `${field} is already exist`;
     }
 }
