@@ -72,15 +72,17 @@ export class CoursesService {
       author_id: authorId
     };
 
-    let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
+    console.log("data");
 
-    if (photoLink) {
-      data = { ...data, crs_photo: photoLink.filename };
-    } else {
-      data = { ...data, crs_photo: null };
-    }
+    // let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
 
-    return this.courseModel.create(data);
+    // if (photoLink) {
+    //   data = { ...data, crs_photo: photoLink.filename };
+    // } else {
+    //   data = { ...data, crs_photo: null };
+    // }
+
+    // return this.courseModel.create(data);
   }
 
   async update(id: string, editCourseDto: EditCourseDto, file: Express.Multer.File) {
