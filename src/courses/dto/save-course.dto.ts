@@ -1,11 +1,14 @@
 import {
+  IsEmpty,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
+  IsString,
   Min,
 } from 'class-validator';
 import { LevelEnum } from '../../utils/enum/level-enum.utils';
+import { Transform } from 'class-transformer';
 
 export class SaveCourseDto {
   @IsNotEmpty({ message: 'Title is required' })
@@ -14,13 +17,22 @@ export class SaveCourseDto {
   @IsNotEmpty({ message: 'Description is required' })
   crs_description: string;
 
-//   @IsNotEmpty({ message: 'Price is required' })
-//   @IsNumber({}, { message: "Price must be a number" })
-//   @Min(0, { message: "Price should not be negative" })
+  @Transform(
+    ({ value }) => {
+      if (value === '' || value === null) {
+        return null;
+      } else {
+        return Number(value);
+      }
+    },
+    { toClassOnly: true },
+  )
+ 
+  @Min(0, { message: 'Price is required and must be a number with minimum value 0' })
   crs_price: number;
 
   @IsOptional()
-  @IsPositive({ message: 'Price should be greater than zero' })
+  @Min(0, { message: 'Price is required and must be a number with minimum value 0' })
   crs_new_price?: number;
 
   crs_isPaid: boolean;

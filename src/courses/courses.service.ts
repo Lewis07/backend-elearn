@@ -69,10 +69,8 @@ export class CoursesService {
   async store(authorId: string, createCourseDto: CreateCourseDto, file: Express.Multer.File) {
     let data = {
       ...createCourseDto,
-      author_id: authorId
+      author_id: authorId,
     };
-
-    console.log("data");
 
     // let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
 
@@ -81,6 +79,8 @@ export class CoursesService {
     // } else {
     //   data = { ...data, crs_photo: null };
     // }
+
+    console.log(data);
 
     // return this.courseModel.create(data);
   }
