@@ -14,6 +14,7 @@ import { join } from 'path';
 import { PATH_UPLOAD_COURSE } from '../utils/constant/path-upload.utils';
 import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
 import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
+import slugify from 'slugify';
 
 @Injectable()
 export class CoursesService {
@@ -70,6 +71,7 @@ export class CoursesService {
     let data = {
       ...createCourseDto,
       author_id: authorId,
+      crs_slug: slugify(createCourseDto.crs_title)
     };
 
     let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);

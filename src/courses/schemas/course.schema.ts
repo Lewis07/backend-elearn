@@ -17,6 +17,10 @@ export class Course extends Document {
 
     @Prop({ trim: true, required: true })
     @Expose()
+    crs_slug: string;
+
+    @Prop({ trim: true, required: true })
+    @Expose()
     crs_description: string;
 
     @Prop({ required: true })

@@ -1,6 +1,7 @@
 import { diskStorage } from "multer";
 import { extname, join } from "path";
 import * as fs from "fs";
+import slugify from "slugify";
 
 export function UploadMulterInDiskStorage(destination: string) {
     return diskStorage({
@@ -19,7 +20,7 @@ export function UploadMulter(file: Express.Multer.File, uploadPath: string) {
     const extension = extname(file.originalname);
     const randomName = Array(10).fill(null).map(() => (Math.round(Math.random() * 8)).toString(8)).join('');
 
-    const filename = `${basename}-${randomName}${extension}`;
+    const filename = slugify(`${basename}-${randomName}${extension}`);
     const fullPath = join(uploadPath, filename);
 
     if (!fs.existsSync(uploadPath)) {
