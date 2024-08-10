@@ -29,13 +29,11 @@ import { MAX_SIZE_IN_BYTES_UPLOAD_PHOTO } from '../utils/constant/max-size-uploa
 export class CoursesController {
   constructor(private courseService: CoursesService) {}
 
-  @UseGuards(AuthGuard)
   @Get('list')
   async list() {
     return await this.courseService.findAll();
   }
 
-  @UseGuards(AuthGuard)
   @Get('show/:id')
   async show(@Param('id') id: string) {
     return await this.courseService.findById(id);
