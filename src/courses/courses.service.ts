@@ -43,7 +43,7 @@ export class CoursesService {
         );
         averageRating =
           Number(totalRatingByCourse) / Number(totalCommentByCourse);
-        averageRating = Number(averageRating.toFixed(2));
+        averageRating = Number(averageRating.toFixed(1));
       }
 
       courseWithAverageRating = [
@@ -94,7 +94,7 @@ export class CoursesService {
         0,
       );
       averageRating = totalRatingByCourse / totalCommentByCourse;
-      averageRating = Number(averageRating.toFixed(2));
+      averageRating = Number(averageRating.toFixed(1));
     }
 
     return {
