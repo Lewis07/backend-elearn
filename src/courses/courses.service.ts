@@ -36,16 +36,24 @@ export class CoursesService {
       });
 
       if (totalCommentByCourse !== 0) {
-        let totalRatingByCourse = comments.reduce((accumulator: number, comment: Comment) => accumulator + Number(comment.comm_rating), 0);
-        averageRating = Number(totalRatingByCourse) / Number(totalCommentByCourse);
+        let totalRatingByCourse = comments.reduce(
+          (accumulator: number, comment: Comment) =>
+            accumulator + Number(comment.comm_rating),
+          0,
+        );
+        averageRating =
+          Number(totalRatingByCourse) / Number(totalCommentByCourse);
         averageRating = Number(averageRating.toFixed(2));
-      } 
+      }
 
-      courseWithAverageRating = [...courseWithAverageRating, {
-        course,
-        averageRating,
-        totalCommentByCourse
-      }]
+      courseWithAverageRating = [
+        ...courseWithAverageRating,
+        {
+          course,
+          averageRating,
+          totalCommentByCourse,
+        },
+      ];
     }
 
     return courseWithAverageRating;
@@ -68,21 +76,48 @@ export class CoursesService {
   }
 
   async findBySlug(slug: string) {
-
     const course = await this.courseModel.findOne({ crs_slug: slug });
+    let courseWithAverageRating = [];
+    let averageRating = 0;
 
     if (!course) {
       throw new NotFoundException('Course not found');
     }
 
-    return course;
+    const comments = await this.commentModel.find({ course_id: course._id });
+    let totalCommentByCourse = comments.length;
+
+    if (totalCommentByCourse !== 0) {
+      let totalRatingByCourse = comments.reduce(
+        (accumulator: number, comment: Comment) =>
+          accumulator + Number(comment.comm_rating),
+        0,
+      );
+      averageRating = totalRatingByCourse / totalCommentByCourse;
+      averageRating = Number(averageRating.toFixed(2));
+    }
+
+    courseWithAverageRating = [
+      ...courseWithAverageRating,
+      {
+        course,
+        averageRating,
+        totalCommentByCourse,
+      },
+    ];
+
+    return courseWithAverageRating;
   }
 
-  async store(authorId: string, createCourseDto: CreateCourseDto, file: Express.Multer.File) {
+  async store(
+    authorId: string,
+    createCourseDto: CreateCourseDto,
+    file: Express.Multer.File,
+  ) {
     let data = {
       ...createCourseDto,
       author_id: authorId,
-      crs_slug: slugify(createCourseDto.crs_title)
+      crs_slug: slugify(createCourseDto.crs_title),
     };
 
     let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
@@ -96,11 +131,15 @@ export class CoursesService {
     return this.courseModel.create(data);
   }
 
-  async update(id: string, editCourseDto: EditCourseDto, file: Express.Multer.File) {
+  async update(
+    id: string,
+    editCourseDto: EditCourseDto,
+    file: Express.Multer.File,
+  ) {
     const course = await this.findById(id);
 
     let data = {
-      ...editCourseDto
+      ...editCourseDto,
     };
 
     if (file != undefined) {
