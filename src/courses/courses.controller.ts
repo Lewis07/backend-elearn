@@ -93,4 +93,9 @@ export class CoursesController {
 
     return res.json({ courseId: id });
   }
+
+  @Get('contents/:id')
+  async contents(@Param('id') id: string) {
+    return this.courseService.getContent(id);
+  }
 }

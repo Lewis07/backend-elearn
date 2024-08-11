@@ -15,12 +15,16 @@ import { PATH_UPLOAD_COURSE } from '../utils/constant/path-upload.utils';
 import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
 import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
 import slugify from 'slugify';
+import { Section } from 'src/sections/schemas/section.schema';
+import { Lesson } from 'src/lessons/schemas/lesson.schema';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<Course>,
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
+    @InjectModel(Section.name) private sectionModel: Model<Section>,
+    @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
   ) {}
 
   async findAll() {
@@ -169,5 +173,42 @@ export class CoursesService {
     }
 
     return this.courseModel.findByIdAndDelete(id);
+  }
+
+  async getContent(courseId: string) {
+    await this.findById(courseId);
+    let courseContents = [];
+
+    const sections = await this.sectionModel
+      .find({ course_id: courseId })
+      .select('_id sect_title');
+
+    const totalSections = sections.length;
+    let totalLessons = 0;
+
+    for (const section of sections) {
+      const sectionId = String(section._id);
+      let lessonsInSection = await this.lessonModel
+        .find({
+          section_id: sectionId,
+        })
+        .select('_id lssn_title lssn_video_link');
+
+        totalLessons += lessonsInSection.length;
+
+      courseContents = [
+        ...courseContents,
+        {
+          section,
+          lessons: lessonsInSection,
+        },
+      ];
+    }
+
+    return {
+      data: courseContents,
+      totalSections,
+      totalLessons,
+    };
   }
 }
