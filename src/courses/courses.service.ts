@@ -77,7 +77,7 @@ export class CoursesService {
 
   async findBySlug(slug: string) {
     const course = await this.courseModel.findOne({ crs_slug: slug });
-    let courseWithAverageRating = [];
+    let courseWithAverageRating = {};
     let averageRating = 0;
 
     if (!course) {
@@ -97,16 +97,12 @@ export class CoursesService {
       averageRating = Number(averageRating.toFixed(2));
     }
 
-    courseWithAverageRating = [
+    return {
       ...courseWithAverageRating,
-      {
-        course,
-        averageRating,
-        totalCommentByCourse,
-      },
-    ];
-
-    return courseWithAverageRating;
+      course,
+      averageRating,
+      totalCommentByCourse,
+    };
   }
 
   async store(
