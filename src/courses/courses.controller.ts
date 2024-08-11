@@ -35,8 +35,13 @@ export class CoursesController {
   }
 
   @Get('show/:id')
-  async show(@Param('id') id: string) {
+  async showById(@Param('id') id: string) {
     return await this.courseService.findById(id);
+  }
+
+  @Get('view/:slug')
+  async viewBySlug(@Param('slug') slug: string) {
+    return await this.courseService.findBySlug(slug);
   }
 
   @UseGuards(AuthGuard)

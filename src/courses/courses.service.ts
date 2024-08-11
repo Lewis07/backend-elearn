@@ -67,6 +67,17 @@ export class CoursesService {
     return course;
   }
 
+  async findBySlug(slug: string) {
+
+    const course = await this.courseModel.findOne({ crs_slug: slug });
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    return course;
+  }
+
   async store(authorId: string, createCourseDto: CreateCourseDto, file: Express.Multer.File) {
     let data = {
       ...createCourseDto,
