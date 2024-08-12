@@ -192,7 +192,7 @@ export class CoursesService {
         .find({
           section_id: sectionId,
         })
-        .select('_id lssn_title lssn_video_link');
+        .select('_id lssn_title lssn_video_link lssn_is_free');
 
         totalLessons += lessonsInSection.length;
 
@@ -201,6 +201,7 @@ export class CoursesService {
         {
           section,
           lessons: lessonsInSection,
+          countLesson: lessonsInSection.length
         },
       ];
     }
