@@ -117,9 +117,7 @@ export class LessonsService {
           const minutes = Math.floor((durationInSeconds % 3600) / 60);
           const seconds = Math.floor(durationInSeconds % 60);
 
-          const durationInMinuteAndSecond = `${minutes}:${seconds}` || null;
-
-          resolve(durationInMinuteAndSecond || null);
+          resolve(durationInSeconds || null);
         }
       });
     });

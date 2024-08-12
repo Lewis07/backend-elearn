@@ -21,6 +21,7 @@ import slugify from 'slugify';
 import { Section } from 'src/sections/schemas/section.schema';
 import { Lesson } from 'src/lessons/schemas/lesson.schema';
 import { LessonsService } from 'src/lessons/lessons.service';
+import { getHourMinute, getMinute, getMinuteAndSecond } from 'src/utils/duration.utils';
 
 @Injectable()
 export class CoursesService {
@@ -190,6 +191,7 @@ export class CoursesService {
 
     const totalSections = sections.length;
     let totalLessons = 0;
+    let totalDuration = 0;
 
     for (const section of sections) {
       const sectionId = String(section._id);
@@ -202,18 +204,28 @@ export class CoursesService {
       totalLessons += lessonsInSection.length;
 
       let copyLessonInSection = [...lessonsInSection];
-
       let lessonInSectionWithDuration = await Promise.all(
         copyLessonInSection.map(async (lesson) => ({
           _id: lesson._id,
           lssn_title: lesson.lssn_title,
           lssn_video_link: lesson.lssn_video_link,
           lssn_is_free: lesson.lssn_is_free,
-          lssn_duration: await this.lessonsService.getVideoDuration(
+          lssn_duration: getMinuteAndSecond(Number(await this.lessonsService.getVideoDuration(
             `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
-          ),
+          ))),
         })),
       );
+
+      let totalDurationLessonBySection = 0;
+
+      await Promise.all(
+        copyLessonInSection.map(async (lesson) => {
+          let duration = await this.lessonsService.getVideoDuration(`${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`);
+          totalDurationLessonBySection += Number(duration);
+        }),
+      );
+
+      totalDuration += totalDurationLessonBySection;
 
       courseContents = [
         ...courseContents,
@@ -221,6 +233,7 @@ export class CoursesService {
           section,
           lessons: lessonInSectionWithDuration,
           countLesson: lessonsInSection.length,
+          countDuration: getMinute(totalDurationLessonBySection),
         },
       ];
     }
@@ -229,6 +242,7 @@ export class CoursesService {
       data: courseContents,
       totalSections,
       totalLessons,
+      totalDuration: getHourMinute(totalDuration)
     };
   }
 }
