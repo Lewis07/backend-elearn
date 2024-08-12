@@ -12,6 +12,9 @@ export class Lesson {
     @Prop({ trim: true, required: true })
     lssn_video_link?: string;
 
+    @Prop({ default: false })
+    lssn_is_free: boolean;
+
     @Prop({ type: mongoose.Types.ObjectId, ref: 'Section', required: true })
     section_id: Section;
 }
