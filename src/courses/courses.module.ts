@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { Comment, CommentSchema } from '../comments/schemas/comment.schema';
 import { Section, sectionSchema } from 'src/sections/schemas/section.schema';
 import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
+import { LessonsService } from 'src/lessons/lessons.service';
 
 @Module({
   imports: [
@@ -25,6 +26,6 @@ import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
     }),
   ],
   controllers: [CoursesController],
-  providers: [CoursesService],
+  providers: [CoursesService, LessonsService],
 })
 export class CoursesModule {}

@@ -12,6 +12,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { UploadMulter } from '../utils/upload/upload-multer.utils';
 import { SaveLessonDto } from './dto/save-lesson.dto';
+import * as ffmpeg from 'fluent-ffmpeg';
 
 @Injectable()
 export class LessonsService {
@@ -103,5 +104,24 @@ export class LessonsService {
     }
 
     return this.lessonModel.findByIdAndDelete(id);
+  }
+
+  async getVideoDuration(filePath: string): Promise<String | null> {
+    return new Promise((resolve, reject) => {
+      ffmpeg.ffprobe(filePath, (err: any, metadata: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          const durationInSeconds = metadata.format.duration;
+          const hours = Math.floor(durationInSeconds / 3600);
+          const minutes = Math.floor((durationInSeconds % 3600) / 60);
+          const seconds = Math.floor(durationInSeconds % 60);
+
+          const durationInMinuteAndSecond = `${minutes}:${seconds}` || null;
+
+          resolve(durationInMinuteAndSecond || null);
+        }
+      });
+    });
   }
 }

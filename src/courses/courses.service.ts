@@ -11,12 +11,16 @@ import { EditCourseDto } from './dto/edit-course.dto';
 import { Comment } from '../comments/schemas/comment.schema';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { PATH_UPLOAD_COURSE } from '../utils/constant/path-upload.utils';
+import {
+  PATH_UPLOAD_COURSE,
+  PATH_UPLOAD_LESSON,
+} from '../utils/constant/path-upload.utils';
 import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
 import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
 import slugify from 'slugify';
 import { Section } from 'src/sections/schemas/section.schema';
 import { Lesson } from 'src/lessons/schemas/lesson.schema';
+import { LessonsService } from 'src/lessons/lessons.service';
 
 @Injectable()
 export class CoursesService {
@@ -25,6 +29,7 @@ export class CoursesService {
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
     @InjectModel(Section.name) private sectionModel: Model<Section>,
     @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
+    private lessonsService: LessonsService,
   ) {}
 
   async findAll() {
@@ -194,14 +199,28 @@ export class CoursesService {
         })
         .select('_id lssn_title lssn_video_link lssn_is_free');
 
-        totalLessons += lessonsInSection.length;
+      totalLessons += lessonsInSection.length;
+
+      let copyLessonInSection = [...lessonsInSection];
+
+      let lessonInSectionWithDuration = await Promise.all(
+        copyLessonInSection.map(async (lesson) => ({
+          _id: lesson._id,
+          lssn_title: lesson.lssn_title,
+          lssn_video_link: lesson.lssn_video_link,
+          lssn_is_free: lesson.lssn_is_free,
+          lssn_duration: await this.lessonsService.getVideoDuration(
+            `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
+          ),
+        })),
+      );
 
       courseContents = [
         ...courseContents,
         {
           section,
-          lessons: lessonsInSection,
-          countLesson: lessonsInSection.length
+          lessons: lessonInSectionWithDuration,
+          countLesson: lessonsInSection.length,
         },
       ];
     }
