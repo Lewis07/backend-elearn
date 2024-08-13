@@ -20,8 +20,12 @@ import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
 import slugify from 'slugify';
 import { Section } from 'src/sections/schemas/section.schema';
 import { Lesson } from 'src/lessons/schemas/lesson.schema';
-import { LessonsService } from 'src/lessons/lessons.service';
-import { getHourMinute, getMinute, getMinuteAndSecond } from 'src/utils/duration.utils';
+import {
+  getHourMinute,
+  getMinute,
+  getMinuteAndSecond,
+  getVideoDuration,
+} from 'src/utils/duration.utils';
 
 @Injectable()
 export class CoursesService {
@@ -30,7 +34,6 @@ export class CoursesService {
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
     @InjectModel(Section.name) private sectionModel: Model<Section>,
     @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
-    private lessonsService: LessonsService,
   ) {}
 
   async findAll() {
@@ -210,9 +213,9 @@ export class CoursesService {
           lssn_title: lesson.lssn_title,
           lssn_video_link: lesson.lssn_video_link,
           lssn_is_free: lesson.lssn_is_free,
-          lssn_duration: getMinuteAndSecond(Number(await this.lessonsService.getVideoDuration(
+          lssn_duration: getMinuteAndSecond(await getVideoDuration(
             `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
-          ))),
+          )),
         })),
       );
 
@@ -220,7 +223,9 @@ export class CoursesService {
 
       await Promise.all(
         copyLessonInSection.map(async (lesson) => {
-          let duration = await this.lessonsService.getVideoDuration(`${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`);
+          let duration = await getVideoDuration(
+            `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
+          );
           totalDurationLessonBySection += Number(duration);
         }),
       );
@@ -242,7 +247,7 @@ export class CoursesService {
       data: courseContents,
       totalSections,
       totalLessons,
-      totalDuration: getHourMinute(totalDuration)
+      totalDuration: getHourMinute(totalDuration),
     };
   }
 }
