@@ -19,6 +19,11 @@ export class CommentsController {
        return await this.commentsService.findById(id);
     }
 
+    @Get('by/:courseId')
+    async findBycourse(@Param('courseId') courseId: string) {
+       return await this.commentsService.findBycourse(courseId);
+    }
+
     @UseGuards(AuthGuard)
     @Post('add')
     async add(@Req() req: any, @Body() addCommentDto: AddCommentDto) {

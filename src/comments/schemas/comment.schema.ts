@@ -30,6 +30,8 @@ export class Comment {
 
     @Prop({ type: [mongoose.Schema.ObjectId], ref: "User" })
     comm_disliked_by: User[];
+
+    createdAt: Date;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
