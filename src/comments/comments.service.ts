@@ -125,19 +125,26 @@ export class CommentsService {
       .find({ course_id: courseId })
       .sort({ createdAt: -1 });
 
-    return await Promise.all(
+    let data = [];
+
+    await Promise.all(
       comments.map(async (comment) => {
         const user = await this.userModel
           .findById(String(comment.author_id))
           .select('usr_username');
 
-        return {
+        data.push({
           comm_rating: comment.comm_rating,
           comm_content: comment.comm_content,
           author: user.usr_username,
           created_at: comment.createdAt,
-        };
+        });
       }),
     );
+
+    return {
+      comments: data,
+      totalComment: data.length
+    };
   }
 }
