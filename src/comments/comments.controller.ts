@@ -9,13 +9,11 @@ import { Response } from 'express';
 export class CommentsController {
     constructor( private commentsService: CommentsService ) {}
 
-    @UseGuards(AuthGuard)
     @Get('list')
     async list() {
         return await this.commentsService.findAll();
     }
 
-    @UseGuards(AuthGuard)
     @Get('show/:id')
     async show(@Param('id') id: string) {
        return await this.commentsService.findById(id);
