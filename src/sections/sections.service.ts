@@ -9,7 +9,7 @@ export class SectionsService {
     constructor(@InjectModel(Section.name) private sectionModel: Model<Section>) {}
 
     async findAll() {
-        return this.sectionModel.find();
+        return this.sectionModel.find().populate("course_id", "crs_title").sort({ createdAt: - 1});
     }
     
     async findById(id: string) {
@@ -28,14 +28,19 @@ export class SectionsService {
         return section;
     }
 
-    async store (section: SaveSectionDto) {
-        return this.sectionModel.create(section);
+    async store (data: SaveSectionDto) {
+        const sectionCreated = await this.sectionModel.create(data);
+        const sectionId = sectionCreated._id;
+        const section = await this.findById(String(sectionId));
+
+        return section.populate("course_id", "crs_title");
     }
 
     async update(id: string, section: SaveSectionDto) {
         await this.findById(id);
+        const sectionUpdated = await this.sectionModel.findByIdAndUpdate(id, section, { new: true });
 
-        return this.sectionModel.findByIdAndUpdate(id, section, { new: true });
+        return sectionUpdated.populate("course_id", "crs_title");
     }
 
     async delete(id: string) {
