@@ -9,7 +9,7 @@ export class SectionsController {
     constructor( private sectionService: SectionsService ) {}
 
     @UseGuards(AuthGuard)
-    @Get('list')
+    @Get()
     async list() {
         return await this.sectionService.findAll();
     }
