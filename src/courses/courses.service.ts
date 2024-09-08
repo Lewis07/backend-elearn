@@ -207,26 +207,24 @@ export class CoursesService {
       totalLessons += lessonsInSection.length;
 
       let copyLessonInSection = [...lessonsInSection];
-      let lessonInSectionWithDuration = await Promise.all(
-        copyLessonInSection.map(async (lesson) => ({
-          _id: lesson._id,
-          lssn_title: lesson.lssn_title,
-          lssn_video_link: lesson.lssn_video_link,
-          lssn_is_free: lesson.lssn_is_free,
-          lssn_duration: getMinuteAndSecond(await getVideoDuration(
-            `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
-          )),
-        })),
-      );
-
       let totalDurationLessonBySection = 0;
 
-      await Promise.all(
+      let lessonInSectionWithDuration = await Promise.all(
         copyLessonInSection.map(async (lesson) => {
           let duration = await getVideoDuration(
             `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
           );
           totalDurationLessonBySection += Number(duration);
+
+          return {
+            _id: lesson._id,
+            lssn_title: lesson.lssn_title,
+            lssn_video_link: lesson.lssn_video_link,
+            lssn_is_free: lesson.lssn_is_free,
+            lssn_duration: getMinuteAndSecond(await getVideoDuration(
+              `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
+            )),
+          }
         }),
       );
 
