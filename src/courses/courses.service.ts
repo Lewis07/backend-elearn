@@ -37,7 +37,7 @@ export class CoursesService {
   ) {}
 
   async findAll() {
-    let courses = await this.courseModel.find().sort({ _id: -1 });
+    let courses = await this.courseModel.find().sort({ createdAt: -1 });
     let courseWithAverageRating = [];
 
     for (const course of courses) {
