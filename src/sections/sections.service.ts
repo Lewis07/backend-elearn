@@ -17,7 +17,14 @@ export class SectionsService {
   async findAll() {
     return this.sectionModel
       .find()
-      .populate('course_id', '_id crs_title')
+      .populate({
+        path: 'course_id',
+        select: ['_id', 'crs_title'],
+        populate: { 
+          path: 'author_id', 
+          select: ['_id']
+        },
+      })
       .sort({ createdAt: -1 });
   }
 
