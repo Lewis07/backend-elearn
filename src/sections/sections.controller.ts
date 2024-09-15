@@ -1,8 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { SectionsService } from './sections.service';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { SaveSectionDto } from './dto/save-section.dto';
-import { Response } from 'express';
+import { SectionsService } from './sections.service';
 
 @Controller('sections')
 export class SectionsController {
@@ -15,28 +14,33 @@ export class SectionsController {
     }
 
     @UseGuards(AuthGuard)
-    @Get('show/:id')
+    @Get(':id')
     async show(@Param('id') id: string) {
        return await this.sectionService.findById(id);
     }
 
     @UseGuards(AuthGuard)
-    @Post('add')
+    @Post()
     async add(@Body() saveSectionDto: SaveSectionDto) {
       return await this.sectionService.store(saveSectionDto);
     }
 
     @UseGuards(AuthGuard)
-    @Patch('update/:id')
+    @Patch(':id')
     async update(@Param('id') id: string, @Body() saveSectionDto: SaveSectionDto) {
         return await this.sectionService.update(id, saveSectionDto);
     }
 
     @UseGuards(AuthGuard)
-    @Delete('delete/:id')
-    async delete(@Param('id') id: string, @Res() res: Response) {
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Delete(':id')
+    async delete(@Param('id') id: string) {
         await this.sectionService.delete(id);
+    }
 
-        return res.json({ sectionId: id });
+    @UseGuards(AuthGuard)
+    @Get('course/:id')
+    async getByCourse(@Param('id') id: string) {
+        return await this.sectionService.findByCourse(id);
     }
 }
