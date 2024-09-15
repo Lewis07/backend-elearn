@@ -18,10 +18,13 @@ export class LessonsService {
   constructor(@InjectModel(Lesson.name) private lessonModel: Model<Lesson>) {}
 
   async findAll(): Promise<Lesson[]> {
-    return this.lessonModel.find();
+    return this.lessonModel
+      .find()
+      .populate("section", "_id sect_title")
+      .sort({ createdAt: -1 });
   }
 
-  async findById(id: string): Promise<Lesson> {
+  async findById(id: string) {
     const isvalidId = mongoose.isValidObjectId(id);
 
     if (!isvalidId) {
@@ -58,7 +61,9 @@ export class LessonsService {
       };
     }
 
-    return this.lessonModel.create(data);
+    const lessonCreated = await this.lessonModel.create(data);
+
+    return lessonCreated.populate("section", "_id sect_title");
   }
 
   async update(
@@ -92,7 +97,9 @@ export class LessonsService {
       };
     }
 
-    return this.lessonModel.findByIdAndUpdate(id, data, { new: true });
+    const lessonUpdated = await this.lessonModel.findByIdAndUpdate(id, data, { new: true });
+
+    return lessonUpdated.populate("section", "_id sect_title");
   }
 
   async delete(id: string) {
