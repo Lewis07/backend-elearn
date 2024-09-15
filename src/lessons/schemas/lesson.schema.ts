@@ -16,7 +16,7 @@ export class Lesson {
     lssn_is_free: boolean;
 
     @Prop({ type: mongoose.Types.ObjectId, ref: 'Section', required: true })
-    section_id: Section;
+    section: Section;
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);    
