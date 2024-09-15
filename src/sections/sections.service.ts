@@ -17,7 +17,7 @@ export class SectionsService {
   async findAll() {
     return this.sectionModel
       .find()
-      .populate('course_id', 'crs_title')
+      .populate('course_id', '_id crs_title')
       .sort({ createdAt: -1 });
   }
 
