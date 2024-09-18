@@ -4,11 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Section } from './schemas/section.schema';
 import mongoose, { Model } from 'mongoose';
-import { SaveSectionDto } from './dto/save-section.dto';
-import { CoursesService } from 'src/courses/courses.service';
 import { Course } from 'src/courses/schemas/course.schema';
+import { SaveSectionDto } from './dto/save-section.dto';
+import { Section } from './schemas/section.schema';
 
 @Injectable()
 export class SectionsService {
@@ -18,17 +17,7 @@ export class SectionsService {
   ) {}
 
   async findAll() {
-    return this.sectionModel
-      .find()
-      .populate({
-        path: 'course_id',
-        select: ['_id', 'crs_title'],
-        populate: {
-          path: 'author_id',
-          select: ['_id'],
-        },
-      })
-      .sort({ createdAt: -1 });
+    return this.sectionModel.find().sort({ createdAt: -1 });
   }
 
   async findById(id: string) {
