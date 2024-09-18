@@ -78,7 +78,7 @@ export class LessonsService {
     };
 
     if (file != undefined) {
-      if (existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
+      if (lesson.lssn_video_link && existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
         removeFileIfExist(PATH_UPLOAD_LESSON, lesson.lssn_video_link);
       }
 
@@ -105,7 +105,7 @@ export class LessonsService {
   async delete(id: string) {
     const lesson = await this.findById(id);
 
-    if (existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
+    if (lesson.lssn_video_link && existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
       removeFileIfExist(PATH_UPLOAD_LESSON, lesson.lssn_video_link);
     }
 
