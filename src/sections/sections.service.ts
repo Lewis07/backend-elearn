@@ -7,11 +7,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Section } from './schemas/section.schema';
 import mongoose, { Model } from 'mongoose';
 import { SaveSectionDto } from './dto/save-section.dto';
+import { CoursesService } from 'src/courses/courses.service';
+import { Course } from 'src/courses/schemas/course.schema';
 
 @Injectable()
 export class SectionsService {
   constructor(
     @InjectModel(Section.name) private sectionModel: Model<Section>,
+    @InjectModel(Course.name) private courseModel: Model<Course>,
   ) {}
 
   async findAll() {
@@ -20,9 +23,9 @@ export class SectionsService {
       .populate({
         path: 'course_id',
         select: ['_id', 'crs_title'],
-        populate: { 
-          path: 'author_id', 
-          select: ['_id']
+        populate: {
+          path: 'author_id',
+          select: ['_id'],
         },
       })
       .sort({ createdAt: -1 });
@@ -72,7 +75,17 @@ export class SectionsService {
   }
 
   async findByCourse(id: string) {
-    await this.findById(id);
+    const isValidId = mongoose.isValidObjectId(id);
+
+    if (!isValidId) {
+      throw new BadRequestException('Wrong mongoose id, please enter valid id');
+    }
+
+    const course = await this.courseModel.findById(id);
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
 
     return await this.sectionModel.find({ course_id: id });
   }
