@@ -20,7 +20,7 @@ export class CommentsService {
   ) {}
 
   async findAll() {
-    return await this.commentModel.find().sort({ _id: -1 });
+    return await this.commentModel.find().sort({ createdAt: -1 });
   }
 
   async findById(id: string): Promise<Comment> {
@@ -45,7 +45,7 @@ export class CommentsService {
   ): Promise<Comment> {
     let data = {
       ...addCommentDto,
-      author_id: authorId,
+      author: authorId,
       comm_count_like: 0,
       comm_liked_by: [],
       comm_count_dislike: 0,
@@ -122,7 +122,7 @@ export class CommentsService {
 
   async findBycourse(courseId: string) {
     const comments = await this.commentModel
-      .find({ course_id: courseId })
+      .find({ course: courseId })
       .sort({ createdAt: -1 });
 
     let data = [];
@@ -130,7 +130,7 @@ export class CommentsService {
     await Promise.all(
       comments.map(async (comment) => {
         const user = await this.userModel
-          .findById(String(comment.author_id))
+          .findById(String(comment.author))
           .select('usr_username');
 
         data.push({

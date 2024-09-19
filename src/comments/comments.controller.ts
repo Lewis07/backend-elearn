@@ -9,12 +9,12 @@ import { Response } from 'express';
 export class CommentsController {
     constructor( private commentsService: CommentsService ) {}
 
-    @Get('list')
+    @Get()
     async list() {
         return await this.commentsService.findAll();
     }
 
-    @Get('show/:id')
+    @Get(':id')
     async show(@Param('id') id: string) {
        return await this.commentsService.findById(id);
     }
@@ -25,19 +25,19 @@ export class CommentsController {
     }
 
     @UseGuards(AuthGuard)
-    @Post('add')
+    @Post()
     async add(@Req() req: any, @Body() addCommentDto: AddCommentDto) {
        return await this.commentsService.store(req.user.id, addCommentDto);
     }
 
     @UseGuards(AuthGuard)
-    @Patch('update/:id')
+    @Patch(':id')
     async update(@Param('id') id: string, @Body() editCommentDto: EditCommentDto) {
         return await this.commentsService.update(id, editCommentDto);
     }
 
     @UseGuards(AuthGuard)
-    @Delete('delete/:id')
+    @Delete(':id')
     async delete(@Param('id') id: string, @Res() res: Response) {
         await this.commentsService.delete(id);
 
@@ -45,13 +45,13 @@ export class CommentsController {
     }
 
     @UseGuards(AuthGuard)
-    @Patch('/like/:id')
+    @Patch('like/:id')
     async like(@Param('id') id: string, @Req() req: any) {
         return await this.commentsService.like(id, req.user.id);
     }
 
     @UseGuards(AuthGuard)
-    @Patch('/dislike/:id')
+    @Patch('dislike/:id')
     async dislike(@Param('id') id: string, @Req() req: any) {
         return await this.commentsService.dislike(id, req.user.id);
     }
