@@ -6,7 +6,6 @@ import { ValidationError, useContainer } from 'class-validator';
 import { FRONTEND_URL } from './utils/constant/url';
 import * as express from 'express';
 import * as path from 'path';
-import { setUpUploadRoutes } from './utils/upload/setup-upload-routes.utils';
 
 async function bootstrap() {
   dotenv.config();
@@ -30,6 +29,7 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.use('/uploads/courses', express.static(path.resolve(__dirname, '../src/uploads/courses')));
+  app.use('/uploads/lessons', express.static(path.resolve(__dirname, '../src/uploads/lessons')));
 
   await app.listen(port);
 }
