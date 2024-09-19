@@ -200,7 +200,7 @@ export class CoursesService {
       const sectionId = String(section._id);
       let lessonsInSection = await this.lessonModel
         .find({
-          section_id: sectionId,
+          section: sectionId,
         })
         .select('_id lssn_title lssn_video_link lssn_is_free');
 
