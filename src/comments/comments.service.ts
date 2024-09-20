@@ -20,7 +20,28 @@ export class CommentsService {
   ) {}
 
   async findAll() {
-    return await this.commentModel.find().sort({ createdAt: -1 });
+    return await this.commentModel
+      .find()
+      .populate({
+        path: 'author',
+        select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
+      })
+      .populate({
+        path: 'comment',
+        select: [
+          '_id',
+          'comm_content',
+          'lesson',
+          'comm_count_like',
+          'comm_liked_by',
+          'comm_count_dislike',
+          'comm_disliked_by',
+          'createdAt',
+          'updatedAt',
+          'author'
+        ],
+      })
+      .sort({ createdAt: -1 });
   }
 
   async findById(id: string): Promise<Comment> {
@@ -144,7 +165,7 @@ export class CommentsService {
 
     return {
       comments: data,
-      totalComment: data.length
+      totalComment: data.length,
     };
   }
 }
