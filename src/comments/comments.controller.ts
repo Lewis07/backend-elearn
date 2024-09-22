@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { AddCommentDto } from './dto/add-comment.dto';
@@ -37,11 +37,10 @@ export class CommentsController {
     }
 
     @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
-    async delete(@Param('id') id: string, @Res() res: Response) {
-        await this.commentsService.delete(id);
-
-        return res.json({ commentId: id });
+    async delete(@Param('id') id: string) {
+        return await this.commentsService.delete(id);
     }
 
     @UseGuards(AuthGuard)

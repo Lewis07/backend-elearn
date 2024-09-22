@@ -21,30 +21,22 @@ export class CommentsService {
 
   async findAll() {
     return await this.commentModel
-      .find()
+      .find({ parentComment: null })
       .populate({
         path: 'author',
         select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
       })
       .populate({
-        path: 'comment',
-        select: [
-          '_id',
-          'comm_content',
-          'lesson',
-          'comm_count_like',
-          'comm_liked_by',
-          'comm_count_dislike',
-          'comm_disliked_by',
-          'createdAt',
-          'updatedAt',
-          'author'
-        ],
+        path: 'replies',
+        populate: {
+          path: 'author',
+          select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
+        },
       })
       .sort({ createdAt: -1 });
   }
 
-  async findById(id: string): Promise<Comment> {
+  async findById(id: string) {
     const isValidId = mongoose.isValidObjectId(id);
 
     if (!isValidId) {
@@ -60,10 +52,14 @@ export class CommentsService {
     return comment;
   }
 
-  async store(
-    authorId: string,
-    addCommentDto: AddCommentDto,
-  ): Promise<Comment> {
+  async store(authorId: string, addCommentDto: AddCommentDto) {
+    let parent = null;
+    let commentId = addCommentDto.comment_id;
+
+    if (null !== commentId) {
+      parent = await this.findById(String(commentId));
+    }
+
     let data = {
       ...addCommentDto,
       author: authorId,
@@ -71,9 +67,41 @@ export class CommentsService {
       comm_liked_by: [],
       comm_count_dislike: 0,
       comm_disliked_by: [],
+      ...(parent ? { parentComment: parent._id } : { parentComment: null }),
     };
 
-    return this.commentModel.create(data);
+    let comment = await this.commentModel.create(data);
+
+    let commentCreated = await comment.populate({
+      path: 'author',
+      select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
+    });
+
+    if (parent) {
+      await this.commentModel.findByIdAndUpdate(parent._id, {
+        $push: {
+          replies: commentCreated,
+        },
+      });
+
+      let replyComment = await this.commentModel
+        .findById(parent._id)
+        .populate({
+          path: 'author',
+          select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
+        })
+        .populate({
+          path: 'replies',
+          populate: {
+            path: 'author',
+            select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
+          },
+        });
+
+      return replyComment;
+    }
+
+    return commentCreated;
   }
 
   async update(id: string, editCommentDto: EditCommentDto): Promise<Comment> {
@@ -84,8 +112,21 @@ export class CommentsService {
     });
   }
 
-  async delete(id: string): Promise<Comment> {
+  async delete(id: string) {
     await this.findById(id);
+
+    const comments = await this.commentModel
+      .find({ parentComment: id })
+      .select('_id');
+
+    if (comments.length > 0) {
+      const commentsId = comments.map((comment) => comment._id.toString());
+      await this.commentModel.deleteMany({
+        _id: {
+          $in: commentsId,
+        },
+      });
+    }
 
     return this.commentModel.findByIdAndDelete(id);
   }
