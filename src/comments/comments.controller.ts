@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { AuthGuard } from '../auth/auth.guard';
-import { AddCommentDto } from './dto/add-comment.dto';
-import { EditCommentDto } from './dto/edit-comment.dto';
+import { AddCommentDto } from './dto/add-comment-course.dto';
+import { EditCommentDto } from './dto/edit-comment-course.dto';
 import { Response } from 'express';
 
 @Controller('comments')

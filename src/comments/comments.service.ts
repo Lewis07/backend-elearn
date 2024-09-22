@@ -6,8 +6,6 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment } from './schemas/comment.schema';
 import mongoose, { Model } from 'mongoose';
-import { AddCommentDto } from './dto/add-comment.dto';
-import { EditCommentDto } from './dto/edit-comment.dto';
 import { User } from '../users/schemas/user.schema';
 
 type ReactionComment = 'like' | 'dislike';

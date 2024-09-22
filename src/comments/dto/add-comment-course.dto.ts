@@ -1,10 +1,9 @@
 import { IsNotEmpty } from "class-validator";
 import { Course } from "../../courses/schemas/course.schema";
 import { User } from "../../users/schemas/user.schema";
-import { Lesson } from "src/lessons/schemas/lesson.schema";
 import { Comment } from "../schemas/comment.schema";
 
-export class AddCommentDto {
+export class AddCommentCourseDto {
     @IsNotEmpty({ message: "Rating is required" })
     comm_rating: number;
 
@@ -17,5 +16,4 @@ export class AddCommentDto {
     comment_id?: Comment | null;
     author: User;
     course: Course;
-    lesson: Lesson;
 }
