@@ -9,8 +9,8 @@ import { CommentEnum } from 'src/utils/enum/comment-enum.utils';
   timestamps: true,
 })
 export class Comment {
-  @Prop()
-  comm_rating: string;
+  @Prop({ default: null })
+  comm_rating: number;
 
   @Prop({ trim: true, required: true })
   comm_content: string;

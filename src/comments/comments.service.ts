@@ -7,6 +7,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Comment } from './schemas/comment.schema';
 import mongoose, { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
+import { EditCommentDto } from './dto/edit-comment.dto';
+import { AddCommentDto } from './dto/add-comment.dto';
+import { CommentEnum } from 'src/utils/enum/comment-enum.utils';
 
 type ReactionComment = 'like' | 'dislike';
 
@@ -32,6 +35,54 @@ export class CommentsService {
         },
       })
       .sort({ createdAt: -1 });
+  }
+
+  async findByCourse(courseId: string) {
+    const comments = await this.findByCommentSource(
+      String(CommentEnum.COURSE),
+      courseId,
+    );
+
+    return {
+      comments,
+      totalComment: comments.length,
+    };
+  }
+
+  async findByLesson(lessonId: string) {
+    const comments = await this.findByCommentSource(
+      String(CommentEnum.LESSON),
+      lessonId,
+    );
+
+    return {
+      comments,
+      totalComment: comments.length,
+    };
+  }
+
+  async findByCommentSource(source: string, id: string) {
+    const comments = await this.commentModel
+      .find({
+        parentComment: null,
+        ...(Number(source) === Number(CommentEnum.COURSE)
+          ? { course: id }
+          : { lesson: id }),
+      })
+      .populate({
+        path: 'author',
+        select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
+      })
+      .populate({
+        path: 'replies',
+        populate: {
+          path: 'author',
+          select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    return comments;
   }
 
   async findById(id: string) {
@@ -178,33 +229,5 @@ export class CommentsService {
     }
 
     return await this.commentModel.findByIdAndUpdate(id, update, { new: true });
-  }
-
-  async findBycourse(courseId: string) {
-    const comments = await this.commentModel
-      .find({ course: courseId })
-      .sort({ createdAt: -1 });
-
-    let data = [];
-
-    await Promise.all(
-      comments.map(async (comment) => {
-        const user = await this.userModel
-          .findById(String(comment.author))
-          .select('usr_username');
-
-        data.push({
-          comm_rating: comment.comm_rating,
-          comm_content: comment.comm_content,
-          author: user.usr_username,
-          created_at: comment.createdAt,
-        });
-      }),
-    );
-
-    return {
-      comments: data,
-      totalComment: data.length,
-    };
   }
 }

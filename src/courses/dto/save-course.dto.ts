@@ -23,7 +23,6 @@ export class SaveCourseDto {
     },
     { toClassOnly: true },
   )
- 
   @Min(0, { message: 'Price is required and must be a number with minimum value 0' })
   crs_price: number;
 
