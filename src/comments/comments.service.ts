@@ -75,6 +75,9 @@ export class CommentsService {
       })
       .populate({
         path: 'replies',
+        options: {
+          sort: { 'createdAt': -1 }
+        },
         populate: {
           path: 'author',
           select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
