@@ -41,11 +41,18 @@ export class CommentsService {
     const comments = await this.findByCommentSource(
       String(CommentEnum.COURSE),
       courseId,
+      false,
+    );
+
+    const commentsWithReplies = await this.findByCommentSource(
+      String(CommentEnum.COURSE),
+      courseId,
+      true,
     );
 
     return {
       comments,
-      totalComment: comments.length,
+      totalComment: commentsWithReplies.length,
     };
   }
 
@@ -53,22 +60,34 @@ export class CommentsService {
     const comments = await this.findByCommentSource(
       String(CommentEnum.LESSON),
       lessonId,
+      true,
+    );
+
+    const commentsWithReplies = await this.findByCommentSource(
+      String(CommentEnum.LESSON),
+      lessonId,
+      false,
     );
 
     return {
       comments,
-      totalComment: comments.length,
+      totalComment: commentsWithReplies.length,
     };
   }
 
-  async findByCommentSource(source: string, id: string) {
+  async findByCommentSource(source: string, id: string, withReplies: boolean) {
+    let filterCommentByLesson: any = {
+      ...(Number(source) === Number(CommentEnum.COURSE)
+      ? { course: id }
+      : { lesson: id })
+    }
+
+    if (withReplies) {
+      filterCommentByLesson.parentComment = null;
+    }
+
     const comments = await this.commentModel
-      .find({
-        parentComment: null,
-        ...(Number(source) === Number(CommentEnum.COURSE)
-          ? { course: id }
-          : { lesson: id }),
-      })
+      .find(filterCommentByLesson)
       .populate({
         path: 'author',
         select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
@@ -76,7 +95,7 @@ export class CommentsService {
       .populate({
         path: 'replies',
         options: {
-          sort: { 'createdAt': -1 }
+          sort: { createdAt: -1 },
         },
         populate: {
           path: 'author',
