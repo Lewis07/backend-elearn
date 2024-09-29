@@ -188,7 +188,7 @@ export class CommentsService {
     const comment = await this.findById(id);
 
     if (String(comment.author) !== authorId) {
-      throw new ForbiddenException("This comment don't belong to you");
+      throw new ForbiddenException("You can't remove a comment who don't belong to you");
     }
 
     const comments = await this.commentModel
