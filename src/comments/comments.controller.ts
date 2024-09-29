@@ -55,8 +55,8 @@ export class CommentsController {
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    return await this.commentsService.delete(id);
+  async delete(@Req() req: any, @Param('id') id: string) {
+    return await this.commentsService.delete(id, req.user.id);
   }
 
   @UseGuards(AuthGuard)

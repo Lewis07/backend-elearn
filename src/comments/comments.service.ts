@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -183,8 +184,12 @@ export class CommentsService {
     });
   }
 
-  async delete(id: string) {
-    await this.findById(id);
+  async delete(id: string, authorId: string) {
+    const comment = await this.findById(id);
+
+    if (String(comment.author) !== authorId) {
+      throw new ForbiddenException("This comment don't belong to you");
+    }
 
     const comments = await this.commentModel
       .find({ parentComment: id })
