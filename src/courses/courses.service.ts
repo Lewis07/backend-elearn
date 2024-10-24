@@ -95,7 +95,7 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
 
-    const comments = await this.commentModel.find({ course_id: course._id });
+    const comments = await this.commentModel.find({ course: course._id });
     let totalCommentByCourse = comments.length;
 
     if (totalCommentByCourse !== 0) {
