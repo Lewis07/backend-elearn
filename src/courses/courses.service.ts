@@ -41,12 +41,10 @@ export class CoursesService {
     let courseWithAverageRating = [];
 
     for (const course of courses) {
-      const comments = await this.commentModel.find({ course_id: course._id });
+      const comments = await this.commentModel.find({ course: course._id });
 
       let averageRating = 0;
-      let totalCommentByCourse = await this.commentModel.countDocuments({
-        course_id: course._id,
-      });
+      let totalCommentByCourse = comments.length;
 
       if (totalCommentByCourse !== 0) {
         let totalRatingByCourse = comments.reduce(
