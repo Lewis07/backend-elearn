@@ -2,17 +2,21 @@ import {
   IsNotEmpty,
   IsOptional,
   Min,
+  ValidateIf,
 } from 'class-validator';
 import { LevelEnum } from '../../utils/enum/level-enum.utils';
 import { Transform } from 'class-transformer';
 
 export class SaveCourseDto {
+  @IsOptional()
   @IsNotEmpty({ message: 'Title is required' })
   crs_title: string;
 
+  @IsOptional()
   @IsNotEmpty({ message: 'Description is required' })
   crs_description: string;
 
+  @IsOptional()
   @Transform(
     ({ value }) => {
       if (value === '' || value === null) {
@@ -34,6 +38,7 @@ export class SaveCourseDto {
 
   crs_photo?: string;
 
+  @IsOptional()
   @IsNotEmpty()
   level_id: LevelEnum;
 }
