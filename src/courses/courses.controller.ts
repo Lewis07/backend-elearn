@@ -45,7 +45,7 @@ export class CoursesController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('add')
+  @Post()
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async add(
     @Req() req: any,
@@ -66,7 +66,7 @@ export class CoursesController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('update/:id')
+  @Patch(':id')
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async update(
     @Param('id') id: string,
@@ -87,7 +87,7 @@ export class CoursesController {
   }
 
   @UseGuards(AuthGuard)
-  @Delete('delete/:id')
+  @Delete(':id')
   async delete(@Param('id') id: string, @Res() res: Response) {
     await this.courseService.delete(id);
 

@@ -30,8 +30,6 @@ export class SaveCourseDto {
   @Min(0, { message: 'Price is required and must be a number with minimum value 0' })
   crs_price: number;
 
-  @IsOptional()
-  @Min(0, { message: 'Price is required and must be a number with minimum value 0' })
   crs_new_price?: number;
 
   crs_isPaid: boolean;
