@@ -144,30 +144,23 @@ export class CoursesService {
     file: Express.Multer.File,
   ) {
     const course = await this.findById(id);
+    let photoLink: string; 
 
-    let data = {
-      ...editCourseDto,
-    };
-
-    if (file != undefined) {
+    if (file === undefined) {
+      photoLink = course.crs_photo;
+    } else {
       if (existsSync(join(PATH_UPLOAD_COURSE, course.crs_photo))) {
         removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);
       }
 
-      let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
-
-      if (photoLink) {
-        data = {
-          ...data,
-          crs_photo: photoLink.filename,
-        };
-      }
-    } else {
-      data = {
-        ...data,
-        crs_photo: null,
-      };
+      let photo = UploadMulter(file, PATH_UPLOAD_COURSE);
+      photoLink = photo.filename;
     }
+
+    let data = {
+      ...editCourseDto,
+      crs_photo: photoLink,
+    };
 
     return this.courseModel.findByIdAndUpdate(id, data, { new: true });
   }
