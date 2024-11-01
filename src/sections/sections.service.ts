@@ -8,12 +8,15 @@ import mongoose, { Model } from 'mongoose';
 import { Course } from 'src/courses/schemas/course.schema';
 import { SaveSectionDto } from './dto/save-section.dto';
 import { Section } from './schemas/section.schema';
+import { Lesson } from 'src/lessons/schemas/lesson.schema';
+import { populate } from 'dotenv';
 
 @Injectable()
 export class SectionsService {
   constructor(
     @InjectModel(Section.name) private sectionModel: Model<Section>,
     @InjectModel(Course.name) private courseModel: Model<Course>,
+    @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
   ) {}
 
   async findAll() {
@@ -36,6 +39,14 @@ export class SectionsService {
     }
 
     return section;
+  }
+
+  async getLessons(id: string) {
+    await this.findById(id);
+    const lessons = await this.lessonModel.find({ section: id })
+                                          .populate("section", "_id sect_title");
+
+    return lessons;
   }
 
   async store(data: SaveSectionDto) {

@@ -20,6 +20,12 @@ export class SectionsController {
     }
 
     @UseGuards(AuthGuard)
+    @Get(':id/lessons')
+    async getLessons(@Param('id') id: string) {
+       return await this.sectionService.getLessons(id);
+    }
+
+    @UseGuards(AuthGuard)
     @Post()
     async add(@Body() saveSectionDto: SaveSectionDto) {
       return await this.sectionService.store(saveSectionDto);
