@@ -48,9 +48,10 @@ export class LessonsService {
       ...saveLessonDto,
     };
 
-    let videoLink = UploadMulter(file, `${PATH_UPLOAD_LESSON}/videos`);
+    const pathVideoLesson = `${PATH_UPLOAD_LESSON}/videos`;
+    const videoLink = UploadMulter(file, pathVideoLesson);
     const randomName = Array(10).fill(null).map(() => (Math.round(Math.random() * 8)).toString(8)).join('');
-    const lessonPhotoPath =  `${PATH_UPLOAD_LESSON}/photos`;
+    const pathPhotoLesson =  `${PATH_UPLOAD_LESSON}/photos`;
     const lessonPhotoFilename = `lssn-pht-${randomName}.png`;
 
     await new Promise((resolve, reject) => {
@@ -58,7 +59,7 @@ export class LessonsService {
         .screenshots({
           timestamps: ['00:00:01'],
           filename: lessonPhotoFilename,
-          folder: lessonPhotoPath,
+          folder: pathPhotoLesson,
         })
         .on('end', resolve)
         .on('error', (err) => reject(`Error capturing : ${err.message}`));
@@ -121,9 +122,15 @@ export class LessonsService {
 
   async delete(id: string) {
     const lesson = await this.findById(id);
+    const pathVideoLesson = `${PATH_UPLOAD_LESSON}/videos`;
+    const pathPhotoLesson = `${PATH_UPLOAD_LESSON}/photos`;
 
-    if (lesson.lssn_video_link && existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
-      removeFileIfExist(PATH_UPLOAD_LESSON, lesson.lssn_video_link);
+    if (lesson.lssn_video_link && existsSync(join(pathVideoLesson, lesson.lssn_video_link))) {
+      removeFileIfExist(pathVideoLesson, lesson.lssn_video_link);
+    }
+
+    if (lesson.lssn_video_photo && existsSync(join(pathPhotoLesson, lesson.lssn_video_photo))) {
+      removeFileIfExist(pathPhotoLesson, lesson.lssn_video_photo);
     }
 
     return this.lessonModel.findByIdAndDelete(id);
