@@ -12,6 +12,9 @@ export class Lesson {
     @Prop({ trim: true, required: true })
     lssn_video_link?: string;
 
+    @Prop({ trim: true, required: true })
+    lssn_video_photo?: string;
+
     @Prop({ default: false })
     lssn_is_free: boolean;
 

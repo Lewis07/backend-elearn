@@ -12,6 +12,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { UploadMulter } from '../utils/upload/upload-multer.utils';
 import { SaveLessonDto } from './dto/save-lesson.dto';
+import * as ffmpeg from 'fluent-ffmpeg';
 
 @Injectable()
 export class LessonsService {
@@ -47,17 +48,33 @@ export class LessonsService {
       ...saveLessonDto,
     };
 
-    let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
+    let videoLink = UploadMulter(file, `${PATH_UPLOAD_LESSON}/videos`);
+    const randomName = Array(10).fill(null).map(() => (Math.round(Math.random() * 8)).toString(8)).join('');
+    const lessonPhotoPath =  `${PATH_UPLOAD_LESSON}/photos`;
+    const lessonPhotoFilename = `lssn-pht-${randomName}.png`;
+
+    await new Promise((resolve, reject) => {
+      ffmpeg(videoLink.path)
+        .screenshots({
+          timestamps: ['00:00:01'],
+          filename: lessonPhotoFilename,
+          folder: lessonPhotoPath,
+        })
+        .on('end', resolve)
+        .on('error', (err) => reject(`Error capturing : ${err.message}`));
+    });
 
     if (videoLink) {
       data = {
         ...data,
         lssn_video_link: videoLink.filename,
+        lssn_video_photo: lessonPhotoFilename,
       };
     } else {
       data = {
         ...data,
         lssn_video_link: null,
+        lssn_video_photo: null
       };
     }
 

@@ -9,4 +9,5 @@ export class SaveLessonDto {
     section: Section;
 
     lssn_video_link: string;
+    lssn_video_photo: string;
 }
