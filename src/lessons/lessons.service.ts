@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -38,25 +39,36 @@ export class LessonsService {
     }
 
     const lesson = await this.lessonModel.findById(id);
+    const lessonDetailed = lesson.populate({
+      path: 'section',
+      populate: {
+        path: 'course_id',
+        select: '_id author_id'
+      }
+    });
 
     if (!lesson) {
       throw new NotFoundException('Lesson not found');
     }
 
-    return lesson;
+    return lessonDetailed;
   }
 
   async store(saveLessonDto: SaveLessonDto, file: Express.Multer.File) {
     const video = UploadMulter(file, PATH_UPLOAD_LESSON_VIDEOS);
     const videoLink = video.filename;
-    const prefixFilename = "lssn-pht";
-    const lessonPhotoFilename = await getPhotoFilenameAfterVideoUpload(video, prefixFilename, PATH_UPLOAD_LESSON_PHOTOS);
+    const prefixFilename = 'lssn-pht';
+    const lessonPhotoFilename = await getPhotoFilenameAfterVideoUpload(
+      video,
+      prefixFilename,
+      PATH_UPLOAD_LESSON_PHOTOS,
+    );
 
     let data = {
       ...saveLessonDto,
       lssn_video_link: videoLink,
       lssn_video_photo: lessonPhotoFilename,
-    }
+    };
 
     const lessonCreated = await this.lessonModel.create(data);
 
@@ -67,8 +79,14 @@ export class LessonsService {
     id: string,
     saveLessonDto: SaveLessonDto,
     file: Express.Multer.File,
+    authorId: string
   ) {
     const lesson = await this.findById(id);
+
+    if (String(lesson.section.course_id.author_id) !== authorId) {
+      throw new ForbiddenException("You can't update a lesson who don't belong to you");
+    }
+
     let lessonPhotoFilename: string;
     let videoLink: string;
 
@@ -91,8 +109,12 @@ export class LessonsService {
       }
 
       const video = UploadMulter(file, PATH_UPLOAD_LESSON_VIDEOS);
-      const prefixFilename = "lssn-pht";
-      lessonPhotoFilename = await getPhotoFilenameAfterVideoUpload(video, prefixFilename, PATH_UPLOAD_LESSON_PHOTOS); 
+      const prefixFilename = 'lssn-pht';
+      lessonPhotoFilename = await getPhotoFilenameAfterVideoUpload(
+        video,
+        prefixFilename,
+        PATH_UPLOAD_LESSON_PHOTOS,
+      );
       videoLink = video.filename;
     }
 
@@ -109,8 +131,12 @@ export class LessonsService {
     return lessonUpdated.populate('section', '_id sect_title');
   }
 
-  async delete(id: string) {
+  async delete(id: string, authorId: string) {
     const lesson = await this.findById(id);
+
+    if (String(lesson.section.course_id.author_id) !== authorId) {
+      throw new ForbiddenException("You can't delete a lesson who don't belong to you");
+    }
 
     if (
       lesson.lssn_video_link &&

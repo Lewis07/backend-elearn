@@ -9,6 +9,7 @@ import {
   ParseFilePipeBuilder,
   Patch,
   Post,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors
@@ -64,6 +65,7 @@ export class LessonsController {
   async update(
     @Param('id') id: string,
     @Body() saveLessonDto,
+    @Req() req:any,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addValidator(
@@ -79,13 +81,13 @@ export class LessonsController {
     )
     file: Express.Multer.File,
   ) {
-    return await this.lessonsService.update(id, saveLessonDto, file);
+    return await this.lessonsService.update(id, saveLessonDto, file, req.user.id);
   }
 
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    await this.lessonsService.delete(id);
+  async delete(@Param('id') id: string, @Req() req:any) {
+    await this.lessonsService.delete(id, req.user.id);
   }
 }
