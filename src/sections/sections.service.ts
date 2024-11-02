@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,7 +10,6 @@ import { Course } from 'src/courses/schemas/course.schema';
 import { SaveSectionDto } from './dto/save-section.dto';
 import { Section } from './schemas/section.schema';
 import { Lesson } from 'src/lessons/schemas/lesson.schema';
-import { populate } from 'dotenv';
 
 @Injectable()
 export class SectionsService {
@@ -38,7 +38,10 @@ export class SectionsService {
       throw new NotFoundException('Section not found');
     }
 
-    return section;
+    return section.populate({
+      path: 'course_id',
+      select: '_id author_id'
+    });
   }
 
   async getLessons(id: string) {
@@ -57,19 +60,28 @@ export class SectionsService {
     return section.populate('course_id', 'crs_title');
   }
 
-  async update(id: string, section: SaveSectionDto) {
-    await this.findById(id);
+  async update(id: string, saveSection: SaveSectionDto, authorId: string) {
+    const section = await this.findById(id);
+
+    if (String(section.course_id.author_id) !== authorId) {
+      throw new ForbiddenException("You can't update a section who don't belong to you");
+    }
+
     const sectionUpdated = await this.sectionModel.findByIdAndUpdate(
       id,
-      section,
+      saveSection,
       { new: true },
     );
 
     return sectionUpdated.populate('course_id', 'crs_title');
   }
 
-  async delete(id: string) {
-    await this.findById(id);
+  async delete(id: string, authorId: string) {
+    const section = await this.findById(id);
+
+    if (String(section.course_id.author_id) !== authorId) {
+      throw new ForbiddenException("You can't delete a section who don't belong to you");
+    }
 
     return this.sectionModel.findByIdAndDelete(id);
   }

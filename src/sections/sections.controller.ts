@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { SaveSectionDto } from './dto/save-section.dto';
 import { SectionsService } from './sections.service';
@@ -33,15 +33,15 @@ export class SectionsController {
 
     @UseGuards(AuthGuard)
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() saveSectionDto: SaveSectionDto) {
-        return await this.sectionService.update(id, saveSectionDto);
+    async update(@Param('id') id: string, @Req() req: any, @Body() saveSectionDto: SaveSectionDto) {
+        return await this.sectionService.update(id, saveSectionDto, req.user.id);
     }
 
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
-    async delete(@Param('id') id: string) {
-        await this.sectionService.delete(id);
+    async delete(@Param('id') id: string, @Req() req: any) {
+        await this.sectionService.delete(id, req.user.id);
     }
 
     @UseGuards(AuthGuard)
