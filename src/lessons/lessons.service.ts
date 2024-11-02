@@ -4,10 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import * as ffmpeg from 'fluent-ffmpeg';
 import { existsSync } from 'fs';
 import mongoose, { Model } from 'mongoose';
 import { join } from 'path';
+import { getPhotoFilenameAfterVideoUpload } from 'src/utils/getPhotoAfterVideoUpload';
 import {
   PATH_UPLOAD_LESSON_PHOTOS,
   PATH_UPLOAD_LESSON_VIDEOS,
@@ -16,20 +16,6 @@ import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
 import { UploadMulter } from '../utils/upload/upload-multer.utils';
 import { SaveLessonDto } from './dto/save-lesson.dto';
 import { Lesson } from './schemas/lesson.schema';
-import internal from 'stream';
-
-interface IVideoLink {
-  filename: string;
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  size: number;
-  stream: internal.Readable;
-  destination: string;
-  path: string;
-  buffer: Buffer;
-}
 
 @Injectable()
 export class LessonsService {
@@ -63,7 +49,8 @@ export class LessonsService {
   async store(saveLessonDto: SaveLessonDto, file: Express.Multer.File) {
     const video = UploadMulter(file, PATH_UPLOAD_LESSON_VIDEOS);
     const videoLink = video.filename;
-    const lessonPhotoFilename = await this.savePhotoAfterVideoUpload(video);
+    const prefixFilename = "lssn-pht";
+    const lessonPhotoFilename = await getPhotoFilenameAfterVideoUpload(video, prefixFilename, PATH_UPLOAD_LESSON_PHOTOS);
 
     let data = {
       ...saveLessonDto,
@@ -104,7 +91,8 @@ export class LessonsService {
       }
 
       const video = UploadMulter(file, PATH_UPLOAD_LESSON_VIDEOS);
-      lessonPhotoFilename = await this.savePhotoAfterVideoUpload(video); 
+      const prefixFilename = "lssn-pht";
+      lessonPhotoFilename = await getPhotoFilenameAfterVideoUpload(video, prefixFilename, PATH_UPLOAD_LESSON_PHOTOS); 
       videoLink = video.filename;
     }
 
@@ -139,26 +127,5 @@ export class LessonsService {
     }
 
     return this.lessonModel.findByIdAndDelete(id);
-  }
-
-  async savePhotoAfterVideoUpload(videoLink: IVideoLink) {
-    const randomName = Array(10)
-      .fill(null)
-      .map(() => Math.round(Math.random() * 8).toString(8))
-      .join('');
-    const lessonPhotoFilename = `lssn-pht-${randomName}.png`;
-
-    await new Promise((resolve, reject) => {
-      ffmpeg(videoLink.path)
-        .screenshots({
-          timestamps: ['00:00:01'],
-          filename: lessonPhotoFilename,
-          folder: PATH_UPLOAD_LESSON_PHOTOS,
-        })
-        .on('end', resolve)
-        .on('error', (err: any) => reject(`Error capturing : ${err.message}`));
-    });
-
-    return lessonPhotoFilename;
   }
 }
