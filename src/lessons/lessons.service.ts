@@ -4,15 +4,32 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Lesson } from './schemas/lesson.schema';
-import mongoose, { Model } from 'mongoose';
-import { PATH_UPLOAD_LESSON } from '../utils/constant/path-upload.utils';
-import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
-import { join } from 'path';
+import * as ffmpeg from 'fluent-ffmpeg';
 import { existsSync } from 'fs';
+import mongoose, { Model } from 'mongoose';
+import { join } from 'path';
+import {
+  PATH_UPLOAD_LESSON_PHOTOS,
+  PATH_UPLOAD_LESSON_VIDEOS,
+} from '../utils/constant/path-upload.utils';
+import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
 import { UploadMulter } from '../utils/upload/upload-multer.utils';
 import { SaveLessonDto } from './dto/save-lesson.dto';
-import * as ffmpeg from 'fluent-ffmpeg';
+import { Lesson } from './schemas/lesson.schema';
+import internal from 'stream';
+
+interface IVideoLink {
+  filename: string;
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  stream: internal.Readable;
+  destination: string;
+  path: string;
+  buffer: Buffer;
+}
 
 @Injectable()
 export class LessonsService {
@@ -21,7 +38,7 @@ export class LessonsService {
   async findAll(): Promise<Lesson[]> {
     return this.lessonModel
       .find()
-      .populate("section", "_id sect_title")
+      .populate('section', '_id sect_title')
       .sort({ createdAt: -1 });
   }
 
@@ -44,44 +61,19 @@ export class LessonsService {
   }
 
   async store(saveLessonDto: SaveLessonDto, file: Express.Multer.File) {
+    const video = UploadMulter(file, PATH_UPLOAD_LESSON_VIDEOS);
+    const videoLink = video.filename;
+    const lessonPhotoFilename = await this.savePhotoAfterVideoUpload(video);
+
     let data = {
       ...saveLessonDto,
-    };
-
-    const pathVideoLesson = `${PATH_UPLOAD_LESSON}/videos`;
-    const videoLink = UploadMulter(file, pathVideoLesson);
-    const randomName = Array(10).fill(null).map(() => (Math.round(Math.random() * 8)).toString(8)).join('');
-    const pathPhotoLesson =  `${PATH_UPLOAD_LESSON}/photos`;
-    const lessonPhotoFilename = `lssn-pht-${randomName}.png`;
-
-    await new Promise((resolve, reject) => {
-      ffmpeg(videoLink.path)
-        .screenshots({
-          timestamps: ['00:00:01'],
-          filename: lessonPhotoFilename,
-          folder: pathPhotoLesson,
-        })
-        .on('end', resolve)
-        .on('error', (err) => reject(`Error capturing : ${err.message}`));
-    });
-
-    if (videoLink) {
-      data = {
-        ...data,
-        lssn_video_link: videoLink.filename,
-        lssn_video_photo: lessonPhotoFilename,
-      };
-    } else {
-      data = {
-        ...data,
-        lssn_video_link: null,
-        lssn_video_photo: null
-      };
+      lssn_video_link: videoLink,
+      lssn_video_photo: lessonPhotoFilename,
     }
 
     const lessonCreated = await this.lessonModel.create(data);
 
-    return lessonCreated.populate("section", "_id sect_title");
+    return lessonCreated.populate('section', '_id sect_title');
   }
 
   async update(
@@ -90,49 +82,83 @@ export class LessonsService {
     file: Express.Multer.File,
   ) {
     const lesson = await this.findById(id);
+    let lessonPhotoFilename: string;
+    let videoLink: string;
+
+    if (file === undefined) {
+      lessonPhotoFilename = lesson.lssn_video_photo;
+      videoLink = lesson.lssn_video_link;
+    } else {
+      if (
+        lesson.lssn_video_link &&
+        existsSync(join(PATH_UPLOAD_LESSON_VIDEOS, lesson.lssn_video_link))
+      ) {
+        removeFileIfExist(PATH_UPLOAD_LESSON_VIDEOS, lesson.lssn_video_link);
+      }
+
+      if (
+        lesson.lssn_video_photo &&
+        existsSync(join(PATH_UPLOAD_LESSON_PHOTOS, lesson.lssn_video_photo))
+      ) {
+        removeFileIfExist(PATH_UPLOAD_LESSON_PHOTOS, lesson.lssn_video_photo);
+      }
+
+      const video = UploadMulter(file, PATH_UPLOAD_LESSON_VIDEOS);
+      lessonPhotoFilename = await this.savePhotoAfterVideoUpload(video); 
+      videoLink = video.filename;
+    }
 
     let data = {
       ...saveLessonDto,
+      lssn_video_photo: lessonPhotoFilename,
+      lssn_video_link: videoLink,
     };
 
-    if (file != undefined) {
-      if (lesson.lssn_video_link && existsSync(join(PATH_UPLOAD_LESSON, lesson.lssn_video_link))) {
-        removeFileIfExist(PATH_UPLOAD_LESSON, lesson.lssn_video_link);
-      }
+    const lessonUpdated = await this.lessonModel.findByIdAndUpdate(id, data, {
+      new: true,
+    });
 
-      let videoLink = UploadMulter(file, PATH_UPLOAD_LESSON);
-
-      if (videoLink) {
-        data = {
-          ...data,
-          lssn_video_link: videoLink.filename,
-        };
-      }
-    } else {
-      data = {
-        ...data,
-        lssn_video_link: null,
-      };
-    }
-
-    const lessonUpdated = await this.lessonModel.findByIdAndUpdate(id, data, { new: true });
-
-    return lessonUpdated.populate("section", "_id sect_title");
+    return lessonUpdated.populate('section', '_id sect_title');
   }
 
   async delete(id: string) {
     const lesson = await this.findById(id);
-    const pathVideoLesson = `${PATH_UPLOAD_LESSON}/videos`;
-    const pathPhotoLesson = `${PATH_UPLOAD_LESSON}/photos`;
 
-    if (lesson.lssn_video_link && existsSync(join(pathVideoLesson, lesson.lssn_video_link))) {
-      removeFileIfExist(pathVideoLesson, lesson.lssn_video_link);
+    if (
+      lesson.lssn_video_link &&
+      existsSync(join(PATH_UPLOAD_LESSON_VIDEOS, lesson.lssn_video_link))
+    ) {
+      removeFileIfExist(PATH_UPLOAD_LESSON_VIDEOS, lesson.lssn_video_link);
     }
 
-    if (lesson.lssn_video_photo && existsSync(join(pathPhotoLesson, lesson.lssn_video_photo))) {
-      removeFileIfExist(pathPhotoLesson, lesson.lssn_video_photo);
+    if (
+      lesson.lssn_video_photo &&
+      existsSync(join(PATH_UPLOAD_LESSON_PHOTOS, lesson.lssn_video_photo))
+    ) {
+      removeFileIfExist(PATH_UPLOAD_LESSON_PHOTOS, lesson.lssn_video_photo);
     }
 
     return this.lessonModel.findByIdAndDelete(id);
+  }
+
+  async savePhotoAfterVideoUpload(videoLink: IVideoLink) {
+    const randomName = Array(10)
+      .fill(null)
+      .map(() => Math.round(Math.random() * 8).toString(8))
+      .join('');
+    const lessonPhotoFilename = `lssn-pht-${randomName}.png`;
+
+    await new Promise((resolve, reject) => {
+      ffmpeg(videoLink.path)
+        .screenshots({
+          timestamps: ['00:00:01'],
+          filename: lessonPhotoFilename,
+          folder: PATH_UPLOAD_LESSON_PHOTOS,
+        })
+        .on('end', resolve)
+        .on('error', (err: any) => reject(`Error capturing : ${err.message}`));
+    });
+
+    return lessonPhotoFilename;
   }
 }
