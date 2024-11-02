@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -142,8 +143,13 @@ export class CoursesService {
     id: string,
     editCourseDto: EditCourseDto,
     file: Express.Multer.File,
+    authorId: string
   ) {
     const course = await this.findById(id);
+    if (String(course.author_id) !== authorId) {
+      throw new ForbiddenException("You can't update a course who don't belong to you");
+    }
+
     let photoLink: string; 
 
     if (file === undefined) {
@@ -165,8 +171,12 @@ export class CoursesService {
     return this.courseModel.findByIdAndUpdate(id, data, { new: true });
   }
 
-  async delete(id: string) {
+  async delete(id: string, authorId: string) {
     const course = await this.findById(id);
+
+    if (String(course.author_id) !== authorId) {
+      throw new ForbiddenException("You can't delete a course who don't belong to you");
+    }
 
     if (existsSync(join(PATH_UPLOAD_COURSE, course.crs_photo))) {
       removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);

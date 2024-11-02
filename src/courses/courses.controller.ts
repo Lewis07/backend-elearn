@@ -70,6 +70,7 @@ export class CoursesController {
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async update(
     @Param('id') id: string,
+    @Req() req: any,
     @Body() editCourseDto: EditCourseDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
@@ -83,13 +84,13 @@ export class CoursesController {
     )
     file: Express.Multer.File,
   ) {
-    return await this.courseService.update(id, editCourseDto, file);
+    return await this.courseService.update(id, editCourseDto, file, req.user.id);
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async delete(@Param('id') id: string, @Res() res: Response) {
-    await this.courseService.delete(id);
+  async delete(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
+    await this.courseService.delete(id, req.user.id);
 
     return res.json({ courseId: id });
   }
