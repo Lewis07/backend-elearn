@@ -16,7 +16,7 @@ import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { plainToClass } from 'class-transformer';
 import { UserReset } from '../users/schemas/user-reset.schema';
-import { StripeCustomerService } from '../stripes/service/stripe-customer.service';
+import { StripeCustomerService } from '../payment/service/stripe-customer.service';
 
 @Injectable()
 export class AuthService {
@@ -46,9 +46,10 @@ export class AuthService {
       lastname: user.usr_lastname,
       photo: user.usr_photo,
       type: user.usr_type,
-      role: user.usr_role
+      role: user.usr_role,
+      customerId: user.stripe_customer_id,
     };
-    
+
     const accessToken = await this.jwtService.signAsync(payload);
 
     return { accessToken };
@@ -62,7 +63,7 @@ export class AuthService {
     let customerId = null;
 
     try {
-      const stripeCustomer = await this.stripeCustomerService.createcustomer(
+      const stripeCustomer = await this.stripeCustomerService.createCustomer(
         user.usr_username,
         user.usr_email,
       );
@@ -87,7 +88,7 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user) {
-      throw new BadRequestException("Email is not found");
+      throw new BadRequestException('Email is not found');
     }
 
     const data = {

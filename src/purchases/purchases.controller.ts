@@ -15,15 +15,13 @@ import { PurchasesService } from './purchases.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { SavePurchaseDto } from './dto/save-purchase.dto';
 import { Response } from 'express';
-import { StripePaymentIntentService } from '../stripes/service/stripe-payment-intent.service';
 import { UsersService } from 'src/users/users.service';
-import { StripeService } from 'src/stripes/service/stripe.service';
+import { StripeService } from 'src/payment/service/stripe.service';
 
 @Controller('purchases')
 export class PurchasesController extends StripeService {
   constructor(
     private purchaseService: PurchasesService,
-    private stripePaymentIntentService: StripePaymentIntentService,
     private userService: UsersService,
   ) {
     super();
@@ -58,16 +56,8 @@ export class PurchasesController extends StripeService {
     );
 
     const { payment_method_id } = purchase;
-    const stripeCustomerId = stripeCustomer.stripe_customer_id;
     const paymentMethodId = String(payment_method_id);
     const purchaseId = String(purchase._id);
-
-    await this.stripePaymentIntentService.create(
-      savePurchaseDto,
-      stripeCustomerId,
-      paymentMethodId,
-      purchaseId,
-    );
 
     return purchase;
   }
