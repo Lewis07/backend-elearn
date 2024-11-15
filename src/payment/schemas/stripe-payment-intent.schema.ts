@@ -1,7 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 
-const BillingDetailsSchema = new MongooseSchema({
+export interface IBillingDetail {
+  name: string;
+  email: string;
+  address: {
+    city: string;
+    line1: string;
+    postal_code: string;
+  };
+}
+
+export const BillingDetailsSchema = new MongooseSchema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   address: {
@@ -34,15 +44,7 @@ export class StripePaymentIntent {
   strp_paym_exp_year: number;
 
   @Prop({ type: BillingDetailsSchema, required: true })
-  strp_paym_billing_details: {
-    name: string;
-    email: string;
-    address: {
-      city: string;
-      line1: string;
-      postal_code: string;
-    };
-  };
+  strp_paym_billing_details: IBillingDetail;
 
   @Prop()
   strp_customer_id: string;

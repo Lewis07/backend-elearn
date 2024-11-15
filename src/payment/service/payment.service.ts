@@ -1,9 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { StripeService } from 'src/payment/service/stripe.service';
-import { PaymentBillingDetailsDto } from '../dto/payment-billing-details.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { StripePaymentIntent } from '../schemas/stripe-payment-intent.schema';
 import { Model } from 'mongoose';
+import { StripeService } from 'src/payment/service/stripe.service';
+import {
+  IBillingDetail,
+  StripePaymentIntent,
+} from '../schemas/stripe-payment-intent.schema';
+
+interface IPayInfoData {
+  strp_paym_amount: number;
+  strp_paym_currency: string;
+  strp_paym_status: string;
+  strp_paym_type: string;
+  strp_paym_exp_month: number;
+  strp_paym_exp_year: number;
+  strp_paym_billing_details: IBillingDetail;
+  strp_customer_id: string;
+}
 
 @Injectable()
 export class PaymentService extends StripeService {
@@ -31,7 +44,7 @@ export class PaymentService extends StripeService {
 
       const charges = chargesSearched.data[0];
 
-      const payInfoData = {
+      const payInfoData: IPayInfoData = {
         strp_paym_amount: charges.amount / 100,
         strp_paym_currency: charges.currency,
         strp_paym_status: charges.status,
@@ -39,7 +52,7 @@ export class PaymentService extends StripeService {
         strp_paym_exp_month: charges.payment_method_details.card.exp_month,
         strp_paym_exp_year: charges.payment_method_details.card.exp_year,
         strp_paym_billing_details: charges.billing_details,
-        strp_customer_id: charges.customer,
+        strp_customer_id: charges.customer as string,
       };
 
       return await this.stripePaymentIntentModel.create(payInfoData);
