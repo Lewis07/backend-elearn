@@ -37,7 +37,7 @@ export class PaymentService extends StripeService {
   }
 
   async savePaymentInformation(paymentRef: string) {
-    try {
+    /*try {
       const chargesSearched = await this.stripe.charges.search({
         query: `metadata[\'paymentRef\']:\'${paymentRef}\'`,
       });
@@ -59,6 +59,6 @@ export class PaymentService extends StripeService {
     } catch (error) {
       console.error('Error saving payment information:', error);
       throw error;
-    }
+    }*/
   }
 }

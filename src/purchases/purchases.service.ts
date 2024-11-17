@@ -46,6 +46,11 @@ export class PurchasesService {
       purch_reference: purchaseReference,
     };
 
-    return await this.purchaseModel.create(data);
+    try {
+      return await this.purchaseModel.create(data);
+    } catch (error) {
+      console.error('Error saving purchase:', error);
+      throw error;
+    }
   }
 }

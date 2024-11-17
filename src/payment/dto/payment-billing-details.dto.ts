@@ -1,10 +1,11 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class PaymentBillingDetailsDto {
   @IsNotEmpty({ message: 'Name is required' })
   name: string;
 
   @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail({}, { message: 'Enter an email valid' })
   email: string;
 
   @IsNotEmpty({ message: 'City is required' })
