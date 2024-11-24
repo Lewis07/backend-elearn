@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class PaymentBillingDetailsDto {
+export class SavePaymentAddressDto {
   @IsNotEmpty({ message: 'Name is required' })
   name: string;
 
@@ -16,6 +16,4 @@ export class PaymentBillingDetailsDto {
 
   @IsNotEmpty({ message: 'Postal code is required' })
   postal_code: string;
-
-  paymentRef: string;
 }

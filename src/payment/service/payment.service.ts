@@ -36,14 +36,13 @@ export class PaymentService extends StripeService {
     }
   }
 
-  async savePaymentInformation(paymentRef: string) {
-    /*try {
+  async savePaymentInformation(purchaseId: string) {
+    try {
       const chargesSearched = await this.stripe.charges.search({
-        query: `metadata[\'paymentRef\']:\'${paymentRef}\'`,
+        query: `metadata[\'purchase_id\']:\'${purchaseId}\'`,
       });
 
       const charges = chargesSearched.data[0];
-
       const payInfoData: IPayInfoData = {
         strp_paym_amount: charges.amount / 100,
         strp_paym_currency: charges.currency,
@@ -59,6 +58,6 @@ export class PaymentService extends StripeService {
     } catch (error) {
       console.error('Error saving payment information:', error);
       throw error;
-    }*/
+    }
   }
 }

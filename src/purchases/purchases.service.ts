@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { generateToken } from '../utils/generateToken.utils';
 import { SavePurchaseDto } from './dto/save-purchase.dto';
 import { Purchase } from './schemas/purchase.schema';
 
@@ -38,9 +37,9 @@ export class PurchasesService {
   }
 
   async store(purchase: SavePurchaseDto) {
-    const timestamp = Date.now().toString();
-    const randomString = generateToken(8).substring(0, 7).toUpperCase();
-    const purchaseReference = `${timestamp}${randomString}`;
+    const todayInTime = Date.now();
+    const purchaseReference = `ref-${todayInTime}`;
+
     const data = {
       ...purchase,
       purch_reference: purchaseReference,
