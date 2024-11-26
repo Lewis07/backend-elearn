@@ -28,8 +28,18 @@ async function bootstrap() {
   );
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  app.use('/uploads/courses', express.static(path.resolve(__dirname, '../src/uploads/courses')));
-  app.use('/uploads/lessons', express.static(path.resolve(__dirname, '../src/uploads/lessons')));
+  app.use(
+    '/uploads/courses',
+    express.static(path.resolve(__dirname, '../src/uploads/courses')),
+  );
+  app.use(
+    '/uploads/lessons/photos',
+    express.static(path.resolve(__dirname, '../src/uploads/lessons/photos')),
+  );
+  app.use(
+    '/uploads/lessons/videos',
+    express.static(path.resolve(__dirname, '../src/uploads/lessons/videos')),
+  );
 
   await app.listen(port);
 }

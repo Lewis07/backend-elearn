@@ -15,6 +15,7 @@ import { join } from 'path';
 import {
   PATH_UPLOAD_COURSE,
   PATH_UPLOAD_LESSON,
+  PATH_UPLOAD_LESSON_VIDEOS,
 } from '../utils/constant/path-upload.utils';
 import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
 import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
@@ -143,14 +144,16 @@ export class CoursesService {
     id: string,
     editCourseDto: EditCourseDto,
     file: Express.Multer.File,
-    authorId: string
+    authorId: string,
   ) {
     const course = await this.findById(id);
     if (String(course.author_id) !== authorId) {
-      throw new ForbiddenException("You can't update a course who don't belong to you");
+      throw new ForbiddenException(
+        "You can't update a course who don't belong to you",
+      );
     }
 
-    let photoLink: string; 
+    let photoLink: string;
 
     if (file === undefined) {
       photoLink = course.crs_photo;
@@ -175,7 +178,9 @@ export class CoursesService {
     const course = await this.findById(id);
 
     if (String(course.author_id) !== authorId) {
-      throw new ForbiddenException("You can't delete a course who don't belong to you");
+      throw new ForbiddenException(
+        "You can't delete a course who don't belong to you",
+      );
     }
 
     if (existsSync(join(PATH_UPLOAD_COURSE, course.crs_photo))) {
@@ -213,7 +218,7 @@ export class CoursesService {
       let lessonInSectionWithDuration = await Promise.all(
         copyLessonInSection.map(async (lesson) => {
           let duration = await getVideoDuration(
-            `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
+            `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
           );
           totalDurationLessonBySection += Number(duration);
 
@@ -222,10 +227,12 @@ export class CoursesService {
             lssn_title: lesson.lssn_title,
             lssn_video_link: lesson.lssn_video_link,
             lssn_is_free: lesson.lssn_is_free,
-            lssn_duration: getMinuteAndSecond(await getVideoDuration(
-              `${PATH_UPLOAD_LESSON}/${lesson.lssn_video_link}`,
-            )),
-          }
+            lssn_duration: getMinuteAndSecond(
+              await getVideoDuration(
+                `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
+              ),
+            ),
+          };
         }),
       );
 

@@ -13,6 +13,7 @@ import { SectionsModule } from './sections/sections.module';
 import { TeachersModule } from './teachers/teachers.module';
 import { UsersModule } from './users/users.module';
 import { IsUniqueConstraint } from './utils/validation/unique-field/isUniqueConstraint';
+import { LearningModule } from './learning/learning.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { IsUniqueConstraint } from './utils/validation/unique-field/isUniqueCons
     PurchasesModule,
     TeachersModule,
     PaymentModule,
+    LearningModule,
   ],
   controllers: [AppController],
   providers: [AppService, IsUniqueConstraint],
