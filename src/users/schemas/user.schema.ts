@@ -1,60 +1,44 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Exclude, Expose } from 'class-transformer';
-import { UserTypeEnum } from '../../utils/enum/user-type-enum.utils';
-import mongoose from 'mongoose';
+import { AbstractDocument } from 'src/core/document/abstract.document';
 import { RoleEnum } from 'src/utils/enum/role.enum';
+import { UserTypeEnum } from '../../utils/enum/user-type-enum.utils';
 
 @Schema({
   timestamps: true,
 })
-export class User {
-  @Expose()
-  _id: mongoose.Types.ObjectId;
-
+export class User extends AbstractDocument {
   @Prop({ trim: true })
-  @Expose()
   usr_photo?: string;
 
   @Prop({ required: true, trim: true })
-  @Expose()
   usr_username: string;
 
   @Prop({ trim: true })
-  @Expose()
   usr_firstname?: string;
 
   @Prop({ trim: true })
-  @Expose()
   usr_lastname?: string;
 
   @Prop({ required: true, unique: true, trim: true })
-  @Expose()
   usr_email: string;
 
   @Prop({ required: true, trim: true, minlength: 8 })
-  @Exclude()
   usr_password: string;
 
   @Prop({ required: true, default: new Date().toISOString() })
-  @Expose()
   usr_registered_date: Date;
 
-  @Expose()
   createdAt: Date;
 
-  @Expose()
   updatedAt: Date;
 
   @Prop({ default: UserTypeEnum.STUDENT })
-  @Expose()
   usr_type: UserTypeEnum;
 
   @Prop({ trim: true })
-  @Expose()
   stripe_customer_id: string;
 
   @Prop({ required: true, enum: RoleEnum, default: RoleEnum.USER })
-  @Expose()
   usr_role: RoleEnum;
 }
 

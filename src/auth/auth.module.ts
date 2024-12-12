@@ -12,6 +12,7 @@ import {
   StripeCustomerSchema,
 } from '../payment/schemas/stripe-customer.schema';
 import { StripeCustomerService } from 'src/payment/service/stripe-customer.service';
+import { UserRepository } from 'src/users/repository/user.repository';
 
 @Module({
   imports: [
@@ -31,6 +32,6 @@ import { StripeCustomerService } from 'src/payment/service/stripe-customer.servi
     SendMailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, StripeCustomerService],
+  providers: [AuthService, StripeCustomerService, UserRepository],
 })
 export class AuthModule {}

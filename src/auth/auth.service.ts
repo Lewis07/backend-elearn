@@ -9,20 +9,21 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { validatePassword } from '../utils/validatePassword.utils';
 import { SignInDto } from './dto/singIn.dto';
-import { RegisterDto } from './dto/register.dto';
+import { Register } from './dto/register.dto';
 import { hashPassword } from '../utils/hashPassword.utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
-import { plainToClass } from 'class-transformer';
 import { UserReset } from '../users/schemas/user-reset.schema';
 import { StripeCustomerService } from '../payment/service/stripe-customer.service';
+import { UserRepository } from 'src/users/repository/user.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private readonly userRepository: UserRepository,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(UserReset.name) private userResetModel: Model<UserReset>,
     private stripeCustomerService: StripeCustomerService,
@@ -56,10 +57,10 @@ export class AuthService {
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
-  async signUp(registerDto: RegisterDto): Promise<User> {
+  async signUp(registerDto: Register): Promise<User> {
     const hash_password = await hashPassword(registerDto.usr_password);
     const data = { ...registerDto, usr_password: hash_password };
-    const user = await this.userModel.create(data);
+    const user = await this.userRepository.create(data);
     let customerId = null;
 
     try {
@@ -72,14 +73,11 @@ export class AuthService {
       console.error(error);
     }
 
-    const userWithCustomerIdStripe = await this.userModel.findByIdAndUpdate(
-      user._id,
-      { stripe_customer_id: customerId },
-    );
-
-    return plainToClass(User, userWithCustomerIdStripe, {
-      excludeExtraneousValues: true,
-    });
+    return await this.userModel
+      .findByIdAndUpdate(user._id, {
+        stripe_customer_id: customerId,
+      })
+      .select('-usr_password');
   }
 
   async resetPassword(email: string, token: string): Promise<UserReset> {
