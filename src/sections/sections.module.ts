@@ -4,6 +4,8 @@ import { SectionsService } from './sections.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Section, sectionSchema } from './schemas/section.schema';
 import { JwtModule } from '@nestjs/jwt';
+import { Course, CourseSchema } from 'src/courses/schemas/course.schema';
+import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
 
 @Module({
   imports: [
@@ -14,11 +16,13 @@ import { JwtModule } from '@nestjs/jwt';
         signOptions: { expiresIn: process.env.JWT_EXPIRATION_TIME },
       }),
     }),
-    MongooseModule.forFeature([{
-      name: Section.name, schema: sectionSchema 
-    }])
+    MongooseModule.forFeature([
+      { name: Section.name, schema: sectionSchema },
+      { name: Course.name, schema: CourseSchema },
+      { name: Lesson.name, schema: LessonSchema },
+    ]),
   ],
   controllers: [SectionsController],
-  providers: [SectionsService]
+  providers: [SectionsService],
 })
 export class SectionsModule {}

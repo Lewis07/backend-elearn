@@ -1,91 +1,30 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  InternalServerErrorException,
-  Param,
-  Patch,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
-import { PurchasesService } from './purchases.service';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { StripeService } from 'src/payment/service/stripe.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { SavePurchaseDto } from './dto/save-purchase.dto';
-import { Response } from 'express';
-import { StripePaymentIntentService } from '../stripes/service/stripe-payment-intent.service';
-import { UsersService } from 'src/users/users.service';
-import { StripeService } from 'src/stripes/service/stripe.service';
+import { PurchasesService } from './purchases.service';
 
 @Controller('purchases')
 export class PurchasesController extends StripeService {
-  constructor(
-    private purchaseService: PurchasesService,
-    private stripePaymentIntentService: StripePaymentIntentService,
-    private userService: UsersService,
-  ) {
+  constructor(private purchaseService: PurchasesService) {
     super();
   }
 
   @UseGuards(AuthGuard)
-  @Get('list')
+  @Get()
   async list() {
     return await this.purchaseService.findAll();
   }
 
   @UseGuards(AuthGuard)
-  @Get('show/:id')
+  @Get()
   async show(@Param('id') id: string) {
     return await this.purchaseService.findById(id);
   }
 
   @UseGuards(AuthGuard)
-  @Post('add')
-  async add(@Req() req: any, @Body() savePurchaseDto: SavePurchaseDto) {
-    const stripeCustomer = await this.userService.findOneById(req.user.id);
-
-    if (!stripeCustomer) {
-      throw new InternalServerErrorException(
-        "Error from server, You don't have registered to payment plateform",
-      );
-    }
-
-    const purchase = await this.purchaseService.store(
-      req.user.id,
-      savePurchaseDto,
-    );
-
-    const { payment_method_id } = purchase;
-    const stripeCustomerId = stripeCustomer.stripe_customer_id;
-    const paymentMethodId = String(payment_method_id);
-    const purchaseId = String(purchase._id);
-
-    await this.stripePaymentIntentService.create(
-      savePurchaseDto,
-      stripeCustomerId,
-      paymentMethodId,
-      purchaseId,
-    );
-
-    return purchase;
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('update/:id')
-  async update(
-    @Param('id') id: string,
-    @Body() savePurchaseDto: SavePurchaseDto,
-  ) {
-    return await this.purchaseService.update(id, savePurchaseDto);
-  }
-
-  @UseGuards(AuthGuard)
-  @Delete('delete/:id')
-  async delete(@Param('id') id: string, @Res() res: Response) {
-    await this.purchaseService.delete(id);
-
-    return res.json({ purchaseId: id });
+  @Post()
+  async add(@Body() savePurchaseDto: SavePurchaseDto) {
+    return await this.purchaseService.store(savePurchaseDto);
   }
 }

@@ -12,8 +12,14 @@ export class Lesson {
     @Prop({ trim: true, required: true })
     lssn_video_link?: string;
 
+    @Prop({ trim: true, required: true })
+    lssn_video_photo?: string;
+
+    @Prop({ default: false })
+    lssn_is_free: boolean;
+
     @Prop({ type: mongoose.Types.ObjectId, ref: 'Section', required: true })
-    section_id: Section;
+    section: Section;
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);    

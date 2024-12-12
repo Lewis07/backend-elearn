@@ -3,44 +3,44 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   ParseFilePipeBuilder,
   Patch,
   Post,
-  Res,
+  Req,
   UploadedFile,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
-import { LessonsService } from './lessons.service';
-import { AuthGuard } from '../auth/auth.guard';
-import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CustomUploadFileTypeValidatorOptions } from '../utils/validation/CustomUploadFileTypeValidator';
 import { memoryStorage } from 'multer';
+import { AuthGuard } from '../auth/auth.guard';
 import { MAX_SIZE_IN_BYTES_UPLOAD_VIDEO } from '../utils/constant/max-size-upload';
 import { VALID_VIDEO_MIME_TYPES } from '../utils/constant/mime-types';
+import { CustomUploadFileTypeValidatorOptions } from '../utils/validation/CustomUploadFileTypeValidator';
 import { SaveLessonDto } from './dto/save-lesson.dto';
+import { LessonsService } from './lessons.service';
 
 @Controller('lessons')
 export class LessonsController {
   constructor(private lessonsService: LessonsService) {}
 
   @UseGuards(AuthGuard)
-  @Get('list')
+  @Get()
   async list() {
     return await this.lessonsService.findAll();
   }
 
   @UseGuards(AuthGuard)
-  @Get('show/:id')
+  @Get(':id')
   async show(@Param('id') id: string) {
     return await this.lessonsService.findById(id);
   }
 
   @UseGuards(AuthGuard)
-  @Post('add')
+  @Post()
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async add(
     @Body() saveLessonDto: SaveLessonDto,
@@ -60,11 +60,12 @@ export class LessonsController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('update/:id')
+  @Patch(':id')
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async update(
     @Param('id') id: string,
     @Body() saveLessonDto,
+    @Req() req:any,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addValidator(
@@ -80,14 +81,13 @@ export class LessonsController {
     )
     file: Express.Multer.File,
   ) {
-    return await this.lessonsService.update(id, saveLessonDto, file);
+    return await this.lessonsService.update(id, saveLessonDto, file, req.user.id);
   }
 
   @UseGuards(AuthGuard)
-  @Delete('delete/:id')
-  async delete(@Param('id') id: string, @Res() res: Response) {
-    await this.lessonsService.delete(id);
-
-    return res.json({ lessonId: id });
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  async delete(@Param('id') id: string, @Req() req:any) {
+    await this.lessonsService.delete(id, req.user.id);
   }
 }

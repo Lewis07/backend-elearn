@@ -5,12 +5,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Course, CourseSchema } from './schemas/course.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { Comment, CommentSchema } from '../comments/schemas/comment.schema';
+import { Section, sectionSchema } from 'src/sections/schemas/section.schema';
+import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Course.name, schema: CourseSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: Section.name, schema: sectionSchema },
+      { name: Lesson.name, schema: LessonSchema },
     ]),
     JwtModule.registerAsync({
       useFactory: async () => ({

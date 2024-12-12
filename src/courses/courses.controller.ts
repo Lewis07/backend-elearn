@@ -29,20 +29,23 @@ import { MAX_SIZE_IN_BYTES_UPLOAD_PHOTO } from '../utils/constant/max-size-uploa
 export class CoursesController {
   constructor(private courseService: CoursesService) {}
 
-  @UseGuards(AuthGuard)
-  @Get('list')
+  @Get()
   async list() {
     return await this.courseService.findAll();
   }
 
-  @UseGuards(AuthGuard)
   @Get('show/:id')
-  async show(@Param('id') id: string) {
+  async showById(@Param('id') id: string) {
     return await this.courseService.findById(id);
   }
 
+  @Get('view/:slug')
+  async viewBySlug(@Param('slug') slug: string) {
+    return await this.courseService.findBySlug(slug);
+  }
+
   @UseGuards(AuthGuard)
-  @Post('add')
+  @Post()
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async add(
     @Req() req: any,
@@ -63,10 +66,11 @@ export class CoursesController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('update/:id')
+  @Patch(':id')
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async update(
     @Param('id') id: string,
+    @Req() req: any,
     @Body() editCourseDto: EditCourseDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
@@ -76,18 +80,23 @@ export class CoursesController {
           }),
         )
         .addMaxSizeValidator({ maxSize: MAX_SIZE_IN_BYTES_UPLOAD_PHOTO })
-        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY, fileIsRequired: false }),
     )
     file: Express.Multer.File,
   ) {
-    return await this.courseService.update(id, editCourseDto, file);
+    return await this.courseService.update(id, editCourseDto, file, req.user.id);
   }
 
   @UseGuards(AuthGuard)
-  @Delete('delete/:id')
-  async delete(@Param('id') id: string, @Res() res: Response) {
-    await this.courseService.delete(id);
+  @Delete(':id')
+  async delete(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
+    await this.courseService.delete(id, req.user.id);
 
     return res.json({ courseId: id });
+  }
+
+  @Get('contents/:id')
+  async contents(@Param('id') id: string) {
+    return this.courseService.getContent(id);
   }
 }

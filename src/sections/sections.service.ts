@@ -1,46 +1,104 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Section } from './schemas/section.schema';
 import mongoose, { Model } from 'mongoose';
+import { Course } from 'src/courses/schemas/course.schema';
 import { SaveSectionDto } from './dto/save-section.dto';
+import { Section } from './schemas/section.schema';
+import { Lesson } from 'src/lessons/schemas/lesson.schema';
 
 @Injectable()
 export class SectionsService {
-    constructor(@InjectModel(Section.name) private sectionModel: Model<Section>) {}
+  constructor(
+    @InjectModel(Section.name) private sectionModel: Model<Section>,
+    @InjectModel(Course.name) private courseModel: Model<Course>,
+    @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
+  ) {}
 
-    async findAll() {
-        return this.sectionModel.find();
-    }
-    
-    async findById(id: string) {
-        const isvalidId = mongoose.isValidObjectId(id);
+  async findAll() {
+    return this.sectionModel.find().sort({ createdAt: -1 });
+  }
 
-        if (!isvalidId) {
-            throw new BadRequestException("Wrong mongoose id, please enter a valid id");
-        }
+  async findById(id: string) {
+    const isvalidId = mongoose.isValidObjectId(id);
 
-        const section = await this.sectionModel.findById(id);
-
-        if (!section) {
-            throw new NotFoundException("Section not found");
-        }
-
-        return section;
+    if (!isvalidId) {
+      throw new BadRequestException(
+        'Wrong mongoose id, please enter a valid id',
+      );
     }
 
-    async store (section: SaveSectionDto) {
-        return this.sectionModel.create(section);
+    const section = await this.sectionModel.findById(id);
+
+    if (!section) {
+      throw new NotFoundException('Section not found');
     }
 
-    async update(id: string, section: SaveSectionDto) {
-        await this.findById(id);
+    return section.populate({
+      path: 'course_id',
+      select: '_id author_id'
+    });
+  }
 
-        return this.sectionModel.findByIdAndUpdate(id, section, { new: true });
+  async getLessons(id: string) {
+    await this.findById(id);
+    const lessons = await this.lessonModel.find({ section: id })
+                                          .populate("section", "_id sect_title");
+
+    return lessons;
+  }
+
+  async store(data: SaveSectionDto) {
+    const sectionCreated = await this.sectionModel.create(data);
+    const sectionId = sectionCreated._id;
+    const section = await this.findById(String(sectionId));
+
+    return section.populate('course_id', 'crs_title');
+  }
+
+  async update(id: string, saveSection: SaveSectionDto, authorId: string) {
+    const section = await this.findById(id);
+
+    if (String(section.course_id.author_id) !== authorId) {
+      throw new ForbiddenException("You can't update a section who don't belong to you");
     }
 
-    async delete(id: string) {
-        await this.findById(id);
+    const sectionUpdated = await this.sectionModel.findByIdAndUpdate(
+      id,
+      saveSection,
+      { new: true },
+    );
 
-        return this.sectionModel.findByIdAndDelete(id);
+    return sectionUpdated.populate('course_id', 'crs_title');
+  }
+
+  async delete(id: string, authorId: string) {
+    const section = await this.findById(id);
+
+    if (String(section.course_id.author_id) !== authorId) {
+      throw new ForbiddenException("You can't delete a section who don't belong to you");
     }
+
+    return this.sectionModel.findByIdAndDelete(id);
+  }
+
+  async findByCourse(id: string) {
+    const isValidId = mongoose.isValidObjectId(id);
+
+    if (!isValidId) {
+      throw new BadRequestException('Wrong mongoose id, please enter valid id');
+    }
+
+    const course = await this.courseModel.findById(id);
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    return await this.sectionModel.find({ course_id: id });
+  }
 }

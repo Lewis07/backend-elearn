@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,40 +12,61 @@ import { EditCourseDto } from './dto/edit-course.dto';
 import { Comment } from '../comments/schemas/comment.schema';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { PATH_UPLOAD_COURSE } from '../utils/constant/path-upload.utils';
+import {
+  PATH_UPLOAD_COURSE,
+  PATH_UPLOAD_LESSON,
+  PATH_UPLOAD_LESSON_VIDEOS,
+} from '../utils/constant/path-upload.utils';
 import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
 import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
+import slugify from 'slugify';
+import { Section } from 'src/sections/schemas/section.schema';
+import { Lesson } from 'src/lessons/schemas/lesson.schema';
+import {
+  getHourMinute,
+  getMinute,
+  getMinuteAndSecond,
+  getVideoDuration,
+} from 'src/utils/duration.utils';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<Course>,
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
+    @InjectModel(Section.name) private sectionModel: Model<Section>,
+    @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
   ) {}
 
   async findAll() {
-    let courses = await this.courseModel.find().sort({ _id: -1 });
+    let courses = await this.courseModel.find().sort({ createdAt: -1 });
     let courseWithAverageRating = [];
 
     for (const course of courses) {
-      const comments = await this.commentModel.find({ course_id: course._id });
+      const comments = await this.commentModel.find({ course: course._id });
 
       let averageRating = 0;
-      let totalCommentByCourse = await this.commentModel.countDocuments({
-        course_id: course._id,
-      });
+      let totalCommentByCourse = comments.length;
 
       if (totalCommentByCourse !== 0) {
-        let totalRatingByCourse = comments.reduce((accumulator: number, comment: Comment) => accumulator + Number(comment.comm_rating), 0);
-        averageRating = Number(totalRatingByCourse) / Number(totalCommentByCourse);
-        averageRating = Number(averageRating.toFixed(2));
-      } 
+        let totalRatingByCourse = comments.reduce(
+          (accumulator: number, comment: Comment) =>
+            accumulator + Number(comment.comm_rating),
+          0,
+        );
+        averageRating =
+          Number(totalRatingByCourse) / Number(totalCommentByCourse);
+        averageRating = Number(averageRating.toFixed(1));
+      }
 
-      courseWithAverageRating = [...courseWithAverageRating, {
-        course,
-        averageRating,
-        totalCommentByCourse
-      }]
+      courseWithAverageRating = [
+        ...courseWithAverageRating,
+        {
+          course,
+          averageRating,
+          totalCommentByCourse,
+        },
+      ];
     }
 
     return courseWithAverageRating;
@@ -66,10 +88,45 @@ export class CoursesService {
     return course;
   }
 
-  async store(authorId: string, createCourseDto: CreateCourseDto, file: Express.Multer.File) {
+  async findBySlug(slug: string) {
+    const course = await this.courseModel.findOne({ crs_slug: slug });
+    let courseWithAverageRating = {};
+    let averageRating = 0;
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    const comments = await this.commentModel.find({ course: course._id });
+    let totalCommentByCourse = comments.length;
+
+    if (totalCommentByCourse !== 0) {
+      let totalRatingByCourse = comments.reduce(
+        (accumulator: number, comment: Comment) =>
+          accumulator + Number(comment.comm_rating),
+        0,
+      );
+      averageRating = totalRatingByCourse / totalCommentByCourse;
+      averageRating = Number(averageRating.toFixed(1));
+    }
+
+    return {
+      ...courseWithAverageRating,
+      course,
+      averageRating,
+      totalCommentByCourse,
+    };
+  }
+
+  async store(
+    authorId: string,
+    createCourseDto: CreateCourseDto,
+    file: Express.Multer.File,
+  ) {
     let data = {
       ...createCourseDto,
-      author_id: authorId
+      author_id: authorId,
+      crs_slug: slugify(createCourseDto.crs_title),
     };
 
     let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
@@ -83,43 +140,120 @@ export class CoursesService {
     return this.courseModel.create(data);
   }
 
-  async update(id: string, editCourseDto: EditCourseDto, file: Express.Multer.File) {
+  async update(
+    id: string,
+    editCourseDto: EditCourseDto,
+    file: Express.Multer.File,
+    authorId: string,
+  ) {
     const course = await this.findById(id);
+    if (String(course.author_id) !== authorId) {
+      throw new ForbiddenException(
+        "You can't update a course who don't belong to you",
+      );
+    }
 
-    let data = {
-      ...editCourseDto
-    };
+    let photoLink: string;
 
-    if (file != undefined) {
+    if (file === undefined) {
+      photoLink = course.crs_photo;
+    } else {
       if (existsSync(join(PATH_UPLOAD_COURSE, course.crs_photo))) {
         removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);
       }
 
-      let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
-
-      if (photoLink) {
-        data = {
-          ...data,
-          crs_photo: photoLink.filename,
-        };
-      }
-    } else {
-      data = {
-        ...data,
-        crs_photo: null,
-      };
+      let photo = UploadMulter(file, PATH_UPLOAD_COURSE);
+      photoLink = photo.filename;
     }
+
+    let data = {
+      ...editCourseDto,
+      crs_photo: photoLink,
+    };
 
     return this.courseModel.findByIdAndUpdate(id, data, { new: true });
   }
 
-  async delete(id: string) {
+  async delete(id: string, authorId: string) {
     const course = await this.findById(id);
+
+    if (String(course.author_id) !== authorId) {
+      throw new ForbiddenException(
+        "You can't delete a course who don't belong to you",
+      );
+    }
 
     if (existsSync(join(PATH_UPLOAD_COURSE, course.crs_photo))) {
       removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);
     }
 
     return this.courseModel.findByIdAndDelete(id);
+  }
+
+  async getContent(courseId: string) {
+    await this.findById(courseId);
+    let courseContents = [];
+
+    const sections = await this.sectionModel
+      .find({ course_id: courseId })
+      .select('_id sect_title');
+
+    const totalSections = sections.length;
+    let totalLessons = 0;
+    let totalDuration = 0;
+
+    for (const section of sections) {
+      const sectionId = String(section._id);
+      let lessonsInSection = await this.lessonModel
+        .find({
+          section: sectionId,
+        })
+        .select('_id lssn_title lssn_video_link lssn_is_free');
+
+      totalLessons += lessonsInSection.length;
+
+      let copyLessonInSection = [...lessonsInSection];
+      let totalDurationLessonBySection = 0;
+
+      let lessonInSectionWithDuration = await Promise.all(
+        copyLessonInSection.map(async (lesson) => {
+          let duration = await getVideoDuration(
+            `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
+          );
+          totalDurationLessonBySection += Number(duration);
+
+          return {
+            _id: lesson._id,
+            lssn_title: lesson.lssn_title,
+            lssn_video_link: lesson.lssn_video_link,
+            lssn_is_free: lesson.lssn_is_free,
+            lssn_duration: getMinuteAndSecond(
+              await getVideoDuration(
+                `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
+              ),
+            ),
+          };
+        }),
+      );
+
+      totalDuration += totalDurationLessonBySection;
+
+      courseContents = [
+        ...courseContents,
+        {
+          section,
+          lessons: lessonInSectionWithDuration,
+          countLesson: lessonsInSection.length,
+          countDuration: getMinute(totalDurationLessonBySection),
+        },
+      ];
+    }
+
+    return {
+      data: courseContents,
+      totalSections,
+      totalLessons,
+      totalDuration: getHourMinute(totalDuration),
+    };
   }
 }

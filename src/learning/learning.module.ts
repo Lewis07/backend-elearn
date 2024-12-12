@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
+import { LearningController } from './learning.controller';
+import { LearningService } from './learning.service';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PurchasesController } from './purchases.controller';
-import { PurchasesService } from './purchases.service';
-import { Purchase, PurchaseSchema } from './schemas/purchase.schema';
+import {
+  Purchase,
+  PurchaseSchema,
+} from 'src/purchases/schemas/purchase.schema';
 
 @Module({
   imports: [
@@ -18,7 +21,7 @@ import { Purchase, PurchaseSchema } from './schemas/purchase.schema';
       { name: Purchase.name, schema: PurchaseSchema },
     ]),
   ],
-  providers: [PurchasesService],
-  controllers: [PurchasesController],
+  controllers: [LearningController],
+  providers: [LearningService],
 })
-export class PurchasesModule {}
+export class LearningModule {}
