@@ -889,7 +889,13 @@
     jsonc-parser "3.2.1"
     pluralize "8.0.0"
 
-<<<<<<< HEAD
+"@nestjs/serve-static@^4.0.2":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/serve-static/-/serve-static-4.0.2.tgz#f003bbd90922bdc73d0261edacf001dfef174c96"
+  integrity sha512-cT0vdWN5ar7jDI2NKbhf4LcwJzU4vS5sVpMkVrHuyLcltbrz6JdGi1TfIMMatP2pNiq5Ie/uUdPSFDVaZX/URQ==
+  dependencies:
+    path-to-regexp "0.2.5"
+
 "@nestjs/swagger@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@nestjs/swagger/-/swagger-8.1.0.tgz#e55434053df454b5058ead94e33d94dcf4525e8f"
@@ -901,14 +907,6 @@
     lodash "4.17.21"
     path-to-regexp "3.3.0"
     swagger-ui-dist "5.18.2"
-=======
-"@nestjs/serve-static@^4.0.2":
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/@nestjs/serve-static/-/serve-static-4.0.2.tgz#f003bbd90922bdc73d0261edacf001dfef174c96"
-  integrity sha512-cT0vdWN5ar7jDI2NKbhf4LcwJzU4vS5sVpMkVrHuyLcltbrz6JdGi1TfIMMatP2pNiq5Ie/uUdPSFDVaZX/URQ==
-  dependencies:
-    path-to-regexp "0.2.5"
->>>>>>> main
 
 "@nestjs/testing@^10.0.0":
   version "10.3.6"

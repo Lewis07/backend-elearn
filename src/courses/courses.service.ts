@@ -14,7 +14,6 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import {
   PATH_UPLOAD_COURSE,
-  PATH_UPLOAD_LESSON,
   PATH_UPLOAD_LESSON_VIDEOS,
 } from '../utils/constant/path-upload.utils';
 import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
