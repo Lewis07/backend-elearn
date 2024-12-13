@@ -1,29 +1,34 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
-  BadRequestException,
   Injectable,
+  InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { IRegistration } from 'src/interfaces/users/IRegistration';
 import { StripeCustomer } from 'src/payment/schemas/stripe-customer.schema';
+import { resetPasswordTemplate } from 'src/templates/reset-password';
+import { UserResetRepository } from 'src/users/repository/user-reset.repository';
 import { UserRepository } from 'src/users/repository/user.repository';
+import { SUBJECT_RESET_PASSWORD } from 'src/utils/constant/email';
+import { TOKEN_AUTH_EXPIRED_AT } from 'src/utils/constant/token-expiration';
+import { generateToken } from 'src/utils/generateToken.utils';
 import { UserReset } from '../users/schemas/user-reset.schema';
 import { User } from '../users/schemas/user.schema';
 import { hashPassword } from '../utils/hashPassword.utils';
 import { validatePassword } from '../utils/validatePassword.utils';
+import { Registration } from './dto/registration.dto';
 import { SignIn } from './dto/singIn.dto';
 import { StripeCustomerService } from './stripe-customer.service';
-import { Registration } from './dto/registration.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
+    private mailerService: MailerService,
     private readonly userRepository: UserRepository,
-    @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(UserReset.name) private userResetModel: Model<UserReset>,
+    private readonly userResetRepository: UserResetRepository,
     private stripeCustomerService: StripeCustomerService,
   ) {}
 
@@ -88,23 +93,38 @@ export class AuthService {
     return userWithStripeCustomerId;
   }
 
-  async resetPassword(email: string, token: string): Promise<UserReset> {
-    const now = new Date();
-    const tokenExpiredAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  async resetPassword(email: string): Promise<UserReset> {
     const user = await this.userRepository.findOne({
       usr_email: email,
     });
 
     if (!user) {
-      throw new BadRequestException('Email is not found');
+      throw new NotFoundException('The email does not exist in plateform');
+    }
+
+    user.usr_password = null;
+
+    const token = generateToken(40);
+    const forgotPasswordLink = `${process.env.FORGOT_PASSWORD_LINK}/${token}`;
+    const templateHtml = resetPasswordTemplate(user, forgotPasswordLink);
+
+    try {
+      await this.mailerService.sendMail({
+        from: process.env.EMAIL_FROM,
+        to: email,
+        subject: SUBJECT_RESET_PASSWORD,
+        html: templateHtml,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
     }
 
     const data = {
       usr_rest_email: email,
       usr_rest_token: token,
-      usr_rest_expired_at: tokenExpiredAt,
+      usr_rest_expired_at: TOKEN_AUTH_EXPIRED_AT,
     };
 
-    return await this.userResetModel.create(data);
+    return await this.userResetRepository.create(data);
   }
 }

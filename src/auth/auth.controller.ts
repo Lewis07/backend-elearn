@@ -14,24 +14,20 @@ import {
 import { Response } from 'express';
 import * as moment from 'moment';
 import { UserReset } from 'src/users/schemas/user-reset.schema';
-import { generateToken } from 'src/utils/generateToken.utils';
-import { SendMailService } from '../mailer/send-mail.service';
+import { User } from 'src/users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
-import { subject_reset_password } from '../utils/email.utils';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { User } from 'src/users/schemas/user.schema';
-import { SignIn } from './dto/singIn.dto';
 import { Registration } from './dto/registration.dto';
+import { SignIn } from './dto/singIn.dto';
+import { ResetPassword } from './dto/reset-password.dto';
 
 @Controller('')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
-    private sendMailService: SendMailService,
   ) {}
 
   @Post('login')
@@ -53,33 +49,8 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  async resetPassword(@Body() { email }: ResetPasswordDto): Promise<UserReset> {
-    const user = await this.usersService.findOneByEmail(email);
-
-    if (!user) {
-      throw new NotFoundException('The email is not exist in plateform');
-    }
-
-    const token = generateToken(40);
-    const forgotPasswordLink = `${process.env.FORGOT_PASSWORD_LINK}/${token}`;
-
-    const template = `
-            <p>Hello ${user.usr_username},</p>
-            <p>To reset your password, click on this link <a href=${forgotPasswordLink}>${forgotPasswordLink}</a></p>
-        `;
-
-    try {
-      await this.sendMailService.send(
-        process.env.EMAIL_MAILHOG_FROM,
-        email,
-        subject_reset_password,
-        template,
-      );
-    } catch (error) {
-      throw new InternalServerErrorException();
-    }
-
-    return await this.authService.resetPassword(email, token);
+  async resetPassword(@Body() { email }: ResetPassword): Promise<UserReset> {
+    return this.authService.resetPassword(email);
   }
 
   @Post('forgot-password/:token')

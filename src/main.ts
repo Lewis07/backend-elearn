@@ -8,10 +8,13 @@ import { FRONTEND_URL } from './utils/constant/url';
 import * as express from 'express';
 import * as path from 'path';
 
+export const LOGO = process.env.API_URL + '/assets/img/elearn-light.png';
+
 async function bootstrap() {
   dotenv.config();
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 4000;
+
   app.setGlobalPrefix('/api');
   app.enableCors({ origin: [FRONTEND_URL] });
   app.useGlobalPipes(
@@ -27,6 +30,7 @@ async function bootstrap() {
       stopAtFirstError: true,
     }),
   );
+
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   const config = new DocumentBuilder()
@@ -35,8 +39,10 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('Elearned')
     .build();
+
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
+
   app.use(
     '/uploads/courses',
     express.static(path.resolve(__dirname, '../src/uploads/courses')),
@@ -48,6 +54,12 @@ async function bootstrap() {
   app.use(
     '/uploads/lessons/videos',
     express.static(path.resolve(__dirname, '../src/uploads/lessons/videos')),
+  );
+  app.use(
+    '/assets/img/elearn-light.png',
+    express.static(
+      path.resolve(__dirname, '../src/assets/img/elearn-light.png'),
+    ),
   );
 
   await app.listen(port);

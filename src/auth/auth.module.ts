@@ -14,6 +14,7 @@ import { User, UserSchema } from '../users/schemas/user.schema';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { StripeCustomerRepository } from 'src/users/repository/stripe-customer.repository';
+import { UserResetRepository } from 'src/users/repository/user-reset.repository';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { StripeCustomerRepository } from 'src/users/repository/stripe-customer.r
     StripeCustomerService,
     UserRepository,
     StripeCustomerRepository,
+    UserResetRepository,
   ],
 })
 export class AuthModule {}

@@ -1,15 +1,16 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { AbstractDocument } from 'src/core/document/abstract.document';
 
 @Schema()
-export class UserReset {
-    @Prop({ required: true, trim: true })
-    usr_rest_email: string;
+export class UserReset extends AbstractDocument {
+  @Prop({ required: true, trim: true })
+  usr_rest_email: string;
 
-    @Prop({ required: true, trim: true })
-    usr_rest_token: string;
+  @Prop({ required: true, trim: true })
+  usr_rest_token: string;
 
-    @Prop({ required: true})
-    usr_rest_expired_at: Date;
-} 
+  @Prop({ required: true })
+  usr_rest_expired_at: Date;
+}
 
 export const UserResetSchema = SchemaFactory.createForClass(UserReset);

@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { SendMailService } from './send-mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
@@ -7,16 +6,14 @@ import { MailerModule } from '@nestjs-modules/mailer';
     MailerModule.forRootAsync({
       useFactory: () => ({
         transport: {
-          host: process.env.EMAIL_MAILHOG_HOST,
-          port: Number(process.env.EMAIL_MAILHOG_PORT)
+          host: process.env.EMAIL_HOST,
+          port: Number(process.env.EMAIL_PORT),
         },
         defaults: {
-          from: process.env.EMAIL_MAILHOG_FROM
-        }
-      })
-    })
+          from: process.env.EMAIL_FROM,
+        },
+      }),
+    }),
   ],
-  providers: [SendMailService],
-  exports: [SendMailService]
 })
 export class SendMailModule {}

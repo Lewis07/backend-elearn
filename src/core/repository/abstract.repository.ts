@@ -16,7 +16,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     const createdDocument = await documentToCreate.save();
 
     this.logger.log(
-      `Document with id : ${createdDocument.toJSON()._id} save successfully`,
+      `Document ${createdDocument.collection.name} with id : ${createdDocument.toJSON()._id} saved successfully`,
     );
 
     return createdDocument.toJSON() as unknown as TDocument;
@@ -26,10 +26,10 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     const document = await this.model.findOne(filterQuery);
 
     if (!document) {
-      throw new NotFoundException(`${document.$model.name} not found`);
+      throw new NotFoundException(`${document.baseModelName} not found`);
     } else {
       this.logger.log(
-        `Document with id : ${document.$model.name} ${document._id}, ${document}`,
+        `Document ${document.collection.name} with id ${document.toJSON()._id}, ${document}`,
       );
     }
 
@@ -41,12 +41,11 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     data: UpdateQuery<TDocument>,
   ): Promise<TDocument> {
     const updatedDocument = await this.model.findByIdAndUpdate(id, data, {
-      lean: true,
       new: true,
     });
 
     this.logger.log(
-      `Document with id : ${updatedDocument._id} updated successfully`,
+      `Document ${updatedDocument.collection.name} with id : ${updatedDocument._id} updated successfully`,
     );
 
     return updatedDocument as TDocument | null;
@@ -60,13 +59,12 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
       filterQuery,
       data,
       {
-        lean: true,
         new: true,
       },
     );
 
     this.logger.log(
-      `Document with id : ${updatedDocument._id} updated successfully`,
+      `Document ${updatedDocument.collection.name} with id : ${updatedDocument._id} updated successfully`,
     );
 
     return updatedDocument as TDocument | null;
