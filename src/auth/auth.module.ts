@@ -1,18 +1,19 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '../users/schemas/user.schema';
+import { StripeCustomerService } from 'src/auth/stripe-customer.service';
+import { UserRepository } from 'src/users/repository/user.repository';
+import { UsersModule } from 'src/users/users.module';
 import { SendMailModule } from '../mailer/send-mail.module';
-import { UserReset, UserResetSchema } from '../users/schemas/user-reset.schema';
 import {
   StripeCustomer,
   StripeCustomerSchema,
 } from '../payment/schemas/stripe-customer.schema';
-import { StripeCustomerService } from 'src/payment/service/stripe-customer.service';
-import { UserRepository } from 'src/users/repository/user.repository';
+import { UserReset, UserResetSchema } from '../users/schemas/user-reset.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { StripeCustomerRepository } from 'src/users/repository/stripe-customer.repository';
 
 @Module({
   imports: [
@@ -32,6 +33,11 @@ import { UserRepository } from 'src/users/repository/user.repository';
     SendMailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, StripeCustomerService, UserRepository],
+  providers: [
+    AuthService,
+    StripeCustomerService,
+    UserRepository,
+    StripeCustomerRepository,
+  ],
 })
 export class AuthModule {}

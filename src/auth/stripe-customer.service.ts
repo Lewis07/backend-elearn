@@ -1,15 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { StripeCustomer } from '../schemas/stripe-customer.schema';
-import { StripeService } from './stripe.service';
+import { StripeCustomerRepository } from 'src/users/repository/stripe-customer.repository';
+import { StripeService } from '../payment/service/stripe.service';
 
 @Injectable()
 export class StripeCustomerService extends StripeService {
-  constructor(
-    @InjectModel(StripeCustomer.name)
-    private stripeCustomerModel: Model<StripeCustomer>,
-  ) {
+  constructor(private stripeCustomerRepository: StripeCustomerRepository) {
     super();
   }
 
@@ -32,7 +27,7 @@ export class StripeCustomerService extends StripeService {
     };
 
     try {
-      return await this.stripeCustomerModel.create(data);
+      return await this.stripeCustomerRepository.create(data);
     } catch (error) {
       console.error('Error creating stripe customer:', error);
       throw error;
@@ -50,7 +45,7 @@ export class StripeCustomerService extends StripeService {
     const { phone } = paymentMethod.billing_details;
 
     try {
-      await this.stripeCustomerModel.findOneAndUpdate(
+      await this.stripeCustomerRepository.findOneAndUpdate(
         { customer_id: customerId as string },
         {
           strp_cus_city: city ?? null,

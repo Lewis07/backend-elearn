@@ -1,22 +1,22 @@
 import {
   BadRequestException,
-  ClassSerializerInterceptor,
   Injectable,
   UnauthorizedException,
-  UseInterceptors,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { validatePassword } from '../utils/validatePassword.utils';
-import { SignInDto } from './dto/singIn.dto';
-import { Register } from './dto/register.dto';
-import { hashPassword } from '../utils/hashPassword.utils';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from '../users/schemas/user.schema';
-import { UserReset } from '../users/schemas/user-reset.schema';
-import { StripeCustomerService } from '../payment/service/stripe-customer.service';
 import { UserRepository } from 'src/users/repository/user.repository';
+import { UserReset } from '../users/schemas/user-reset.schema';
+import { User } from '../users/schemas/user.schema';
+import { UsersService } from '../users/users.service';
+import { hashPassword } from '../utils/hashPassword.utils';
+import { validatePassword } from '../utils/validatePassword.utils';
+import { Register } from './dto/register.dto';
+import { SignInDto } from './dto/singIn.dto';
+import { StripeCustomerService } from './stripe-customer.service';
+import { IRegistration } from 'src/interfaces/users/IRegistration';
+import { StripeCustomer } from 'src/payment/schemas/stripe-customer.schema';
 
 @Injectable()
 export class AuthService {
@@ -56,28 +56,34 @@ export class AuthService {
     return { accessToken };
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   async signUp(registerDto: Register): Promise<User> {
-    const hash_password = await hashPassword(registerDto.usr_password);
-    const data = { ...registerDto, usr_password: hash_password };
-    const user = await this.userRepository.create(data);
-    let customerId = null;
+    const hashedPassword: string = await hashPassword(registerDto.usr_password);
+    const data: IRegistration = {
+      ...registerDto,
+      usr_password: hashedPassword,
+    };
+    const userCreated: User = await this.userRepository.create(data);
+    let customerId: string | null = null;
 
     try {
-      const stripeCustomer = await this.stripeCustomerService.createCustomer(
-        user.usr_username,
-        user.usr_email,
-      );
+      const stripeCustomer: StripeCustomer =
+        await this.stripeCustomerService.createCustomer(
+          userCreated.usr_username,
+          userCreated.usr_email,
+        );
       customerId = stripeCustomer.customer_id;
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
     }
 
-    return await this.userModel
-      .findByIdAndUpdate(user._id, {
+    const userWithStripeCustomerId: User =
+      await this.userRepository.findByIdAndUpdate(userCreated._id, {
         stripe_customer_id: customerId,
-      })
-      .select('-usr_password');
+      });
+
+    userWithStripeCustomerId.usr_password = null;
+
+    return userWithStripeCustomerId;
   }
 
   async resetPassword(email: string, token: string): Promise<UserReset> {

@@ -1,6 +1,6 @@
-import { Model, Types } from 'mongoose';
-import { AbstractDocument } from '../document/abstract.document';
 import { Logger } from '@nestjs/common';
+import { FilterQuery, Model, ObjectId, Types, UpdateQuery } from 'mongoose';
+import { AbstractDocument } from '../document/abstract.document';
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   protected abstract readonly logger: Logger;
@@ -20,5 +20,41 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     );
 
     return createdDocument.toJSON() as unknown as TDocument;
+  }
+
+  async findByIdAndUpdate(
+    id: Types.ObjectId,
+    data: UpdateQuery<TDocument>,
+  ): Promise<TDocument> {
+    const updatedDocument = await this.model.findByIdAndUpdate(id, data, {
+      lean: true,
+      new: true,
+    });
+
+    this.logger.log(
+      `Document with id : ${updatedDocument._id} updated successfully`,
+    );
+
+    return updatedDocument as TDocument | null;
+  }
+
+  async findOneAndUpdate(
+    filterQuery: FilterQuery<TDocument>,
+    data: UpdateQuery<TDocument>,
+  ): Promise<TDocument | null> {
+    const updatedDocument = await this.model.findOneAndUpdate(
+      filterQuery,
+      data,
+      {
+        lean: true,
+        new: true,
+      },
+    );
+
+    this.logger.log(
+      `Document with id : ${updatedDocument._id} updated successfully`,
+    );
+
+    return updatedDocument as TDocument | null;
   }
 }

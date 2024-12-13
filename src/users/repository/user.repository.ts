@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class UserRepository extends AbstractRepository<User> {
-  protected readonly logger = new Logger(UserRepository.name);
+  protected readonly logger: Logger = new Logger(UserRepository.name);
 
   constructor(@InjectModel(User.name) userModel: Model<User>) {
     super(userModel);
