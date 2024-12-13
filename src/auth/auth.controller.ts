@@ -21,9 +21,10 @@ import { subject_reset_password } from '../utils/email.utils';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { Register } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { SignInDto } from './dto/singIn.dto';
+import { User } from 'src/users/schemas/user.schema';
+import { SignIn } from './dto/singIn.dto';
+import { Registration } from './dto/registration.dto';
 
 @Controller('')
 export class AuthController {
@@ -34,8 +35,13 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  signIn(@Body() signInDto: SignInDto) {
+  signIn(@Body() signInDto: SignIn): Promise<{ accessToken: string }> {
     return this.authService.singIn(signInDto);
+  }
+
+  @Post('signup')
+  signUp(@Body() registerDto: Registration): Promise<User> {
+    return this.authService.signUp(registerDto);
   }
 
   @UseGuards(AuthGuard)
@@ -44,11 +50,6 @@ export class AuthController {
     const user = req.user;
 
     return user;
-  }
-
-  @Post('signup')
-  signUp(@Body() registerDto: Register) {
-    return this.authService.signUp(registerDto);
   }
 
   @Post('reset-password')

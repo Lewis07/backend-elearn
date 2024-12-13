@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { FilterQuery, Model, ObjectId, Types, UpdateQuery } from 'mongoose';
 import { AbstractDocument } from '../document/abstract.document';
 
@@ -20,6 +20,20 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     );
 
     return createdDocument.toJSON() as unknown as TDocument;
+  }
+
+  async findOne(filterQuery: FilterQuery<TDocument>): Promise<TDocument> {
+    const document = await this.model.findOne(filterQuery);
+
+    if (!document) {
+      throw new NotFoundException(`${document.$model.name} not found`);
+    } else {
+      this.logger.log(
+        `Document with id : ${document.$model.name} ${document._id}, ${document}`,
+      );
+    }
+
+    return document;
   }
 
   async findByIdAndUpdate(

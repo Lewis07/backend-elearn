@@ -2,7 +2,7 @@ import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { IsUnique } from '../../utils/validation/unique-field/IsUnique';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class Register {
+export class Registration {
   @ApiProperty({ example: 'John', description: 'username' })
   @IsNotEmpty({ message: 'Username should not be empty' })
   @IsUnique(

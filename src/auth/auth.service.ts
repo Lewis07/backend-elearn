@@ -6,22 +6,20 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { IRegistration } from 'src/interfaces/users/IRegistration';
+import { StripeCustomer } from 'src/payment/schemas/stripe-customer.schema';
 import { UserRepository } from 'src/users/repository/user.repository';
 import { UserReset } from '../users/schemas/user-reset.schema';
 import { User } from '../users/schemas/user.schema';
-import { UsersService } from '../users/users.service';
 import { hashPassword } from '../utils/hashPassword.utils';
 import { validatePassword } from '../utils/validatePassword.utils';
-import { Register } from './dto/register.dto';
-import { SignInDto } from './dto/singIn.dto';
+import { SignIn } from './dto/singIn.dto';
 import { StripeCustomerService } from './stripe-customer.service';
-import { IRegistration } from 'src/interfaces/users/IRegistration';
-import { StripeCustomer } from 'src/payment/schemas/stripe-customer.schema';
+import { Registration } from './dto/registration.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
     private jwtService: JwtService,
     private readonly userRepository: UserRepository,
     @InjectModel(User.name) private userModel: Model<User>,
@@ -29,18 +27,22 @@ export class AuthService {
     private stripeCustomerService: StripeCustomerService,
   ) {}
 
-  async singIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
-    const user = await this.usersService.findOneByEmail(signInDto.usr_email);
+  async singIn(signInDto: SignIn): Promise<{ accessToken: string }> {
+    const user = await this.userRepository.findOne({
+      usr_email: signInDto.usr_email,
+    });
 
-    if (
-      !user ||
-      !(await validatePassword(signInDto.usr_password, user?.usr_password))
-    ) {
+    const isValidPassword = await validatePassword(
+      signInDto.usr_password,
+      user?.usr_password,
+    );
+
+    if (!user || !isValidPassword) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload = {
-      id: user.id,
+      id: user._id,
       username: user.usr_username,
       email: user.usr_email,
       firstname: user.usr_firstname,
@@ -56,7 +58,7 @@ export class AuthService {
     return { accessToken };
   }
 
-  async signUp(registerDto: Register): Promise<User> {
+  async signUp(registerDto: Registration): Promise<User> {
     const hashedPassword: string = await hashPassword(registerDto.usr_password);
     const data: IRegistration = {
       ...registerDto,
@@ -89,7 +91,9 @@ export class AuthService {
   async resetPassword(email: string, token: string): Promise<UserReset> {
     const now = new Date();
     const tokenExpiredAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.userRepository.findOne({
+      usr_email: email,
+    });
 
     if (!user) {
       throw new BadRequestException('Email is not found');
