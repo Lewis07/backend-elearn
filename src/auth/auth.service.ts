@@ -1,5 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import {
+  GoneException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -21,23 +22,28 @@ import { validatePassword } from '../utils/validatePassword.utils';
 import { Registration } from './dto/registration.dto';
 import { SignIn } from './dto/singIn.dto';
 import { StripeCustomerService } from './stripe-customer.service';
+import { ForgotPassword } from './dto/forgot-password.dto';
+import { Response } from 'express';
+import { UsersService } from 'src/users/users.service';
+import moment from 'moment';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private mailerService: MailerService,
+    private usersService: UsersService,
     private readonly userRepository: UserRepository,
     private readonly userResetRepository: UserResetRepository,
     private stripeCustomerService: StripeCustomerService,
   ) {}
 
   async singIn(signInDto: SignIn): Promise<{ accessToken: string }> {
-    const user = await this.userRepository.findOne({
+    const user: User = await this.userRepository.findOne({
       usr_email: signInDto.usr_email,
     });
 
-    const isValidPassword = await validatePassword(
+    const isValidPassword: boolean = await validatePassword(
       signInDto.usr_password,
       user?.usr_password,
     );
@@ -58,7 +64,7 @@ export class AuthService {
       customerId: user.stripe_customer_id,
     };
 
-    const accessToken = await this.jwtService.signAsync(payload);
+    const accessToken: string = await this.jwtService.signAsync(payload);
 
     return { accessToken };
   }
@@ -94,7 +100,7 @@ export class AuthService {
   }
 
   async resetPassword(email: string): Promise<UserReset> {
-    const user = await this.userRepository.findOne({
+    const user: User = await this.userRepository.findOne({
       usr_email: email,
     });
 
@@ -104,16 +110,19 @@ export class AuthService {
 
     user.usr_password = null;
 
-    const token = generateToken(40);
-    const forgotPasswordLink = `${process.env.FORGOT_PASSWORD_LINK}/${token}`;
-    const templateHtml = resetPasswordTemplate(user, forgotPasswordLink);
+    const token: string = generateToken(40);
+    const forgotPasswordLink: string = `${process.env.FORGOT_PASSWORD_LINK}/${token}`;
+    const htmlTemplate: string = resetPasswordTemplate(
+      user,
+      forgotPasswordLink,
+    );
 
     try {
       await this.mailerService.sendMail({
         from: process.env.EMAIL_FROM,
         to: email,
         subject: SUBJECT_RESET_PASSWORD,
-        html: templateHtml,
+        html: htmlTemplate,
       });
     } catch (error) {
       throw new InternalServerErrorException();
@@ -126,5 +135,39 @@ export class AuthService {
     };
 
     return await this.userResetRepository.create(data);
+  }
+
+  async forgotPassword(
+    token: string,
+    forgotPasswordDto: ForgotPassword,
+    res: Response,
+  ): Promise<Response> {
+    const { email, password } = forgotPasswordDto;
+    const isChecked = await this.usersService.checkEmailTokenForgetPassword(
+      email,
+      token,
+    );
+
+    if (isChecked === null) {
+      throw new InternalServerErrorException('Token may be not valid');
+    }
+
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User is not found');
+    }
+
+    if (
+      moment().format('YYYY-MM-DD h:mm') >
+      moment(isChecked.usr_rest_expired_at).format('YYYY-MM-DD h:mm')
+    ) {
+      throw new GoneException('the reset token has expired');
+    }
+
+    await this.usersService.changePassword(user._id, password);
+    await this.usersService.deleteEmailTokenForgetPassword(email, token);
+
+    return res.status(200).json({ status: 'success' });
   }
 }
