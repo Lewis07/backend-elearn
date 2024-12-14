@@ -25,7 +25,7 @@ import { StripeCustomerService } from './stripe-customer.service';
 import { ForgotPassword } from './dto/forgot-password.dto';
 import { Response } from 'express';
 import { UsersService } from 'src/users/users.service';
-import moment from 'moment';
+import * as moment from 'moment';
 
 @Injectable()
 export class AuthService {
