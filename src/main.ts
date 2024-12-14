@@ -37,7 +37,8 @@ async function bootstrap() {
     .setTitle('Elearned')
     .setDescription('Elearned API Description')
     .setVersion('1.0')
-    .addTag('Elearned')
+    .addTag('elearned.api')
+    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

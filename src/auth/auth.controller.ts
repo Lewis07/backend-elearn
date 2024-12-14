@@ -1,18 +1,7 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { UserReset } from 'src/users/schemas/user-reset.schema';
 import { User } from 'src/users/schemas/user.schema';
-import { UsersService } from '../users/users.service';
-import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { ForgotPassword } from './dto/forgot-password.dto';
 import { Registration } from './dto/registration.dto';
@@ -31,14 +20,6 @@ export class AuthController {
   @Post('signup')
   signUp(@Body() registerDto: Registration): Promise<User> {
     return this.authService.signUp(registerDto);
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('profile')
-  getProfile(@Req() req: any) {
-    const user = req.user;
-
-    return user;
   }
 
   @Post('reset-password')

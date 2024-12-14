@@ -1,18 +1,12 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePassword } from '../auth/dto/change-password.dto';
+import { UpdateProfile } from './dto/update-profile.dto';
 import { UsersService } from './users.service';
-import { ChangePasswordDto } from '../auth/dto/change-password.dto';
 
-@Controller('')
+@Controller()
+@ApiBearerAuth()
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -23,26 +17,31 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('change-password')
-  async changePassword(
-    @Req() req: any,
-    @Body() changePasswordDto: ChangePasswordDto,
-  ) {
-    return await this.usersService.changePassword(
-      req.user.id,
-      changePasswordDto.password,
-    );
+  @Get('profile')
+  getProfile(@Req() req: any) {
+    const user = req.user;
+
+    return user;
   }
 
   @UseGuards(AuthGuard)
   @Patch('update-profile')
   async updateProfile(
     @Req() req: any,
-    @Body() updateProfileDto: UpdateProfileDto,
+    @Body() updateProfileDto: UpdateProfile,
   ) {
-    return this.usersService.updateProfile(
+    return this.usersService.updateProfile(req.user.id, updateProfileDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('change-password')
+  async changePassword(
+    @Req() req: any,
+    @Body() changePasswordDto: ChangePassword,
+  ) {
+    return await this.usersService.changePassword(
       req.user.id,
-      updateProfileDto,
+      changePasswordDto.password,
     );
   }
 }

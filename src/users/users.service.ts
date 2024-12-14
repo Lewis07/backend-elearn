@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { IUserUpdateProfile } from 'src/interfaces/users/IUserUpdateProfile';
 import { hashPassword } from '../utils/hashPassword.utils';
-import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserResetRepository } from './repository/user-reset.repository';
 import { UserRepository } from './repository/user.repository';
 import { UserReset } from './schemas/user-reset.schema';
 import { User } from './schemas/user.schema';
+import { UpdateProfile } from './dto/update-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +27,7 @@ export class UsersService {
 
   async updateProfile(
     id: Types.ObjectId,
-    updateProfileDto: UpdateProfileDto,
+    updateProfileDto: UpdateProfile,
   ): Promise<IUserUpdateProfile> {
     const user = await this.userRepository.findByIdAndUpdate(
       id,

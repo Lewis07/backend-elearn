@@ -1,10 +1,14 @@
-import { IsNotEmpty } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
-export class UpdateProfileDto {
-    @IsNotEmpty({message: "Username should not be empty"})
-    usr_username: string;
+export class UpdateProfile {
+  @ApiProperty({ example: 'John', description: 'username' })
+  @IsNotEmpty({ message: 'Username should not be empty' })
+  usr_username: string;
 
-    usr_firstname?: string;
+  @ApiProperty({ example: 'John', description: "user's firstname" })
+  usr_firstname?: string;
 
-    usr_lastname?: string;
+  @ApiProperty({ example: 'Dupont', description: "user's lastname" })
+  usr_lastname?: string;
 }

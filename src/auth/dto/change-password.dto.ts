@@ -1,11 +1,19 @@
-import { IsNotEmpty } from "class-validator";
-import { PasswordMatch } from "../validation/password-match/PasswordMatch";
+import { IsNotEmpty } from 'class-validator';
+import { PasswordMatch } from '../validation/password-match/PasswordMatch';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class ChangePasswordDto {
-    @IsNotEmpty()
-    password: string;
+export class ChangePassword {
+  @ApiProperty({ example: 'RvgtOt6sQ', description: "user's password" })
+  @IsNotEmpty()
+  password: string;
 
-    @IsNotEmpty()
-    @PasswordMatch("confirmPassword", {message: "Password doesn't match with this confirmation of password"})
-    confirmPassword: string;
+  @ApiProperty({
+    example: 'RvgtOt6sQ',
+    description: "user's confirmation of password",
+  })
+  @IsNotEmpty()
+  @PasswordMatch('confirmPassword', {
+    message: "Password doesn't match with this confirmation of password",
+  })
+  confirmPassword: string;
 }
