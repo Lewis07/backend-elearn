@@ -7,19 +7,8 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
 
   constructor(protected readonly model: Model<TDocument>) {}
 
-  async create(document: Partial<TDocument>): Promise<TDocument> {
-    const documentToCreate = new this.model({
-      ...document,
-      _id: new Types.ObjectId(),
-    });
-
-    const createdDocument = await documentToCreate.save();
-
-    this.logger.log(
-      `Document ${createdDocument.collection.name} with id : ${createdDocument.toJSON()._id} saved successfully`,
-    );
-
-    return createdDocument.toJSON() as unknown as TDocument;
+  async find(filterQuery?: FilterQuery<TDocument>): Promise<TDocument[]> {
+    return await this.model.find(filterQuery).sort({ createdAt: -1 });
   }
 
   async findOne(filterQuery: FilterQuery<TDocument>): Promise<TDocument> {
@@ -34,6 +23,21 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     }
 
     return document;
+  }
+
+  async create(document: Partial<TDocument>): Promise<TDocument> {
+    const documentToCreate = new this.model({
+      ...document,
+      _id: new Types.ObjectId(),
+    });
+
+    const createdDocument = await documentToCreate.save();
+
+    this.logger.log(
+      `Document ${createdDocument.collection.name} with id : ${createdDocument.toJSON()._id} saved successfully`,
+    );
+
+    return createdDocument.toJSON() as unknown as TDocument;
   }
 
   async findByIdAndUpdate(
@@ -68,5 +72,11 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     );
 
     return updatedDocument as TDocument | null;
+  }
+
+  async findOneAndDelete(
+    filterQuery: FilterQuery<TDocument>,
+  ): Promise<TDocument> {
+    return await this.model.findOneAndDelete(filterQuery);
   }
 }

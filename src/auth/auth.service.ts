@@ -152,7 +152,9 @@ export class AuthService {
       throw new InternalServerErrorException('Token may be not valid');
     }
 
-    const user = await this.usersService.findOneByEmail(email);
+    const user: User = await this.userRepository.findOne({
+      usr_email: email,
+    });
 
     if (!user) {
       throw new NotFoundException('User is not found');

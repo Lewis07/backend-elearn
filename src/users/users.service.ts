@@ -1,59 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
-import mongoose, { Model } from 'mongoose';
-import { UserReset } from './schemas/user-reset.schema';
+import { Types } from 'mongoose';
+import { IUserUpdateProfile } from 'src/interfaces/users/IUserUpdateProfile';
 import { hashPassword } from '../utils/hashPassword.utils';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UserResetRepository } from './repository/user-reset.repository';
+import { UserRepository } from './repository/user.repository';
+import { UserReset } from './schemas/user-reset.schema';
+import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(UserReset.name) private userResetModel: Model<UserReset>,
+    private userRepository: UserRepository,
+    private userResetRepository: UserResetRepository,
   ) {}
 
   async findAll() {
-    return this.userModel.find().sort({ _id: -1 });
+    return this.userRepository.find();
   }
 
-  async findOneByEmail(email: string) {
-    return this.userModel
-      .findOne({ usr_email: email })
-      .select('-createdAt -updatedAt');
-  }
-
-  async checkEmailTokenForgetPassword(
-    email: string,
-    token: string,
-  ): Promise<UserReset> {
-    return this.userResetModel.findOne({
-      usr_rest_email: email,
-      usr_rest_token: token,
-    });
-  }
-
-  async changePassword(id: mongoose.Types.ObjectId, password: string) {
-    return this.userModel.findByIdAndUpdate(id, {
+  async changePassword(id: Types.ObjectId, password: string): Promise<User> {
+    return this.userRepository.findByIdAndUpdate(id, {
       usr_password: await hashPassword(password),
     });
   }
 
-  async deleteEmailTokenForgetPassword(
-    email: string,
-    token: string,
-  ): Promise<UserReset> {
-    return this.userResetModel.findOneAndDelete({
-      usr_rest_email: email,
-      usr_rest_token: token,
-    });
-  }
-
   async updateProfile(
-    id: mongoose.Types.ObjectId,
+    id: Types.ObjectId,
     updateProfileDto: UpdateProfileDto,
-  ) {
-    const response = await this.userModel.findByIdAndUpdate(id, updateProfileDto, { new: true });
+  ): Promise<IUserUpdateProfile> {
+    const user = await this.userRepository.findByIdAndUpdate(
+      id,
+      updateProfileDto,
+    );
 
     const {
       _id,
@@ -63,7 +42,7 @@ export class UsersService {
       usr_type,
       usr_firstname,
       usr_lastname,
-    } = response;
+    } = user;
 
     return {
       _id,
@@ -76,9 +55,23 @@ export class UsersService {
     };
   }
 
-  async findOneById(userId: string) {
-    return this.userModel
-      .findOne({ _id: userId })
-      .select('stripe_customer_id');
+  async checkEmailTokenForgetPassword(
+    email: string,
+    token: string,
+  ): Promise<UserReset> {
+    return this.userResetRepository.findOne({
+      usr_rest_email: email,
+      usr_rest_token: token,
+    });
+  }
+
+  async deleteEmailTokenForgetPassword(
+    email: string,
+    token: string,
+  ): Promise<UserReset> {
+    return this.userResetRepository.findOneAndDelete({
+      usr_rest_email: email,
+      usr_rest_token: token,
+    });
   }
 }
