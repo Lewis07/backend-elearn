@@ -10,7 +10,6 @@ import {
   Patch,
   Post,
   Req,
-  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -19,15 +18,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
-  ApiResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { Response } from 'express';
 import { memoryStorage } from 'multer';
 import { ICourseWithAverageRating } from 'src/interfaces/courses/ICourseWithAverageRating';
 import { AuthGuard } from '../auth/auth.guard';

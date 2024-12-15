@@ -11,6 +11,8 @@ import { CourseRepository } from './repository/course.repository';
 import { UserRepository } from 'src/users/repository/user.repository';
 import { CommentRepository } from 'src/comments/repository/comment.repository';
 import { User, UserSchema } from 'src/users/schemas/user.schema';
+import { SectionRepository } from 'src/sections/repository/section.repository';
+import { LessonRepository } from 'src/lessons/repository/lesson.repository';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { User, UserSchema } from 'src/users/schemas/user.schema';
     CourseRepository,
     UserRepository,
     CommentRepository,
+    SectionRepository,
+    LessonRepository,
   ],
 })
 export class CoursesModule {}

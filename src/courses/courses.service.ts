@@ -30,6 +30,11 @@ import { EditCourse } from './dto/edit-course.dto';
 import { CourseRepository } from './repository/course.repository';
 import { Course } from './schemas/course.schema';
 import { IEditCourse } from 'src/interfaces/courses/IEditCourse';
+import { SectionRepository } from 'src/sections/repository/section.repository';
+import { LessonRepository } from 'src/lessons/repository/lesson.repository';
+import { ILessonInSectionWithDuration } from 'src/interfaces/lessons/ILessonInSectionWithDuration';
+import { ICourseContents } from 'src/interfaces/courses/ICourseContents';
+import { ICourseContentsWithTotalSectionsLessonsDuration } from 'src/interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
 
 @Injectable()
 export class CoursesService {
@@ -37,8 +42,8 @@ export class CoursesService {
     private courseRepository: CourseRepository,
     private userRepository: UserRepository,
     private commentRepository: CommentRepository,
-    @InjectModel(Section.name) private sectionModel: Model<Section>,
-    @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
+    private sectionRepository: SectionRepository,
+    private lessonRepository: LessonRepository,
   ) {}
 
   async findAll(): Promise<ICourseWithAverageRating[]> {
@@ -190,51 +195,53 @@ export class CoursesService {
     this.courseRepository.findByIdAndDelete(new Types.ObjectId(id));
   }
 
-  async getContent(courseId: string) {
+  async getContent(
+    courseId: string,
+  ): Promise<ICourseContentsWithTotalSectionsLessonsDuration> {
     await this.findById(courseId);
-    let courseContents = [];
+    let courseContents: ICourseContents[] = [];
 
-    const sections = await this.sectionModel
-      .find({ course_id: courseId })
-      .select('_id sect_title');
+    const sections: Section[] = await this.sectionRepository.find({
+      course_id: courseId,
+    });
+    // .select('_id sect_title');
 
-    const totalSections = sections.length;
-    let totalLessons = 0;
-    let totalDuration = 0;
+    const totalSections: number = sections.length;
+    let totalLessons: number = 0;
+    let totalDuration: number = 0;
 
     for (const section of sections) {
-      const sectionId = String(section._id);
-      let lessonsInSection = await this.lessonModel
-        .find({
-          section: sectionId,
-        })
-        .select('_id lssn_title lssn_video_link lssn_is_free');
+      const sectionId: string = String(section._id);
+      let lessonsInSection: Lesson[] = await this.lessonRepository.find({
+        section: sectionId,
+      });
+      // .select('_id lssn_title lssn_video_link lssn_is_free');
 
       totalLessons += lessonsInSection.length;
 
-      let copyLessonInSection = [...lessonsInSection];
-      let totalDurationLessonBySection = 0;
+      let totalDurationLessonBySection: number = 0;
 
-      let lessonInSectionWithDuration = await Promise.all(
-        copyLessonInSection.map(async (lesson) => {
-          let duration = await getVideoDuration(
-            `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
-          );
-          totalDurationLessonBySection += Number(duration);
+      let lessonsInSectionWithDuration: ILessonInSectionWithDuration[] =
+        await Promise.all(
+          [...lessonsInSection].map(async (lesson) => {
+            let duration = await getVideoDuration(
+              `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
+            );
+            totalDurationLessonBySection += Number(duration);
 
-          return {
-            _id: lesson._id,
-            lssn_title: lesson.lssn_title,
-            lssn_video_link: lesson.lssn_video_link,
-            lssn_is_free: lesson.lssn_is_free,
-            lssn_duration: getMinuteAndSecond(
-              await getVideoDuration(
-                `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
+            return {
+              _id: lesson._id,
+              lssn_title: lesson.lssn_title,
+              lssn_video_link: lesson.lssn_video_link,
+              lssn_is_free: lesson.lssn_is_free,
+              lssn_duration: getMinuteAndSecond(
+                await getVideoDuration(
+                  `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
+                ),
               ),
-            ),
-          };
-        }),
-      );
+            };
+          }),
+        );
 
       totalDuration += totalDurationLessonBySection;
 
@@ -242,15 +249,15 @@ export class CoursesService {
         ...courseContents,
         {
           section,
-          lessons: lessonInSectionWithDuration,
+          lessons: lessonsInSectionWithDuration,
           countLesson: lessonsInSection.length,
-          countDuration: getMinute(totalDurationLessonBySection),
+          countDurationInMinute: getMinute(totalDurationLessonBySection),
         },
       ];
     }
 
     return {
-      data: courseContents,
+      courseContents,
       totalSections,
       totalLessons,
       totalDuration: getHourMinute(totalDuration),
