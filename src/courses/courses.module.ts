@@ -7,11 +7,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { Comment, CommentSchema } from '../comments/schemas/comment.schema';
 import { Section, sectionSchema } from 'src/sections/schemas/section.schema';
 import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
+import { CourseRepository } from './repository/course.repository';
+import { UserRepository } from 'src/users/repository/user.repository';
+import { CommentRepository } from 'src/comments/repository/comment.repository';
+import { User, UserSchema } from 'src/users/schemas/user.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Course.name, schema: CourseSchema },
+      { name: User.name, schema: UserSchema },
       { name: Comment.name, schema: CommentSchema },
       { name: Section.name, schema: sectionSchema },
       { name: Lesson.name, schema: LessonSchema },
@@ -25,6 +30,11 @@ import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
     }),
   ],
   controllers: [CoursesController],
-  providers: [CoursesService],
+  providers: [
+    CoursesService,
+    CourseRepository,
+    UserRepository,
+    CommentRepository,
+  ],
 })
 export class CoursesModule {}

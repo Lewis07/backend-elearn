@@ -1,6 +1,13 @@
-import { Logger, NotFoundException } from '@nestjs/common';
-import { FilterQuery, Model, ObjectId, Types, UpdateQuery } from 'mongoose';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import mongoose, {
+  FilterQuery,
+  Model,
+  ObjectId,
+  Types,
+  UpdateQuery,
+} from 'mongoose';
 import { AbstractDocument } from '../document/abstract.document';
+import { uppercaseFirstLetter } from 'src/utils/uppercaseFirstLetter';
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   protected abstract readonly logger: Logger;
@@ -9,6 +16,24 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
 
   async find(filterQuery?: FilterQuery<TDocument>): Promise<TDocument[]> {
     return await this.model.find(filterQuery).sort({ createdAt: -1 });
+  }
+
+  async findById(id: Types.ObjectId): Promise<TDocument> {
+    const isValidId = mongoose.isValidObjectId(id);
+
+    if (!isValidId) {
+      throw new BadRequestException('Wrong mongoose id, please enter valid id');
+    }
+
+    const document = await this.model.findById(id);
+
+    if (!document) {
+      throw new NotFoundException(
+        `${uppercaseFirstLetter(document.collection.name)} not found`,
+      );
+    }
+
+    return document;
   }
 
   async findOne(filterQuery: FilterQuery<TDocument>): Promise<TDocument> {
@@ -72,6 +97,10 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     );
 
     return updatedDocument as TDocument | null;
+  }
+
+  async findByIdAndDelete(id: Types.ObjectId): Promise<TDocument> {
+    return await this.model.findByIdAndDelete(id);
   }
 
   async findOneAndDelete(

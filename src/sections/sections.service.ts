@@ -40,14 +40,15 @@ export class SectionsService {
 
     return section.populate({
       path: 'course_id',
-      select: '_id author_id'
+      select: '_id author_id',
     });
   }
 
   async getLessons(id: string) {
     await this.findById(id);
-    const lessons = await this.lessonModel.find({ section: id })
-                                          .populate("section", "_id sect_title");
+    const lessons = await this.lessonModel
+      .find({ section: id })
+      .populate('section', '_id sect_title');
 
     return lessons;
   }
@@ -63,8 +64,10 @@ export class SectionsService {
   async update(id: string, saveSection: SaveSectionDto, authorId: string) {
     const section = await this.findById(id);
 
-    if (String(section.course_id.author_id) !== authorId) {
-      throw new ForbiddenException("You can't update a section who don't belong to you");
+    if (String(section.course_id.author) !== authorId) {
+      throw new ForbiddenException(
+        "You can't update a section who don't belong to you",
+      );
     }
 
     const sectionUpdated = await this.sectionModel.findByIdAndUpdate(
@@ -79,8 +82,10 @@ export class SectionsService {
   async delete(id: string, authorId: string) {
     const section = await this.findById(id);
 
-    if (String(section.course_id.author_id) !== authorId) {
-      throw new ForbiddenException("You can't delete a section who don't belong to you");
+    if (String(section.course_id.author) !== authorId) {
+      throw new ForbiddenException(
+        "You can't delete a section who don't belong to you",
+      );
     }
 
     return this.sectionModel.findByIdAndDelete(id);

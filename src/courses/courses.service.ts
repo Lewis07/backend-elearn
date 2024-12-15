@@ -1,54 +1,59 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateCourseDto } from './dto/create-course.dto';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Course } from './schemas/course.schema';
-import mongoose, { Model } from 'mongoose';
-import { EditCourseDto } from './dto/edit-course.dto';
-import { Comment } from '../comments/schemas/comment.schema';
 import { existsSync } from 'fs';
+import { Model, Types } from 'mongoose';
 import { join } from 'path';
-import {
-  PATH_UPLOAD_COURSE,
-  PATH_UPLOAD_LESSON_VIDEOS,
-} from '../utils/constant/path-upload.utils';
-import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
-import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
 import slugify from 'slugify';
-import { Section } from 'src/sections/schemas/section.schema';
+import { CommentRepository } from 'src/comments/repository/comment.repository';
+import { IAddCourse } from 'src/interfaces/courses/IAddCourse';
+import { ICourseWithAverageRating } from 'src/interfaces/courses/ICourseWithAverageRating';
+import { IExpressMulterFile } from 'src/interfaces/medias/IExpressMulterFile';
 import { Lesson } from 'src/lessons/schemas/lesson.schema';
+import { Section } from 'src/sections/schemas/section.schema';
+import { UserRepository } from 'src/users/repository/user.repository';
+import { User } from 'src/users/schemas/user.schema';
 import {
   getHourMinute,
   getMinute,
   getMinuteAndSecond,
   getVideoDuration,
 } from 'src/utils/duration.utils';
+import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
+import { Comment } from '../comments/schemas/comment.schema';
+import {
+  PATH_UPLOAD_COURSE,
+  PATH_UPLOAD_LESSON_VIDEOS,
+} from '../utils/constant/path-upload.utils';
+import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
+import { CreateCourse } from './dto/create-course.dto';
+import { EditCourse } from './dto/edit-course.dto';
+import { CourseRepository } from './repository/course.repository';
+import { Course } from './schemas/course.schema';
 
 @Injectable()
 export class CoursesService {
   constructor(
-    @InjectModel(Course.name) private courseModel: Model<Course>,
-    @InjectModel(Comment.name) private commentModel: Model<Comment>,
+    private courseRepository: CourseRepository,
+    private userRepository: UserRepository,
+    private commentRepository: CommentRepository,
     @InjectModel(Section.name) private sectionModel: Model<Section>,
     @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
   ) {}
 
-  async findAll() {
-    let courses = await this.courseModel.find().sort({ createdAt: -1 });
-    let courseWithAverageRating = [];
+  async findAll(): Promise<ICourseWithAverageRating[]> {
+    let courses: Course[] = await this.courseRepository.find();
+    let courseWithAverageRating: ICourseWithAverageRating[] = [];
 
     for (const course of courses) {
-      const comments = await this.commentModel.find({ course: course._id });
+      const comments: Comment[] = await this.commentRepository.find({
+        course: course._id,
+      });
 
-      let averageRating = 0;
-      let totalCommentByCourse = comments.length;
+      let averageRating: number = 0;
+      let totalCommentByCourse: number = comments.length;
 
       if (totalCommentByCourse !== 0) {
-        let totalRatingByCourse = comments.reduce(
+        let totalRatingByCourse: number = comments.reduce(
           (accumulator: number, comment: Comment) =>
             accumulator + Number(comment.comm_rating),
           0,
@@ -71,36 +76,24 @@ export class CoursesService {
     return courseWithAverageRating;
   }
 
-  async findById(id: string) {
-    const isValidId = mongoose.isValidObjectId(id);
-
-    if (!isValidId) {
-      throw new BadRequestException('Wrong mongoose id, please enter valid id');
-    }
-
-    const course = await this.courseModel.findById(id);
-
-    if (!course) {
-      throw new NotFoundException('Course not found');
-    }
-
-    return course;
+  async findById(id: string): Promise<Course> {
+    return this.courseRepository.findById(new Types.ObjectId(id));
   }
 
-  async findBySlug(slug: string) {
-    const course = await this.courseModel.findOne({ crs_slug: slug });
-    let courseWithAverageRating = {};
-    let averageRating = 0;
+  async findBySlug(slug: string): Promise<ICourseWithAverageRating> {
+    const course: Course = await this.courseRepository.findOne({
+      crs_slug: slug,
+    });
+    let courseWithAverageRating: ICourseWithAverageRating | {} = {};
+    let averageRating: number = 0;
 
-    if (!course) {
-      throw new NotFoundException('Course not found');
-    }
-
-    const comments = await this.commentModel.find({ course: course._id });
-    let totalCommentByCourse = comments.length;
+    const comments: Comment[] = await this.commentRepository.find({
+      course: course._id,
+    });
+    let totalCommentByCourse: number = comments.length;
 
     if (totalCommentByCourse !== 0) {
-      let totalRatingByCourse = comments.reduce(
+      let totalRatingByCourse: number = comments.reduce(
         (accumulator: number, comment: Comment) =>
           accumulator + Number(comment.comm_rating),
         0,
@@ -119,16 +112,20 @@ export class CoursesService {
 
   async store(
     authorId: string,
-    createCourseDto: CreateCourseDto,
+    createCourseDto: CreateCourse,
     file: Express.Multer.File,
-  ) {
-    let data = {
+  ): Promise<Course> {
+    const author: User = await this.userRepository.findById(
+      new Types.ObjectId(authorId),
+    );
+
+    let data: IAddCourse = {
       ...createCourseDto,
-      author_id: authorId,
+      author,
       crs_slug: slugify(createCourseDto.crs_title),
     };
 
-    let photoLink = UploadMulter(file, PATH_UPLOAD_COURSE);
+    let photoLink: IExpressMulterFile = UploadMulter(file, PATH_UPLOAD_COURSE);
 
     if (photoLink) {
       data = { ...data, crs_photo: photoLink.filename };
@@ -136,17 +133,17 @@ export class CoursesService {
       data = { ...data, crs_photo: null };
     }
 
-    return this.courseModel.create(data);
+    return this.courseRepository.create(data);
   }
 
   async update(
     id: string,
-    editCourseDto: EditCourseDto,
+    editCourseDto: EditCourse,
     file: Express.Multer.File,
     authorId: string,
   ) {
     const course = await this.findById(id);
-    if (String(course.author_id) !== authorId) {
+    if (String(course.author) !== authorId) {
       throw new ForbiddenException(
         "You can't update a course who don't belong to you",
       );
@@ -170,13 +167,16 @@ export class CoursesService {
       crs_photo: photoLink,
     };
 
-    return this.courseModel.findByIdAndUpdate(id, data, { new: true });
+    return this.courseRepository.findByIdAndUpdate(
+      new Types.ObjectId(id),
+      data,
+    );
   }
 
   async delete(id: string, authorId: string) {
     const course = await this.findById(id);
 
-    if (String(course.author_id) !== authorId) {
+    if (String(course.author) !== authorId) {
       throw new ForbiddenException(
         "You can't delete a course who don't belong to you",
       );
@@ -186,7 +186,7 @@ export class CoursesService {
       removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);
     }
 
-    return this.courseModel.findByIdAndDelete(id);
+    return this.courseRepository.findByIdAndDelete(new Types.ObjectId(id));
   }
 
   async getContent(courseId: string) {

@@ -4,11 +4,12 @@ import { User } from '../../users/schemas/user.schema';
 import mongoose from 'mongoose';
 import { Lesson } from 'src/lessons/schemas/lesson.schema';
 import { CommentEnum } from 'src/utils/enum/comment-enum.utils';
+import { AbstractDocument } from 'src/core/document/abstract.document';
 
 @Schema({
   timestamps: true,
 })
-export class Comment {
+export class Comment extends AbstractDocument {
   @Prop({ default: null })
   comm_rating: number;
 

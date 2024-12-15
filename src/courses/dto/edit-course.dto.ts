@@ -1,3 +1,10 @@
-import { SaveCourseDto } from "./save-course.dto";
+import { ApiProperty } from '@nestjs/swagger';
+import { SaveCourseDto } from './save-course.dto';
 
-export class EditCourseDto extends SaveCourseDto {}
+export class EditCourse extends SaveCourseDto {
+  @ApiProperty({
+    example: '25.8',
+    description: 'Course New Price',
+  })
+  crs_new_price?: number;
+}
