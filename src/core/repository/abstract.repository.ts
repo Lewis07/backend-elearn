@@ -1,5 +1,5 @@
-import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
-import mongoose, { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
+import { Logger, NotFoundException } from '@nestjs/common';
+import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 import { uppercaseFirstLetter } from 'src/utils/uppercaseFirstLetter';
 import { AbstractDocument } from '../document/abstract.document';
 
@@ -12,31 +12,16 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     return await this.model.find(filterQuery).sort({ createdAt: -1 });
   }
 
-  async findById(id: Types.ObjectId): Promise<
-    mongoose.Document<unknown, {}, TDocument> &
-      TDocument &
-      Required<{
-        _id: mongoose.Types.ObjectId;
-      }>
-  > {
-    const isValidId = mongoose.isValidObjectId(id);
-
-    if (!isValidId) {
-      throw new BadRequestException('Wrong mongoose id, please enter valid id');
-    }
-
+  async findById(id: Types.ObjectId): Promise<TDocument> {
     const document = await this.model.findById(id);
 
     if (!document) {
-      throw new NotFoundException(
-        `${uppercaseFirstLetter(document.collection.name)} not found`,
-      );
+      throw new NotFoundException(`${this.model.modelName} not found`);
     }
 
     this.logger.log(
-      `Document ${uppercaseFirstLetter(document.collection.name)} with id ${document.toJSON()._id}, ${document}`,
+      `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}, ${document}`,
     );
-
     return document;
   }
 
@@ -44,10 +29,10 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     const document = await this.model.findOne(filterQuery);
 
     if (!document) {
-      throw new NotFoundException(`${document.baseModelName} not found`);
+      throw new NotFoundException(`${this.model.modelName} not found`);
     } else {
       this.logger.log(
-        `Document ${uppercaseFirstLetter(document.collection.name)} with id ${document.toJSON()._id}, ${document}`,
+        `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}, ${document}`,
       );
     }
 
@@ -63,7 +48,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     const createdDocument = await documentToCreate.save();
 
     this.logger.log(
-      `Document ${uppercaseFirstLetter(createdDocument.collection.name)} with id : ${createdDocument.toJSON()._id} saved successfully`,
+      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${createdDocument.toJSON()._id} saved successfully`,
     );
 
     return createdDocument.toJSON() as unknown as TDocument;
@@ -72,13 +57,13 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   async findByIdAndUpdate(
     id: Types.ObjectId,
     data: UpdateQuery<TDocument>,
-  ): Promise<TDocument> {
+  ): Promise<TDocument | null> {
     const updatedDocument = await this.model.findByIdAndUpdate(id, data, {
       new: true,
     });
 
     this.logger.log(
-      `Document ${uppercaseFirstLetter(updatedDocument.collection.name)} with id : ${updatedDocument._id} updated successfully`,
+      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${updatedDocument._id} updated successfully`,
     );
 
     return updatedDocument as TDocument | null;
@@ -97,19 +82,24 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     );
 
     this.logger.log(
-      `Document ${uppercaseFirstLetter(updatedDocument.collection.name)} with id : ${updatedDocument._id} updated successfully`,
+      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${updatedDocument._id} updated successfully`,
     );
 
     return updatedDocument as TDocument | null;
   }
 
-  async findByIdAndDelete(id: Types.ObjectId): Promise<TDocument> {
-    return await this.model.findByIdAndDelete(id);
+  async findByIdAndDelete(id: Types.ObjectId): Promise<void> {
+    this.logger.log(
+      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${id} deleted successfully`,
+    );
+
+    await this.model.findByIdAndDelete(id);
   }
 
-  async findOneAndDelete(
-    filterQuery: FilterQuery<TDocument>,
-  ): Promise<TDocument> {
-    return await this.model.findOneAndDelete(filterQuery);
+  async findOneAndDelete(filterQuery: FilterQuery<TDocument>): Promise<void> {
+    const document = await this.model.findOneAndDelete(filterQuery);
+    this.logger.log(
+      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${document._id} deleted successfully`,
+    );
   }
 }

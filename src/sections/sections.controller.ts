@@ -19,10 +19,13 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { Section } from './schemas/section.schema';
+import { CreateSection } from './dto/create-section.dto';
+import { EditSection } from './dto/edit-section.dto';
 
 @Controller('sections')
 export class SectionsController {
@@ -48,13 +51,19 @@ export class SectionsController {
   }
 
   @Get('course/:id')
+  @ApiOkResponse({
+    description: 'The sections have been successfully retrieved.',
+  })
   async getByCourse(@Param('id') id: string) {
     return await this.sectionService.findByCourse(id);
   }
 
-  @Get(':id/lessons')
+  @Get('lessons/:id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
+  @ApiOkResponse({
+    description: 'The sections have been successfully retrieved.',
+  })
   async getLessons(@Param('id') id: string) {
     return await this.sectionService.getLessons(id);
   }
@@ -65,8 +74,8 @@ export class SectionsController {
   @ApiCreatedResponse({
     description: 'The section has been successfully created.',
   })
-  async add(@Body() saveSectionDto: SaveSection) {
-    return await this.sectionService.store(saveSectionDto);
+  async add(@Body() createSection: CreateSection) {
+    return await this.sectionService.store(createSection);
   }
 
   @Patch(':id')
@@ -87,15 +96,18 @@ export class SectionsController {
   async update(
     @Param('id') id: string,
     @Req() req: any,
-    @Body() saveSectionDto: SaveSection,
+    @Body() editSection: EditSection,
   ) {
-    return await this.sectionService.update(id, saveSectionDto, req.user.id);
+    return await this.sectionService.update(id, editSection, req.user.id);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
+  @ApiNoContentResponse({
+    description: 'The sections have been successfully deleted.',
+  })
   async delete(@Param('id') id: string, @Req() req: any): Promise<void> {
     await this.sectionService.delete(id, req.user.id);
   }

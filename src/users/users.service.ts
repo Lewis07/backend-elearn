@@ -68,8 +68,8 @@ export class UsersService {
   async deleteEmailTokenForgetPassword(
     email: string,
     token: string,
-  ): Promise<UserReset> {
-    return this.userResetRepository.findOneAndDelete({
+  ): Promise<void> {
+    this.userResetRepository.findOneAndDelete({
       usr_rest_email: email,
       usr_rest_token: token,
     });

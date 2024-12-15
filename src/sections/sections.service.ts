@@ -1,7 +1,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { CourseRepository } from 'src/courses/repository/course.repository';
+import { ICourseSections } from 'src/interfaces/sections/ICourseSections';
 import { LessonRepository } from 'src/lessons/repository/lesson.repository';
-import { SaveSection } from './dto/save-section.dto';
+import { CreateSection } from './dto/create-section.dto';
+import { EditSection } from './dto/edit-section.dto';
 import { SectionRepository } from './repository/section.repository';
 import { Section } from './schemas/section.schema';
 
@@ -10,23 +13,15 @@ export class SectionsService {
   constructor(
     private sectionRepository: SectionRepository,
     private lessonRepository: LessonRepository,
+    private courseRepository: CourseRepository,
   ) {}
 
   async findAll(): Promise<Section[]> {
     return this.sectionRepository.find();
   }
 
-  async findById(id: string) {
-    const section = await this.sectionRepository.findById(
-      new Types.ObjectId(id),
-    );
-
-    const sectionDetailed = section.populate({
-      path: 'course',
-      select: '_id author_id',
-    });
-
-    return sectionDetailed;
+  async findById(id: string): Promise<Section> {
+    return await this.sectionRepository.findById(new Types.ObjectId(id));
   }
 
   async findByCourse(id: string): Promise<Section[]> {
@@ -36,22 +31,34 @@ export class SectionsService {
   async getLessons(id: string) {
     await this.findById(id);
     const lessons = await this.lessonRepository.find({ section: id });
-    // .populate('section', '_id sect_title');
 
     return lessons;
   }
 
-  async store(data: SaveSection) {
-    const sectionCreated = await this.sectionRepository.create(data);
-    const sectionId = sectionCreated._id;
-    const section = await this.findById(String(sectionId));
+  async store(createSection: CreateSection): Promise<Section> {
+    const course = await this.courseRepository.findById(
+      new Types.ObjectId(String(createSection.courseId)),
+    );
 
-    return section.populate('course', 'crs_title');
+    const courseSections: ICourseSections = {
+      _id: course._id,
+      author: course.author._id,
+    };
+
+    let sectionToCreate = {
+      sect_title: createSection.sect_title,
+      course: courseSections,
+    };
+
+    return await this.sectionRepository.create(sectionToCreate);
   }
 
-  async update(id: string, saveSection: SaveSection, authorId: string) {
-    const sectionData = await this.findById(id);
-    const section = await sectionData.populate('course', 'crs_title author');
+  async update(
+    id: string,
+    editSection: EditSection,
+    authorId: string,
+  ): Promise<Section> {
+    const section = await this.findById(id);
 
     if (String(section.course.author) !== authorId) {
       throw new ForbiddenException(
@@ -59,19 +66,14 @@ export class SectionsService {
       );
     }
 
-    const sectionUpdated = await this.sectionRepository.findByIdAndUpdate(
+    return this.sectionRepository.findByIdAndUpdate(
       new Types.ObjectId(id),
-      saveSection,
+      editSection,
     );
-
-    const sectionPopulated = await this.findById(String(sectionUpdated._id));
-
-    return sectionPopulated.populate('course', 'crs_title');
   }
 
-  async delete(id: string, authorId: string) {
-    const sectionData = await this.findById(id);
-    const section = await sectionData.populate('course', 'author');
+  async delete(id: string, authorId: string): Promise<void> {
+    const section = await this.findById(id);
 
     if (String(section.course.author) !== authorId) {
       throw new ForbiddenException(
