@@ -1,7 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { SaveLessonDto } from './save-lesson.dto';
-import { Section } from 'src/sections/schemas/section.schema';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class AddLesson extends SaveLessonDto {
   @ApiProperty({

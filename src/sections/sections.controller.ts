@@ -25,6 +25,7 @@ import { CreateSection } from './dto/create-section.dto';
 import { EditSection } from './dto/edit-section.dto';
 import { Section } from './schemas/section.schema';
 import { SectionsService } from './sections.service';
+import { Lesson } from 'src/lessons/schemas/lesson.schema';
 
 @Controller('sections')
 export class SectionsController {
@@ -45,7 +46,7 @@ export class SectionsController {
   @ApiNotFoundResponse({
     description: 'The section is not found.',
   })
-  async show(@Param('id') id: string) {
+  async show(@Param('id') id: string): Promise<Section> {
     return await this.sectionService.findById(id);
   }
 
@@ -53,7 +54,7 @@ export class SectionsController {
   @ApiOkResponse({
     description: 'The sections have been successfully retrieved.',
   })
-  async getByCourse(@Param('id') id: string) {
+  async getByCourse(@Param('id') id: string): Promise<Section[]> {
     return await this.sectionService.findByCourse(id);
   }
 
@@ -63,7 +64,7 @@ export class SectionsController {
   @ApiOkResponse({
     description: 'The sections have been successfully retrieved.',
   })
-  async getLessons(@Param('id') id: string) {
+  async getLessons(@Param('id') id: string): Promise<Lesson[]> {
     return await this.sectionService.getLessons(id);
   }
 
@@ -73,7 +74,7 @@ export class SectionsController {
   @ApiCreatedResponse({
     description: 'The section has been successfully created.',
   })
-  async add(@Body() createSection: CreateSection) {
+  async add(@Body() createSection: CreateSection): Promise<Section> {
     return await this.sectionService.store(createSection);
   }
 
@@ -96,7 +97,7 @@ export class SectionsController {
     @Param('id') id: string,
     @Req() req: any,
     @Body() editSection: EditSection,
-  ) {
+  ): Promise<Section> {
     return await this.sectionService.update(id, editSection, req.user.id);
   }
 

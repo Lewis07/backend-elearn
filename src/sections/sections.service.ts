@@ -30,7 +30,9 @@ export class SectionsService {
 
   async getLessons(id: string) {
     await this.findById(id);
-    const lessons = await this.lessonRepository.find({ section: id });
+    const lessons = await this.lessonRepository.find({
+      'section._id': id,
+    });
 
     return lessons;
   }
