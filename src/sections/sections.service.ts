@@ -25,7 +25,7 @@ export class SectionsService {
   }
 
   async findByCourse(id: string): Promise<Section[]> {
-    return await this.sectionRepository.find({ course: id });
+    return await this.sectionRepository.find({ 'course._id': id });
   }
 
   async getLessons(id: string) {

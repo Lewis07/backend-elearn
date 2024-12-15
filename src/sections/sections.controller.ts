@@ -11,9 +11,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '../auth/auth.guard';
-import { SectionsService } from './sections.service';
-import { SaveSection } from './dto/save-section.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -23,9 +20,11 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { Section } from './schemas/section.schema';
+import { AuthGuard } from '../auth/auth.guard';
 import { CreateSection } from './dto/create-section.dto';
 import { EditSection } from './dto/edit-section.dto';
+import { Section } from './schemas/section.schema';
+import { SectionsService } from './sections.service';
 
 @Controller('sections')
 export class SectionsController {
