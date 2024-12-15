@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   ParseFilePipeBuilder,
@@ -21,6 +22,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiResponse,
   ApiUnprocessableEntityResponse,
@@ -127,7 +129,7 @@ export class CoursesController {
         }),
     )
     file: Express.Multer.File,
-  ) {
+  ): Promise<Course> {
     return await this.courseService.update(
       id,
       editCourseDto,
@@ -136,12 +138,14 @@ export class CoursesController {
     );
   }
 
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @Delete(':id')
-  async delete(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @ApiNoContentResponse({
+    description: 'The record has been successfully deleted.',
+  })
+  async delete(@Param('id') id: string, @Req() req: any): Promise<void> {
     await this.courseService.delete(id, req.user.id);
-
-    return res.json({ courseId: id });
   }
 }

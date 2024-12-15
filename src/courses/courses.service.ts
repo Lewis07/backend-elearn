@@ -174,8 +174,8 @@ export class CoursesService {
     );
   }
 
-  async delete(id: string, authorId: string) {
-    const course = await this.findById(id);
+  async delete(id: string, authorId: string): Promise<void> {
+    const course: Course = await this.findById(id);
 
     if (String(course.author) !== authorId) {
       throw new ForbiddenException(
@@ -187,7 +187,7 @@ export class CoursesService {
       removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);
     }
 
-    return this.courseRepository.findByIdAndDelete(new Types.ObjectId(id));
+    this.courseRepository.findByIdAndDelete(new Types.ObjectId(id));
   }
 
   async getContent(courseId: string) {
