@@ -105,7 +105,7 @@ export class SectionsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
   @ApiNoContentResponse({
-    description: 'The sections have been successfully deleted.',
+    description: 'The section have been successfully deleted.',
   })
   async delete(@Param('id') id: string, @Req() req: any): Promise<void> {
     await this.sectionService.delete(id, req.user.id);

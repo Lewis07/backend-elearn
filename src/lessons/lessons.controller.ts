@@ -12,38 +12,70 @@ import {
   Req,
   UploadedFile,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 import { AuthGuard } from '../auth/auth.guard';
 import { MAX_SIZE_IN_BYTES_UPLOAD_VIDEO } from '../utils/constant/max-size-upload';
 import { VALID_VIDEO_MIME_TYPES } from '../utils/constant/mime-types';
 import { CustomUploadFileTypeValidatorOptions } from '../utils/validation/CustomUploadFileTypeValidator';
-import { SaveLessonDto } from './dto/save-lesson.dto';
+import { AddLesson } from './dto/add-lesson.dto';
+import { EditLesson } from './dto/edit-lesson.dto';
 import { LessonsService } from './lessons.service';
+import { Lesson } from './schemas/lesson.schema';
 
 @Controller('lessons')
+@ApiBearerAuth()
 export class LessonsController {
   constructor(private lessonsService: LessonsService) {}
 
-  @UseGuards(AuthGuard)
   @Get()
-  async list() {
+  @UseGuards(AuthGuard)
+  @ApiOkResponse({
+    description: 'The lessons have been successfully retrieved.',
+  })
+  async list(): Promise<Lesson[]> {
     return await this.lessonsService.findAll();
   }
 
-  @UseGuards(AuthGuard)
   @Get(':id')
-  async show(@Param('id') id: string) {
+  @UseGuards(AuthGuard)
+  @ApiOkResponse({
+    description: 'The lesson have been successfully retrieved.',
+  })
+  async show(@Param('id') id: string): Promise<Lesson> {
     return await this.lessonsService.findById(id);
   }
 
-  @UseGuards(AuthGuard)
   @Post()
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  @ApiConsumes('multipart/form-data')
+  @ApiCreatedResponse({
+    description: 'The lesson has been successfully created.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Fields required.',
+  })
+  @ApiForbiddenResponse({
+    description: 'You are not authorized to update the lesson.',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'File is required.',
+  })
   async add(
-    @Body() saveLessonDto: SaveLessonDto,
+    @Body() addLesson: AddLesson,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addValidator(
@@ -55,17 +87,30 @@ export class LessonsController {
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
     file: Express.Multer.File,
-  ) {
-    return await this.lessonsService.store(saveLessonDto, file);
+  ): Promise<Lesson> {
+    return await this.lessonsService.store(addLesson, file);
   }
 
-  @UseGuards(AuthGuard)
   @Patch(':id')
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({
+    description: 'The lesson has been successfully updated.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Fields required.',
+  })
+  @ApiForbiddenResponse({
+    description: 'You are not authorized to update the lesson.',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'File is required.',
+  })
   async update(
     @Param('id') id: string,
-    @Body() saveLessonDto,
-    @Req() req:any,
+    @Body() editLesson: EditLesson,
+    @Req() req: any,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addValidator(
@@ -80,14 +125,17 @@ export class LessonsController {
         }),
     )
     file: Express.Multer.File,
-  ) {
-    return await this.lessonsService.update(id, saveLessonDto, file, req.user.id);
+  ): Promise<Lesson> {
+    return await this.lessonsService.update(id, editLesson, file, req.user.id);
   }
 
-  @UseGuards(AuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async delete(@Param('id') id: string, @Req() req:any) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthGuard)
+  @ApiNoContentResponse({
+    description: 'The lesson have been successfully deleted.',
+  })
+  async delete(@Param('id') id: string, @Req() req: any): Promise<void> {
     await this.lessonsService.delete(id, req.user.id);
   }
 }

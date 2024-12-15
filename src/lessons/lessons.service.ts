@@ -1,13 +1,10 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { existsSync } from 'fs';
-import mongoose, { Model } from 'mongoose';
+import { Types } from 'mongoose';
 import { join } from 'path';
+import { IAddLesson } from 'src/interfaces/lessons/IAddLesson';
+import { IEditLesson } from 'src/interfaces/lessons/IEditLesson';
+import { IExpressMulterFile } from 'src/interfaces/medias/IExpressMulterFile';
 import { getPhotoFilenameAfterVideoUpload } from 'src/utils/getPhotoAfterVideoUpload';
 import {
   PATH_UPLOAD_LESSON_PHOTOS,
@@ -15,73 +12,73 @@ import {
 } from '../utils/constant/path-upload.utils';
 import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
 import { UploadMulter } from '../utils/upload/upload-multer.utils';
-import { SaveLessonDto } from './dto/save-lesson.dto';
+import { AddLesson } from './dto/add-lesson.dto';
+import { EditLesson } from './dto/edit-lesson.dto';
+import { LessonRepository } from './repository/lesson.repository';
 import { Lesson } from './schemas/lesson.schema';
+import { SectionRepository } from 'src/sections/repository/section.repository';
+import { ISectionLessons } from 'src/interfaces/lessons/ISectionLessons';
 
 @Injectable()
 export class LessonsService {
-  constructor(@InjectModel(Lesson.name) private lessonModel: Model<Lesson>) {}
+  constructor(
+    private lessonRepository: LessonRepository,
+    private sectionRepository: SectionRepository,
+  ) {}
 
   async findAll(): Promise<Lesson[]> {
-    return this.lessonModel
-      .find()
-      .populate('section', '_id sect_title')
-      .sort({ createdAt: -1 });
+    return this.lessonRepository.find();
   }
 
-  async findById(id: string) {
-    const isvalidId = mongoose.isValidObjectId(id);
-
-    if (!isvalidId) {
-      throw new BadRequestException(
-        'Wrong mongoose id, please enter a valid id',
-      );
-    }
-
-    const lesson = await this.lessonModel.findById(id);
-    const lessonDetailed = lesson.populate({
-      path: 'section',
-      populate: {
-        path: 'course_id',
-        select: '_id author_id',
-      },
-    });
-
-    if (!lesson) {
-      throw new NotFoundException('Lesson not found');
-    }
-
-    return lessonDetailed;
+  async findById(id: string): Promise<Lesson> {
+    return this.lessonRepository.findById(new Types.ObjectId(id));
   }
 
-  async store(saveLessonDto: SaveLessonDto, file: Express.Multer.File) {
-    const video = UploadMulter(file, PATH_UPLOAD_LESSON_VIDEOS);
-    const videoLink = video.filename;
-    const prefixFilename = 'lssn-pht';
-    const lessonPhotoFilename = await getPhotoFilenameAfterVideoUpload(
+  async store(
+    addLesson: AddLesson,
+    file: Express.Multer.File,
+  ): Promise<Lesson> {
+    const video: IExpressMulterFile = UploadMulter(
+      file,
+      PATH_UPLOAD_LESSON_VIDEOS,
+    );
+    const videoLink: string = video.filename;
+    const prefixFilename: string = 'lssn-pht';
+    const lessonPhotoFilename: string = await getPhotoFilenameAfterVideoUpload(
       video,
       prefixFilename,
       PATH_UPLOAD_LESSON_PHOTOS,
     );
 
-    let data = {
-      ...saveLessonDto,
+    const sectionData = await this.sectionRepository.findById(
+      new Types.ObjectId(addLesson.section_id),
+    );
+
+    const section: ISectionLessons = {
+      _id: sectionData._id,
+      course: {
+        _id: sectionData.course._id,
+        author: sectionData.course.author,
+      },
+    };
+
+    let data: IAddLesson = {
+      ...addLesson,
+      section,
       lssn_video_link: videoLink,
       lssn_video_photo: lessonPhotoFilename,
     };
 
-    const lessonCreated = await this.lessonModel.create(data);
-
-    return lessonCreated.populate('section', '_id sect_title');
+    return await this.lessonRepository.create(data);
   }
 
   async update(
     id: string,
-    saveLessonDto: SaveLessonDto,
+    editLesson: EditLesson,
     file: Express.Multer.File,
     authorId: string,
-  ) {
-    const lesson = await this.findById(id);
+  ): Promise<Lesson> {
+    const lesson: Lesson = await this.findById(id);
 
     if (String(lesson.section.course.author) !== authorId) {
       throw new ForbiddenException(
@@ -110,8 +107,11 @@ export class LessonsService {
         removeFileIfExist(PATH_UPLOAD_LESSON_PHOTOS, lesson.lssn_video_photo);
       }
 
-      const video = UploadMulter(file, PATH_UPLOAD_LESSON_VIDEOS);
-      const prefixFilename = 'lssn-pht';
+      const video: IExpressMulterFile = UploadMulter(
+        file,
+        PATH_UPLOAD_LESSON_VIDEOS,
+      );
+      const prefixFilename: string = 'lssn-pht';
       lessonPhotoFilename = await getPhotoFilenameAfterVideoUpload(
         video,
         prefixFilename,
@@ -120,20 +120,19 @@ export class LessonsService {
       videoLink = video.filename;
     }
 
-    let data = {
-      ...saveLessonDto,
+    let data: IEditLesson = {
+      ...editLesson,
       lssn_video_photo: lessonPhotoFilename,
       lssn_video_link: videoLink,
     };
 
-    const lessonUpdated = await this.lessonModel.findByIdAndUpdate(id, data, {
-      new: true,
-    });
-
-    return lessonUpdated.populate('section', '_id sect_title');
+    return await this.lessonRepository.findByIdAndUpdate(
+      new Types.ObjectId(id),
+      data,
+    );
   }
 
-  async delete(id: string, authorId: string) {
+  async delete(id: string, authorId: string): Promise<void> {
     const lesson = await this.findById(id);
 
     if (String(lesson.section.course.author) !== authorId) {
@@ -156,6 +155,6 @@ export class LessonsService {
       removeFileIfExist(PATH_UPLOAD_LESSON_PHOTOS, lesson.lssn_video_photo);
     }
 
-    return this.lessonModel.findByIdAndDelete(id);
+    await this.lessonRepository.findByIdAndDelete(new Types.ObjectId(id));
   }
 }

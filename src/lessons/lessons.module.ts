@@ -4,6 +4,9 @@ import { LessonsController } from './lessons.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Lesson, LessonSchema } from './schemas/lesson.schema';
+import { LessonRepository } from './repository/lesson.repository';
+import { SectionRepository } from 'src/sections/repository/section.repository';
+import { Section, sectionSchema } from 'src/sections/schemas/section.schema';
 
 @Module({
   imports: [
@@ -15,10 +18,11 @@ import { Lesson, LessonSchema } from './schemas/lesson.schema';
       }),
     }),
     MongooseModule.forFeature([
-      { name: Lesson.name, schema: LessonSchema }
-    ])
+      { name: Lesson.name, schema: LessonSchema },
+      { name: Section.name, schema: sectionSchema },
+    ]),
   ],
-  providers: [LessonsService],
-  controllers: [LessonsController]
+  providers: [LessonsService, LessonRepository, SectionRepository],
+  controllers: [LessonsController],
 })
 export class LessonsModule {}
