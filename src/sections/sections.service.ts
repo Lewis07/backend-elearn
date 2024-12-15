@@ -1,109 +1,84 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
-import { Course } from 'src/courses/schemas/course.schema';
-import { SaveSectionDto } from './dto/save-section.dto';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Types } from 'mongoose';
+import { LessonRepository } from 'src/lessons/repository/lesson.repository';
+import { SaveSection } from './dto/save-section.dto';
+import { SectionRepository } from './repository/section.repository';
 import { Section } from './schemas/section.schema';
-import { Lesson } from 'src/lessons/schemas/lesson.schema';
 
 @Injectable()
 export class SectionsService {
   constructor(
-    @InjectModel(Section.name) private sectionModel: Model<Section>,
-    @InjectModel(Course.name) private courseModel: Model<Course>,
-    @InjectModel(Lesson.name) private lessonModel: Model<Lesson>,
+    private sectionRepository: SectionRepository,
+    private lessonRepository: LessonRepository,
   ) {}
 
-  async findAll() {
-    return this.sectionModel.find().sort({ createdAt: -1 });
+  async findAll(): Promise<Section[]> {
+    return this.sectionRepository.find();
   }
 
   async findById(id: string) {
-    const isvalidId = mongoose.isValidObjectId(id);
+    const section = await this.sectionRepository.findById(
+      new Types.ObjectId(id),
+    );
 
-    if (!isvalidId) {
-      throw new BadRequestException(
-        'Wrong mongoose id, please enter a valid id',
-      );
-    }
-
-    const section = await this.sectionModel.findById(id);
-
-    if (!section) {
-      throw new NotFoundException('Section not found');
-    }
-
-    return section.populate({
-      path: 'course_id',
+    const sectionDetailed = section.populate({
+      path: 'course',
       select: '_id author_id',
     });
+
+    return sectionDetailed;
+  }
+
+  async findByCourse(id: string): Promise<Section[]> {
+    return await this.sectionRepository.find({ course: id });
   }
 
   async getLessons(id: string) {
     await this.findById(id);
-    const lessons = await this.lessonModel
-      .find({ section: id })
-      .populate('section', '_id sect_title');
+    const lessons = await this.lessonRepository.find({ section: id });
+    // .populate('section', '_id sect_title');
 
     return lessons;
   }
 
-  async store(data: SaveSectionDto) {
-    const sectionCreated = await this.sectionModel.create(data);
+  async store(data: SaveSection) {
+    const sectionCreated = await this.sectionRepository.create(data);
     const sectionId = sectionCreated._id;
     const section = await this.findById(String(sectionId));
 
-    return section.populate('course_id', 'crs_title');
+    return section.populate('course', 'crs_title');
   }
 
-  async update(id: string, saveSection: SaveSectionDto, authorId: string) {
-    const section = await this.findById(id);
+  async update(id: string, saveSection: SaveSection, authorId: string) {
+    const sectionData = await this.findById(id);
+    const section = await sectionData.populate('course', 'crs_title author');
 
-    if (String(section.course_id.author) !== authorId) {
+    if (String(section.course.author) !== authorId) {
       throw new ForbiddenException(
         "You can't update a section who don't belong to you",
       );
     }
 
-    const sectionUpdated = await this.sectionModel.findByIdAndUpdate(
-      id,
+    const sectionUpdated = await this.sectionRepository.findByIdAndUpdate(
+      new Types.ObjectId(id),
       saveSection,
-      { new: true },
     );
 
-    return sectionUpdated.populate('course_id', 'crs_title');
+    const sectionPopulated = await this.findById(String(sectionUpdated._id));
+
+    return sectionPopulated.populate('course', 'crs_title');
   }
 
   async delete(id: string, authorId: string) {
-    const section = await this.findById(id);
+    const sectionData = await this.findById(id);
+    const section = await sectionData.populate('course', 'author');
 
-    if (String(section.course_id.author) !== authorId) {
+    if (String(section.course.author) !== authorId) {
       throw new ForbiddenException(
         "You can't delete a section who don't belong to you",
       );
     }
 
-    return this.sectionModel.findByIdAndDelete(id);
-  }
-
-  async findByCourse(id: string) {
-    const isValidId = mongoose.isValidObjectId(id);
-
-    if (!isValidId) {
-      throw new BadRequestException('Wrong mongoose id, please enter valid id');
-    }
-
-    const course = await this.courseModel.findById(id);
-
-    if (!course) {
-      throw new NotFoundException('Course not found');
-    }
-
-    return await this.sectionModel.find({ course_id: id });
+    await this.sectionRepository.findByIdAndDelete(new Types.ObjectId(id));
   }
 }

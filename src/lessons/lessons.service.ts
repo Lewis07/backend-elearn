@@ -83,7 +83,7 @@ export class LessonsService {
   ) {
     const lesson = await this.findById(id);
 
-    if (String(lesson.section.course_id.author) !== authorId) {
+    if (String(lesson.section.course.author) !== authorId) {
       throw new ForbiddenException(
         "You can't update a lesson who don't belong to you",
       );
@@ -136,7 +136,7 @@ export class LessonsService {
   async delete(id: string, authorId: string) {
     const lesson = await this.findById(id);
 
-    if (String(lesson.section.course_id.author) !== authorId) {
+    if (String(lesson.section.course.author) !== authorId) {
       throw new ForbiddenException(
         "You can't delete a lesson who don't belong to you",
       );

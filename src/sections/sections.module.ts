@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
+import { SectionRepository } from './repository/section.repository';
+import { Section, sectionSchema } from './schemas/section.schema';
 import { SectionsController } from './sections.controller';
 import { SectionsService } from './sections.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Section, sectionSchema } from './schemas/section.schema';
-import { JwtModule } from '@nestjs/jwt';
-import { Course, CourseSchema } from 'src/courses/schemas/course.schema';
-import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
+import { LessonRepository } from 'src/lessons/repository/lesson.repository';
 
 @Module({
   imports: [
@@ -18,11 +19,10 @@ import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
     }),
     MongooseModule.forFeature([
       { name: Section.name, schema: sectionSchema },
-      { name: Course.name, schema: CourseSchema },
       { name: Lesson.name, schema: LessonSchema },
     ]),
   ],
   controllers: [SectionsController],
-  providers: [SectionsService],
+  providers: [SectionsService, SectionRepository, LessonRepository],
 })
 export class SectionsModule {}

@@ -11,7 +11,7 @@ export class Section extends AbstractDocument {
   sect_title: string;
 
   @Prop({ type: mongoose.Schema.ObjectId, ref: 'Course', required: true })
-  course_id: Course;
+  course: Course;
 }
 
 export const sectionSchema = SchemaFactory.createForClass(Section);

@@ -1,13 +1,7 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
-import mongoose, {
-  FilterQuery,
-  Model,
-  ObjectId,
-  Types,
-  UpdateQuery,
-} from 'mongoose';
-import { AbstractDocument } from '../document/abstract.document';
+import mongoose, { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 import { uppercaseFirstLetter } from 'src/utils/uppercaseFirstLetter';
+import { AbstractDocument } from '../document/abstract.document';
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   protected abstract readonly logger: Logger;
@@ -18,7 +12,13 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     return await this.model.find(filterQuery).sort({ createdAt: -1 });
   }
 
-  async findById(id: Types.ObjectId): Promise<TDocument> {
+  async findById(id: Types.ObjectId): Promise<
+    mongoose.Document<unknown, {}, TDocument> &
+      TDocument &
+      Required<{
+        _id: mongoose.Types.ObjectId;
+      }>
+  > {
     const isValidId = mongoose.isValidObjectId(id);
 
     if (!isValidId) {
@@ -33,6 +33,10 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
       );
     }
 
+    this.logger.log(
+      `Document ${uppercaseFirstLetter(document.collection.name)} with id ${document.toJSON()._id}, ${document}`,
+    );
+
     return document;
   }
 
@@ -43,7 +47,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
       throw new NotFoundException(`${document.baseModelName} not found`);
     } else {
       this.logger.log(
-        `Document ${document.collection.name} with id ${document.toJSON()._id}, ${document}`,
+        `Document ${uppercaseFirstLetter(document.collection.name)} with id ${document.toJSON()._id}, ${document}`,
       );
     }
 
@@ -59,7 +63,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     const createdDocument = await documentToCreate.save();
 
     this.logger.log(
-      `Document ${createdDocument.collection.name} with id : ${createdDocument.toJSON()._id} saved successfully`,
+      `Document ${uppercaseFirstLetter(createdDocument.collection.name)} with id : ${createdDocument.toJSON()._id} saved successfully`,
     );
 
     return createdDocument.toJSON() as unknown as TDocument;
@@ -74,7 +78,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     });
 
     this.logger.log(
-      `Document ${updatedDocument.collection.name} with id : ${updatedDocument._id} updated successfully`,
+      `Document ${uppercaseFirstLetter(updatedDocument.collection.name)} with id : ${updatedDocument._id} updated successfully`,
     );
 
     return updatedDocument as TDocument | null;
@@ -93,7 +97,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     );
 
     this.logger.log(
-      `Document ${updatedDocument.collection.name} with id : ${updatedDocument._id} updated successfully`,
+      `Document ${uppercaseFirstLetter(updatedDocument.collection.name)} with id : ${updatedDocument._id} updated successfully`,
     );
 
     return updatedDocument as TDocument | null;
