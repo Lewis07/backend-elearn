@@ -34,6 +34,7 @@ import { CoursesService } from './courses.service';
 import { CreateCourse } from './dto/create-course.dto';
 import { EditCourse } from './dto/edit-course.dto';
 import { Course } from './schemas/course.schema';
+import { ICourseContentsWithTotalSectionsLessonsDuration } from 'src/interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
 
 @Controller('courses')
 export class CoursesController {
@@ -57,7 +58,9 @@ export class CoursesController {
   }
 
   @Get('contents/:id')
-  async contents(@Param('id') id: string) {
+  async contents(
+    @Param('id') id: string,
+  ): Promise<ICourseContentsWithTotalSectionsLessonsDuration> {
     return this.courseService.getContent(id);
   }
 
