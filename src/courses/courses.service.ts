@@ -29,6 +29,7 @@ import { CreateCourse } from './dto/create-course.dto';
 import { EditCourse } from './dto/edit-course.dto';
 import { CourseRepository } from './repository/course.repository';
 import { Course } from './schemas/course.schema';
+import { IEditCourse } from 'src/interfaces/courses/IEditCourse';
 
 @Injectable()
 export class CoursesService {
@@ -141,8 +142,8 @@ export class CoursesService {
     editCourseDto: EditCourse,
     file: Express.Multer.File,
     authorId: string,
-  ) {
-    const course = await this.findById(id);
+  ): Promise<Course> {
+    const course: Course = await this.findById(id);
     if (String(course.author) !== authorId) {
       throw new ForbiddenException(
         "You can't update a course who don't belong to you",
@@ -158,11 +159,11 @@ export class CoursesService {
         removeFileIfExist(PATH_UPLOAD_COURSE, course.crs_photo);
       }
 
-      let photo = UploadMulter(file, PATH_UPLOAD_COURSE);
+      let photo: IExpressMulterFile = UploadMulter(file, PATH_UPLOAD_COURSE);
       photoLink = photo.filename;
     }
 
-    let data = {
+    let data: IEditCourse = {
       ...editCourseDto,
       crs_photo: photoLink,
     };

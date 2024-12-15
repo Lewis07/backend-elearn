@@ -7,4 +7,12 @@ export class EditCourse extends SaveCourseDto {
     description: 'Course New Price',
   })
   crs_new_price?: number;
+
+  @ApiProperty({
+    description: 'Course Photo',
+    type: 'string',
+    format: 'binary',
+    required: false,
+  })
+  file?: File;
 }

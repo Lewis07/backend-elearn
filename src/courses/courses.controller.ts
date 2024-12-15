@@ -21,6 +21,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
@@ -65,8 +66,8 @@ export class CoursesController {
   @Post()
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse({
     description: 'The record has been successfully created.',
   })
@@ -94,10 +95,20 @@ export class CoursesController {
     return await this.courseService.store(req.user.id, createCourseDto, file);
   }
 
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({
+    description: 'The record has been successfully updated.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Fields required.',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'File is required.',
+  })
   async update(
     @Param('id') id: string,
     @Req() req: any,
