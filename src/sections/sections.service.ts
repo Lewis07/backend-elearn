@@ -37,7 +37,7 @@ export class SectionsService {
 
   async store(createSection: CreateSection): Promise<Section> {
     const course = await this.courseRepository.findById(
-      new Types.ObjectId(String(createSection.courseId)),
+      new Types.ObjectId(String(createSection.course_id)),
     );
 
     const courseSections: ICourseSections = {

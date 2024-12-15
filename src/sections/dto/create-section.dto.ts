@@ -9,5 +9,5 @@ export class CreateSection extends SaveSection {
     description: 'Course Id',
   })
   @IsNotEmpty({ message: 'Course is required' })
-  courseId: Course;
+  course_id: Course;
 }
