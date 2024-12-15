@@ -234,7 +234,7 @@ export class CoursesService {
               lssn_title: lesson.lssn_title,
               lssn_video_link: lesson.lssn_video_link,
               lssn_is_free: lesson.lssn_is_free,
-              lssn_duration: getMinuteAndSecond(
+              lssn_duration_in_min_sec: getMinuteAndSecond(
                 await getVideoDuration(
                   `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
                 ),
