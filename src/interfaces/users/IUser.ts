@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
-import { RoleEnum } from 'src/utils/enum/role.enum';
-import { UserTypeEnum } from 'src/utils/enum/user-type-enum.utils';
+import { RoleEnum } from 'src/utils/enums/role.enum';
+import { UserTypeEnum } from 'src/utils/enums/user-type.enum';
 
 export interface IUser {
   _id: Types.ObjectId;

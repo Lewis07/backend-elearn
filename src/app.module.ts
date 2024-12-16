@@ -3,17 +3,17 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { CommentsModule } from './comments/comments.module';
-import { CoursesModule } from './learning/modules/courses.module';
-import { LessonsModule } from './learning/modules/lessons.module';
-import { PaymentModule } from './payment/payment.module';
-import { PurchasesModule } from './purchases/purchases.module';
-import { SectionsModule } from './learning/modules/sections.module';
-import { TeachersModule } from './teachers/teachers.module';
-import { UsersModule } from './users/users.module';
-import { IsUniqueConstraint } from './utils/validation/unique-field/isUniqueConstraint';
-import { LearningModule } from './learning/modules/learning.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { CommentsModule } from './modules/comments/comments.module';
+import { CoursesModule } from './modules/learning/modules/courses.module';
+import { LessonsModule } from './modules/learning/modules/lessons.module';
+import { PaymentModule } from './modules/payment/payment.module';
+import { PurchasesModule } from './modules/purchases/purchases.module';
+import { SectionsModule } from './modules/learning/modules/sections.module';
+import { TeachersModule } from './modules/teachers/teachers.module';
+import { UsersModule } from './modules/users/users.module';
+import { IsUniqueConstraint } from './common/pipes/unique-field/isUniqueConstraint';
+import { LearningModule } from './modules/learning/modules/learning.module';
 
 @Module({
   imports: [

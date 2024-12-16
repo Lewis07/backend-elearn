@@ -1,4 +1,4 @@
-import { LevelEnum } from 'src/utils/enum/level-enum.utils';
+import { LevelEnum } from 'src/utils/enums/level.enum';
 import { IUser } from '../users/IUser';
 
 export interface ICourse {

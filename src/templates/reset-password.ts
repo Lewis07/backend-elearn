@@ -1,5 +1,5 @@
 import { LOGO } from 'src/main';
-import { User } from 'src/users/schemas/user.schema';
+import { User } from 'src/modules/users/schemas/user.schema';
 
 export const resetPasswordTemplate = (
   user: User,

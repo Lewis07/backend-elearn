@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ValidationError, useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { FRONTEND_URL } from './utils/constant/url';
+import { FRONTEND_URL } from './utils/constants/urls/url';
 import * as express from 'express';
 import * as path from 'path';
 

@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { UserTypeEnum } from 'src/utils/enum/user-type-enum.utils';
+import { UserTypeEnum } from 'src/utils/enums/user-type.enum';
 
 export interface IUserUpdateProfile {
   _id: Types.ObjectId;
