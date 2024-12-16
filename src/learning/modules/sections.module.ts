@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
-import { SectionRepository } from './repository/section.repository';
-import { Section, sectionSchema } from './schemas/section.schema';
-import { SectionsController } from './sections.controller';
-import { SectionsService } from './sections.service';
-import { LessonRepository } from 'src/lessons/repository/lesson.repository';
-import { CourseRepository } from 'src/courses/repository/course.repository';
-import { Course, CourseSchema } from 'src/courses/schemas/course.schema';
+import {
+  Lesson,
+  LessonSchema,
+} from 'src/learning/schemas/lessons/lesson.schema';
+import { Section, sectionSchema } from '../schemas/sections/section.schema';
+import { SectionsService } from '../services/sections.service';
+import { CourseRepository } from 'src/learning/repositories/course.repository';
+import { Course, CourseSchema } from 'src/learning/schemas/course.schema';
+import { SectionRepository } from '../repositories/section.repository';
+import { LessonRepository } from '../repositories/lesson.repository';
+import { SectionsController } from '../controllers/sections.controller';
 
 @Module({
   imports: [

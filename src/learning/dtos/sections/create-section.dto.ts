@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { SaveSection } from './save-section.dto';
-import { Course } from 'src/courses/schemas/course.schema';
+import { Course } from 'src/learning/schemas/course.schema';
 import { IsNotEmpty } from 'class-validator';
 
 export class CreateSection extends SaveSection {

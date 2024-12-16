@@ -1,15 +1,18 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { existsSync } from 'fs';
-import { Model, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { join } from 'path';
 import slugify from 'slugify';
 import { CommentRepository } from 'src/comments/repository/comment.repository';
 import { IAddCourse } from 'src/interfaces/courses/IAddCourse';
+import { ICourseContents } from 'src/interfaces/courses/ICourseContents';
+import { ICourseContentsWithTotalSectionsLessonsDuration } from 'src/interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
 import { ICourseWithAverageRating } from 'src/interfaces/courses/ICourseWithAverageRating';
+import { IEditCourse } from 'src/interfaces/courses/IEditCourse';
+import { ILessonInSectionWithDuration } from 'src/interfaces/lessons/ILessonInSectionWithDuration';
 import { IExpressMulterFile } from 'src/interfaces/medias/IExpressMulterFile';
-import { Lesson } from 'src/lessons/schemas/lesson.schema';
-import { Section } from 'src/sections/schemas/section.schema';
+import { Lesson } from 'src/learning/schemas/lessons/lesson.schema';
+import { Section } from 'src/learning/schemas/sections/section.schema';
 import { UserRepository } from 'src/users/repository/user.repository';
 import { User } from 'src/users/schemas/user.schema';
 import {
@@ -19,22 +22,18 @@ import {
   getVideoDuration,
 } from 'src/utils/duration.utils';
 import { UploadMulter } from 'src/utils/upload/upload-multer.utils';
-import { Comment } from '../comments/schemas/comment.schema';
+import { Comment } from '../../comments/schemas/comment.schema';
 import {
   PATH_UPLOAD_COURSE,
   PATH_UPLOAD_LESSON_VIDEOS,
-} from '../utils/constant/path-upload.utils';
-import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
-import { CreateCourse } from './dto/create-course.dto';
-import { EditCourse } from './dto/edit-course.dto';
-import { CourseRepository } from './repository/course.repository';
-import { Course } from './schemas/course.schema';
-import { IEditCourse } from 'src/interfaces/courses/IEditCourse';
-import { SectionRepository } from 'src/sections/repository/section.repository';
-import { LessonRepository } from 'src/lessons/repository/lesson.repository';
-import { ILessonInSectionWithDuration } from 'src/interfaces/lessons/ILessonInSectionWithDuration';
-import { ICourseContents } from 'src/interfaces/courses/ICourseContents';
-import { ICourseContentsWithTotalSectionsLessonsDuration } from 'src/interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
+} from '../../utils/constant/path-upload.utils';
+import { removeFileIfExist } from '../../utils/removeFileIfExist.utils';
+import { CreateCourse } from '../dtos/courses/create-course.dto';
+import { EditCourse } from '../dtos/courses/edit-course.dto';
+import { CourseRepository } from '../repositories/course.repository';
+import { Course } from '../schemas/course.schema';
+import { SectionRepository } from '../repositories/section.repository';
+import { LessonRepository } from '../repositories/lesson.repository';
 
 @Injectable()
 export class CoursesService {

@@ -4,7 +4,7 @@ import { ICourseSections } from 'src/interfaces/sections/ICourseSections';
 import { CourseSections } from './course-sections.schema';
 
 @Schema({
-  timestamps: true,
+  collection: 'sections',
 })
 export class Section extends AbstractDocument {
   @Prop({ required: true, trim: true })

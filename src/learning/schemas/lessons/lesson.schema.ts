@@ -4,7 +4,7 @@ import { ISectionLessons } from 'src/interfaces/lessons/ISectionLessons';
 import { SectionLessons } from './section-lessons.schema';
 
 @Schema({
-  timestamps: true,
+  collection: 'lessons',
 })
 export class Lesson extends AbstractDocument {
   @Prop({ trim: true, required: true })

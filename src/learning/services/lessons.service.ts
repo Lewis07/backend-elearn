@@ -9,15 +9,15 @@ import { getPhotoFilenameAfterVideoUpload } from 'src/utils/getPhotoAfterVideoUp
 import {
   PATH_UPLOAD_LESSON_PHOTOS,
   PATH_UPLOAD_LESSON_VIDEOS,
-} from '../utils/constant/path-upload.utils';
-import { removeFileIfExist } from '../utils/removeFileIfExist.utils';
-import { UploadMulter } from '../utils/upload/upload-multer.utils';
-import { AddLesson } from './dto/add-lesson.dto';
-import { EditLesson } from './dto/edit-lesson.dto';
-import { LessonRepository } from './repository/lesson.repository';
-import { Lesson } from './schemas/lesson.schema';
-import { SectionRepository } from 'src/sections/repository/section.repository';
+} from '../../utils/constant/path-upload.utils';
+import { removeFileIfExist } from '../../utils/removeFileIfExist.utils';
+import { UploadMulter } from '../../utils/upload/upload-multer.utils';
+import { AddLesson } from '../dtos/lessons/add-lesson.dto';
+import { EditLesson } from '../dtos/lessons/edit-lesson.dto';
+import { Lesson } from '../schemas/lessons/lesson.schema';
 import { ISectionLessons } from 'src/interfaces/lessons/ISectionLessons';
+import { LessonRepository } from '../repositories/lesson.repository';
+import { SectionRepository } from '../repositories/section.repository';
 
 @Injectable()
 export class LessonsService {

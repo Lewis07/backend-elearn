@@ -1,9 +1,9 @@
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, Max, Min, ValidateIf } from 'class-validator';
-import { Lesson } from 'src/lessons/schemas/lesson.schema';
+import { Lesson } from 'src/learning/schemas/lessons/lesson.schema';
 import { User } from 'src/users/schemas/user.schema';
 import { CommentEnum } from 'src/utils/enum/comment-enum.utils';
-import { Course } from '../../courses/schemas/course.schema';
+import { Course } from '../../learning/schemas/course.schema';
 
 export class AddCommentDto {
   @Transform(

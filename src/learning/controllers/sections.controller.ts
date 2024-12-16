@@ -20,12 +20,12 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/auth.guard';
-import { CreateSection } from './dto/create-section.dto';
-import { EditSection } from './dto/edit-section.dto';
-import { Section } from './schemas/section.schema';
-import { SectionsService } from './sections.service';
-import { Lesson } from 'src/lessons/schemas/lesson.schema';
+import { Lesson } from 'src/learning/schemas/lessons/lesson.schema';
+import { SectionsService } from '../services/sections.service';
+import { Section } from '../schemas/sections/section.schema';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { CreateSection } from '../dtos/sections/create-section.dto';
+import { EditSection } from '../dtos/sections/edit-section.dto';
 
 @Controller('sections')
 export class SectionsController {
@@ -52,7 +52,7 @@ export class SectionsController {
 
   @Get('course/:id')
   @ApiOkResponse({
-    description: 'The sections have been successfully retrieved.',
+    description: 'The sections in course have been successfully retrieved.',
   })
   async getByCourse(@Param('id') id: string): Promise<Section[]> {
     return await this.sectionService.findByCourse(id);
@@ -62,7 +62,10 @@ export class SectionsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @ApiOkResponse({
-    description: 'The sections have been successfully retrieved.',
+    description: 'The lessons in section have been successfully retrieved.',
+  })
+  @ApiNotFoundResponse({
+    description: 'The section is not found.',
   })
   async getLessons(@Param('id') id: string): Promise<Lesson[]> {
     return await this.sectionService.getLessons(id);

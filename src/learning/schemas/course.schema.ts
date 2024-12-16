@@ -5,7 +5,7 @@ import { User } from '../../users/schemas/user.schema';
 import { LevelEnum } from '../../utils/enum/level-enum.utils';
 
 @Schema({
-  timestamps: true,
+  collection: 'courses',
 })
 export class Course extends AbstractDocument {
   @Prop({ trim: true, required: true })

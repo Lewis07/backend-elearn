@@ -5,15 +5,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
-import { CoursesModule } from './courses/courses.module';
-import { LessonsModule } from './lessons/lessons.module';
+import { CoursesModule } from './learning/modules/courses.module';
+import { LessonsModule } from './learning/modules/lessons.module';
 import { PaymentModule } from './payment/payment.module';
 import { PurchasesModule } from './purchases/purchases.module';
-import { SectionsModule } from './sections/sections.module';
+import { SectionsModule } from './learning/modules/sections.module';
 import { TeachersModule } from './teachers/teachers.module';
 import { UsersModule } from './users/users.module';
 import { IsUniqueConstraint } from './utils/validation/unique-field/isUniqueConstraint';
-import { LearningModule } from './learning/learning.module';
+import { LearningModule } from './learning/modules/learning.module';
 
 @Module({
   imports: [

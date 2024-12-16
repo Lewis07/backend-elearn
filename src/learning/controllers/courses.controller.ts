@@ -21,19 +21,20 @@ import {
   ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 import { ICourseWithAverageRating } from 'src/interfaces/courses/ICourseWithAverageRating';
-import { AuthGuard } from '../auth/auth.guard';
-import { MAX_SIZE_IN_BYTES_UPLOAD_PHOTO } from '../utils/constant/max-size-upload';
-import { VALID_IMAGE_MIME_TYPES } from '../utils/constant/mime-types';
-import { CustomUploadFileTypeValidatorOptions } from '../utils/validation/CustomUploadFileTypeValidator';
-import { CoursesService } from './courses.service';
-import { CreateCourse } from './dto/create-course.dto';
-import { EditCourse } from './dto/edit-course.dto';
-import { Course } from './schemas/course.schema';
+import { AuthGuard } from '../../auth/auth.guard';
+import { MAX_SIZE_IN_BYTES_UPLOAD_PHOTO } from '../../utils/constant/max-size-upload';
+import { VALID_IMAGE_MIME_TYPES } from '../../utils/constant/mime-types';
+import { CustomUploadFileTypeValidatorOptions } from '../../utils/validation/CustomUploadFileTypeValidator';
+import { CoursesService } from '../services/courses.service';
+import { CreateCourse } from '../dtos/courses/create-course.dto';
+import { EditCourse } from '../dtos/courses/edit-course.dto';
+import { Course } from '../schemas/course.schema';
 import { ICourseContentsWithTotalSectionsLessonsDuration } from 'src/interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
 
 @Controller('courses')
@@ -41,16 +42,31 @@ export class CoursesController {
   constructor(private courseService: CoursesService) {}
 
   @Get()
+  @ApiOkResponse({
+    description: 'The courses have been successfully retrieved.',
+  })
   async list(): Promise<ICourseWithAverageRating[]> {
     return await this.courseService.findAll();
   }
 
   @Get('show/:id')
+  @ApiOkResponse({
+    description: 'The course have been successfully retrieved.',
+  })
+  @ApiNotFoundResponse({
+    description: 'The course is not found.',
+  })
   async showById(@Param('id') id: string): Promise<Course> {
     return await this.courseService.findById(id);
   }
 
   @Get('view/:slug')
+  @ApiOkResponse({
+    description: 'The course have been successfully retrieved.',
+  })
+  @ApiNotFoundResponse({
+    description: 'The course is not found.',
+  })
   async viewBySlug(
     @Param('slug') slug: string,
   ): Promise<ICourseWithAverageRating> {
@@ -58,6 +74,12 @@ export class CoursesController {
   }
 
   @Get('contents/:id')
+  @ApiOkResponse({
+    description: 'The course content have been successfully retrieved.',
+  })
+  @ApiNotFoundResponse({
+    description: 'The course content is not found.',
+  })
   async contents(
     @Param('id') id: string,
   ): Promise<ICourseContentsWithTotalSectionsLessonsDuration> {
@@ -73,7 +95,7 @@ export class CoursesController {
     description: 'The record has been successfully created.',
   })
   @ApiBadRequestResponse({
-    description: 'Fields required.',
+    description: 'Bad request.',
   })
   @ApiUnprocessableEntityResponse({
     description: 'File is required.',
@@ -105,7 +127,7 @@ export class CoursesController {
     description: 'The record has been successfully updated.',
   })
   @ApiBadRequestResponse({
-    description: 'Fields required.',
+    description: 'Bad request.',
   })
   @ApiUnprocessableEntityResponse({
     description: 'File is required.',

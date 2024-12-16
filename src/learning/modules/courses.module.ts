@@ -1,18 +1,24 @@
 import { Module } from '@nestjs/common';
-import { CoursesController } from './courses.controller';
-import { CoursesService } from './courses.service';
+import { CoursesController } from '../controllers/courses.controller';
+import { CoursesService } from '../services/courses.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Course, CourseSchema } from './schemas/course.schema';
+import { Course, CourseSchema } from '../schemas/course.schema';
 import { JwtModule } from '@nestjs/jwt';
-import { Comment, CommentSchema } from '../comments/schemas/comment.schema';
-import { Section, sectionSchema } from 'src/sections/schemas/section.schema';
-import { Lesson, LessonSchema } from 'src/lessons/schemas/lesson.schema';
-import { CourseRepository } from './repository/course.repository';
+import { Comment, CommentSchema } from '../../comments/schemas/comment.schema';
+import {
+  Section,
+  sectionSchema,
+} from 'src/learning/schemas/sections/section.schema';
+import {
+  Lesson,
+  LessonSchema,
+} from 'src/learning/schemas/lessons/lesson.schema';
+import { CourseRepository } from '../repositories/course.repository';
 import { UserRepository } from 'src/users/repository/user.repository';
 import { CommentRepository } from 'src/comments/repository/comment.repository';
 import { User, UserSchema } from 'src/users/schemas/user.schema';
-import { SectionRepository } from 'src/sections/repository/section.repository';
-import { LessonRepository } from 'src/lessons/repository/lesson.repository';
+import { SectionRepository } from '../repositories/section.repository';
+import { LessonRepository } from '../repositories/lesson.repository';
 
 @Module({
   imports: [

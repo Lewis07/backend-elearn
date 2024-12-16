@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { LearningController } from './learning.controller';
-import { LearningService } from './learning.service';
+import { LearningController } from '../controllers/learning.controller';
+import { LearningService } from '../services/learning.service';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import {

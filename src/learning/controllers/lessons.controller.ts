@@ -22,18 +22,19 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
-import { AuthGuard } from '../auth/auth.guard';
-import { MAX_SIZE_IN_BYTES_UPLOAD_VIDEO } from '../utils/constant/max-size-upload';
-import { VALID_VIDEO_MIME_TYPES } from '../utils/constant/mime-types';
-import { CustomUploadFileTypeValidatorOptions } from '../utils/validation/CustomUploadFileTypeValidator';
-import { AddLesson } from './dto/add-lesson.dto';
-import { EditLesson } from './dto/edit-lesson.dto';
-import { LessonsService } from './lessons.service';
-import { Lesson } from './schemas/lesson.schema';
+import { LessonsService } from '../services/lessons.service';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Lesson } from '../schemas/lessons/lesson.schema';
+import { CustomUploadFileTypeValidatorOptions } from 'src/utils/validation/CustomUploadFileTypeValidator';
+import { VALID_VIDEO_MIME_TYPES } from 'src/utils/constant/mime-types';
+import { AddLesson } from '../dtos/lessons/add-lesson.dto';
+import { MAX_SIZE_IN_BYTES_UPLOAD_VIDEO } from 'src/utils/constant/max-size-upload';
+import { EditLesson } from '../dtos/lessons/edit-lesson.dto';
 
 @Controller('lessons')
 @ApiBearerAuth()
@@ -54,6 +55,9 @@ export class LessonsController {
   @ApiOkResponse({
     description: 'The lesson have been successfully retrieved.',
   })
+  @ApiNotFoundResponse({
+    description: 'The lesson is not found.',
+  })
   async show(@Param('id') id: string): Promise<Lesson> {
     return await this.lessonsService.findById(id);
   }
@@ -66,7 +70,7 @@ export class LessonsController {
     description: 'The lesson has been successfully created.',
   })
   @ApiBadRequestResponse({
-    description: 'Fields required.',
+    description: 'Bad request.',
   })
   @ApiForbiddenResponse({
     description: 'You are not authorized to update the lesson.',
@@ -99,7 +103,7 @@ export class LessonsController {
     description: 'The lesson has been successfully updated.',
   })
   @ApiBadRequestResponse({
-    description: 'Fields required.',
+    description: 'Bad request.',
   })
   @ApiForbiddenResponse({
     description: 'You are not authorized to update the lesson.',

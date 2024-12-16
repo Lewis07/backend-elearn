@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Course } from '../../courses/schemas/course.schema';
+import { Course } from '../../learning/schemas/course.schema';
 import { User } from '../../users/schemas/user.schema';
 import mongoose from 'mongoose';
-import { Lesson } from 'src/lessons/schemas/lesson.schema';
+import { Lesson } from 'src/learning/schemas/lessons/lesson.schema';
 import { CommentEnum } from 'src/utils/enum/comment-enum.utils';
 import { AbstractDocument } from 'src/core/document/abstract.document';
 

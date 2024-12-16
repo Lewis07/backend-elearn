@@ -1,12 +1,12 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { CourseRepository } from 'src/courses/repository/course.repository';
+import { CourseRepository } from 'src/learning/repositories/course.repository';
 import { ICourseSections } from 'src/interfaces/sections/ICourseSections';
-import { LessonRepository } from 'src/lessons/repository/lesson.repository';
-import { CreateSection } from './dto/create-section.dto';
-import { EditSection } from './dto/edit-section.dto';
-import { SectionRepository } from './repository/section.repository';
-import { Section } from './schemas/section.schema';
+import { CreateSection } from '../dtos/sections/create-section.dto';
+import { EditSection } from '../dtos/sections/edit-section.dto';
+import { Section } from '../schemas/sections/section.schema';
+import { SectionRepository } from '../repositories/section.repository';
+import { LessonRepository } from '../repositories/lesson.repository';
 
 @Injectable()
 export class SectionsService {
