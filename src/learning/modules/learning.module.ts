@@ -7,6 +7,7 @@ import {
   Purchase,
   PurchaseSchema,
 } from 'src/purchases/schemas/purchase.schema';
+import { PurchaseRepository } from 'src/purchases/repository/purchase.repository';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import {
     ]),
   ],
   controllers: [LearningController],
-  providers: [LearningService],
+  providers: [LearningService, PurchaseRepository],
 })
 export class LearningModule {}

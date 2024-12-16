@@ -92,7 +92,7 @@ export class CoursesController {
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse({
-    description: 'The record has been successfully created.',
+    description: 'The course has been successfully created.',
   })
   @ApiBadRequestResponse({
     description: 'Bad request.',
@@ -124,7 +124,7 @@ export class CoursesController {
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   @ApiConsumes('multipart/form-data')
   @ApiOkResponse({
-    description: 'The record has been successfully updated.',
+    description: 'The course has been successfully updated.',
   })
   @ApiBadRequestResponse({
     description: 'Bad request.',
@@ -164,7 +164,7 @@ export class CoursesController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @ApiNoContentResponse({
-    description: 'The record has been successfully deleted.',
+    description: 'The course has been successfully deleted.',
   })
   async delete(@Param('id') id: string, @Req() req: any): Promise<void> {
     await this.courseService.delete(id, req.user.id);

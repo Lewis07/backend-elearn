@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PurchasesController } from './purchases.controller';
 import { PurchasesService } from './purchases.service';
 import { Purchase, PurchaseSchema } from './schemas/purchase.schema';
+import { PurchaseRepository } from './repository/purchase.repository';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { Purchase, PurchaseSchema } from './schemas/purchase.schema';
       { name: Purchase.name, schema: PurchaseSchema },
     ]),
   ],
-  providers: [PurchasesService],
+  providers: [PurchasesService, PurchaseRepository],
   controllers: [PurchasesController],
 })
 export class PurchasesModule {}

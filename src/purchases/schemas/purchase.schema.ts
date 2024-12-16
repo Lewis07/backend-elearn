@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Schema as SchemaMongoose } from 'mongoose';
+import { AbstractDocument } from 'src/core/document/abstract.document';
 import { PaymentMethodEnum } from '../../utils/enum/payment-method-enum.utils';
-import { ObjectId, Schema as SchemaMongoose } from 'mongoose';
 
 export interface ICourse {
   id: string;
@@ -51,11 +52,9 @@ const UserInfoSchema = new SchemaMongoose({
 });
 
 @Schema({
-  timestamps: true,
+  collection: 'purchases',
 })
-export class Purchase {
-  _id: ObjectId;
-
+export class Purchase extends AbstractDocument {
   @Prop({ trim: true, required: true })
   purch_reference: string;
 
