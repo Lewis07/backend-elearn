@@ -1,11 +1,10 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEnum, IsNotEmpty, Max, Min, ValidateIf } from 'class-validator';
-import { Lesson } from 'src/modules/learning/schemas/lessons/lesson.schema';
-import { User } from 'src/modules/users/schemas/user.schema';
+import { IsNotEmpty, Max, Min, ValidateIf } from 'class-validator';
 import { CommentEnum } from 'src/utils/enums/comment.enum';
-import { Course } from '../../learning/schemas/course.schema';
 
-export class AddCommentDto {
+export class EditCommentCourse {
+  @ApiProperty({ example: 4, description: 'Comment Rating' })
   @Transform(
     ({ value }) => {
       if (value === '' || value === null) {
@@ -22,16 +21,10 @@ export class AddCommentDto {
   @IsNotEmpty({ message: 'Rating is required' })
   comm_rating: number;
 
+  @ApiProperty({
+    example: 'The course which missed me',
+    description: 'Comment Content',
+  })
   @IsNotEmpty({ message: 'Content is required' })
   comm_content: string;
-
-  @IsNotEmpty({ message: 'Source of comment is required' })
-  @IsEnum(CommentEnum, { message: 'The source is either course or lesson' })
-  comm_source: string;
-
-  author: User;
-  comment_id: string | null;
-
-  course: Course;
-  lesson: Lesson;
 }

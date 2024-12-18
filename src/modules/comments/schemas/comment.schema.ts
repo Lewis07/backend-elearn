@@ -7,7 +7,7 @@ import { CommentEnum } from 'src/utils/enums/comment.enum';
 import { AbstractDocument } from 'src/common/document/abstract.document';
 
 @Schema({
-  timestamps: true,
+  collection: 'comments',
 })
 export class Comment extends AbstractDocument {
   @Prop({ default: null })
@@ -29,7 +29,7 @@ export class Comment extends AbstractDocument {
   lesson: Lesson;
 
   @Prop({ type: mongoose.Schema.ObjectId, ref: 'Comment', default: null })
-  parentComment: Comment;
+  parent_comment: Comment;
 
   @Prop({ type: [mongoose.Schema.ObjectId], ref: 'Comment' })
   replies: Comment[];
@@ -45,9 +45,6 @@ export class Comment extends AbstractDocument {
 
   @Prop({ type: [mongoose.Schema.ObjectId], ref: 'User' })
   comm_disliked_by: User[];
-
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

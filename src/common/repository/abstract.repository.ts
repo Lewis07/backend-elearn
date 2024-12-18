@@ -102,4 +102,12 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
       `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${document._id} deleted successfully`,
     );
   }
+
+  async deleteMany(filterQuery: FilterQuery<TDocument>): Promise<void> {
+    await this.model.deleteMany(filterQuery);
+
+    this.logger.log(
+      `Document ${uppercaseFirstLetter(this.model.modelName)} deleted successfully`,
+    );
+  }
 }
