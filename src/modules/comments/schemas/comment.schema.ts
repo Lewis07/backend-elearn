@@ -1,10 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Course } from '../../learning/schemas/course.schema';
-import { User } from '../../users/schemas/user.schema';
 import mongoose from 'mongoose';
-import { Lesson } from 'src/modules/learning/schemas/lessons/lesson.schema';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
 import { AbstractDocument } from 'src/common/document/abstract.document';
+import { ICommentAuthor } from 'src/interfaces/comments/ICommentAuthor';
+import { ICommentCourse } from 'src/interfaces/comments/ICommentCourse';
+import { ICommentLesson } from 'src/interfaces/comments/ICommentLesson';
+import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { User } from '../../users/schemas/user.schema';
+import { CommentAuthor } from './comment-author.schema';
+import { CommentCourse } from './comment-course.schema';
+import { CommentLesson } from './comment-lesson.schema';
+import { CommentReplies } from './comment-replies.schema';
 
 @Schema({
   collection: 'comments',
@@ -19,19 +24,19 @@ export class Comment extends AbstractDocument {
   @Prop({ trim: true, required: true, enum: CommentEnum })
   comm_source: CommentEnum;
 
-  @Prop({ type: mongoose.Schema.ObjectId, ref: 'User', required: true })
-  author: User;
+  @Prop({ type: CommentAuthor })
+  author: ICommentAuthor;
 
-  @Prop({ type: mongoose.Schema.ObjectId, ref: 'Course', default: null })
-  course: Course;
+  @Prop({ type: CommentCourse })
+  course: ICommentCourse;
 
-  @Prop({ type: mongoose.Schema.ObjectId, ref: 'Lesson', default: null })
-  lesson: Lesson;
+  @Prop({ type: CommentLesson })
+  lesson: ICommentLesson;
 
   @Prop({ type: mongoose.Schema.ObjectId, ref: 'Comment', default: null })
   parent_comment: Comment;
 
-  @Prop({ type: [mongoose.Schema.ObjectId], ref: 'Comment' })
+  @Prop({ type: [CommentReplies] })
   replies: Comment[];
 
   @Prop({ default: 0 })

@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, Max, Min, ValidateIf } from 'class-validator';
-import { User } from 'src/modules/users/schemas/user.schema';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
-import { Course } from '../../learning/schemas/course.schema';
+import { Types } from 'mongoose';
 import { IAddCommentDto } from 'src/interfaces/comments/IAddCommentDto';
+import { CommentEnum } from 'src/utils/enums/comment.enum';
 
 export class AddCommentCourse implements IAddCommentDto {
   @ApiProperty({ example: 4, description: 'Comment Rating' })
@@ -31,17 +30,15 @@ export class AddCommentCourse implements IAddCommentDto {
   @IsNotEmpty({ message: 'Content is required' })
   comm_content: string;
 
-  author: User;
-
   @ApiProperty({
     example: '6761b8ab3f368c5bd724e580 or null',
     description: 'Comment Id',
   })
-  comment_id: string | null;
+  comment_id: Types.ObjectId | null;
 
   @ApiProperty({
     example: '675fbc4b3563cd8894f79ce4',
     description: 'Course Id',
   })
-  course: Course;
+  course_id: Types.ObjectId;
 }

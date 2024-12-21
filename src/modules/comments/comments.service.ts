@@ -1,8 +1,11 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { IAddComment } from 'src/interfaces/comments/IAddComment';
+import { ICommentBySource } from 'src/interfaces/comments/ICommentBySource';
 import { IReactionTypeAndReacter } from 'src/interfaces/comments/IReactionTypeAndReacter';
 import { CommentEnum } from 'src/utils/enums/comment.enum';
 import { UserRepository } from '../users/repository/user.repository';
+import { User } from '../users/schemas/user.schema';
 import { AddCommentCourse } from './dto/add-comment-course.dto';
 import { AddCommentLesson } from './dto/add-comment-lesson.dto';
 import { EditCommentCourse } from './dto/edit-comment-course.dto';
@@ -10,14 +13,19 @@ import { EditCommentLesson } from './dto/edit-comment-lesson.dto';
 import { CommentRepository } from './repository/comment.repository';
 import { Comment } from './schemas/comment.schema';
 import { ReactionComment } from './types/TReactionComment';
-import { User } from '../users/schemas/user.schema';
-import { IAddComment } from 'src/interfaces/comments/IAddComment';
+import { Course } from '../learning/schemas/course.schema';
+import { CourseRepository } from '../learning/repositories/course.repository';
+import { IAddCommentDto } from 'src/interfaces/comments/IAddCommentDto';
+import { LessonRepository } from '../learning/repositories/lesson.repository';
+import { Lesson } from '../learning/schemas/lessons/lesson.schema';
 
 @Injectable()
 export class CommentsService {
   constructor(
     private commentRepository: CommentRepository,
     private userRepository: UserRepository,
+    private courseRepository: CourseRepository,
+    private lessonRepository: LessonRepository,
   ) {}
 
   async findAll(): Promise<Comment[]> {
@@ -28,14 +36,14 @@ export class CommentsService {
     return await this.commentRepository.findById(new Types.ObjectId(id));
   }
 
-  async findByCourse(courseId: string) {
-    const comments = await this.findByCommentSource(
+  async findByCourse(courseId: string): Promise<ICommentBySource> {
+    const comments: Comment[] = await this.findByCommentSource(
       String(CommentEnum.COURSE),
       courseId,
       false,
     );
 
-    const commentsWithReplies = await this.findByCommentSource(
+    const commentsWithReplies: Comment[] = await this.findByCommentSource(
       String(CommentEnum.COURSE),
       courseId,
       true,
@@ -47,7 +55,7 @@ export class CommentsService {
     };
   }
 
-  async findByLesson(lessonId: string) {
+  async findByLesson(lessonId: string): Promise<ICommentBySource> {
     const comments = await this.findByCommentSource(
       String(CommentEnum.LESSON),
       lessonId,
@@ -66,7 +74,11 @@ export class CommentsService {
     };
   }
 
-  async findByCommentSource(source: string, id: string, withReplies: boolean) {
+  async findByCommentSource(
+    source: string,
+    id: string,
+    withReplies: boolean,
+  ): Promise<Comment[]> {
     let filterCommentByLesson: any = {
       ...(Number(source) === Number(CommentEnum.COURSE)
         ? { course: id }
@@ -99,11 +111,13 @@ export class CommentsService {
 
   async store(
     authorId: string,
-    commentDto: AddCommentCourse | AddCommentLesson,
+    commentDto: IAddCommentDto,
     source: CommentEnum,
   ): Promise<Comment> {
     let parentComment: Comment = null;
-    let commentId: string = commentDto.comment_id;
+    let commentId: Types.ObjectId = commentDto.comment_id;
+    let course: Course = null;
+    let lesson: Lesson = null;
 
     if (null !== commentId) {
       parentComment = await this.findById(String(commentId));
@@ -113,10 +127,42 @@ export class CommentsService {
       new Types.ObjectId(authorId),
     );
 
-    let data: IAddComment = {
+    if (source == CommentEnum.LESSON) {
+      lesson = await this.lessonRepository.findById(
+        new Types.ObjectId(commentDto.lesson_id),
+      );
+    }
+
+    if (source == CommentEnum.COURSE) {
+      course = await this.courseRepository.findById(
+        new Types.ObjectId(commentDto.course_id),
+      );
+    }
+
+    let data: any = {
       ...commentDto,
-      author,
+      author: {
+        _id: author._id,
+        usr_photo: author.usr_photo ?? null,
+        usr_username: author.usr_username,
+        usr_firstname: author.usr_firstname ?? null,
+        usr_lastname: author.usr_lastname ?? null,
+      },
       comm_source: source,
+      course:
+        source == CommentEnum.COURSE
+          ? {
+              _id: course._id,
+              crs_title: course.crs_title,
+            }
+          : null,
+      lesson:
+        source == CommentEnum.LESSON
+          ? {
+              _id: lesson._id,
+              lssn_title: lesson.lssn_title,
+            }
+          : null,
       comm_count_like: 0,
       comm_liked_by: [],
       comm_count_dislike: 0,
@@ -129,19 +175,20 @@ export class CommentsService {
     let comment: Comment = await this.commentRepository.create(data);
 
     if (parentComment) {
+      let commentDetailed: Comment = await this.commentRepository.findById(
+        comment._id,
+      );
+
       await this.commentRepository.findByIdAndUpdate(parentComment._id, {
         $push: {
-          replies: comment,
+          replies: commentDetailed,
         },
       });
 
       let replyComment = await this.commentRepository.findById(
         parentComment._id,
       );
-      // .populate({
-      //   path: 'author',
-      //   select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
-      // })
+
       // .populate({
       //   path: 'replies',
       //   populate: {
@@ -151,9 +198,9 @@ export class CommentsService {
       // });
 
       return replyComment;
+    } else {
+      return comment;
     }
-
-    return comment;
   }
 
   async update(
