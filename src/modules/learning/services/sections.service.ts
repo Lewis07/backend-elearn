@@ -1,12 +1,13 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { ICourseSection } from 'src/interfaces/sections/ICourseSection';
 import { CourseRepository } from 'src/modules/learning/repositories/course.repository';
-import { ICourseSections } from 'src/interfaces/sections/ICourseSections';
-import { CreateSection } from '../dtos/sections/create-section.dto';
 import { EditSection } from '../dtos/sections/edit-section.dto';
-import { Section } from '../schemas/sections/section.schema';
-import { SectionRepository } from '../repositories/section.repository';
 import { LessonRepository } from '../repositories/lesson.repository';
+import { SectionRepository } from '../repositories/section.repository';
+import { Section } from '../schemas/sections/section.schema';
+import { Lesson } from '../schemas/lessons/lesson.schema';
+import { AddSection } from '../dtos/sections/add-section.dto';
 
 @Injectable()
 export class SectionsService {
@@ -28,8 +29,9 @@ export class SectionsService {
     return await this.sectionRepository.find({ 'course._id': id });
   }
 
-  async getLessons(id: string) {
+  async getLessons(id: string): Promise<Lesson[]> {
     await this.findById(id);
+
     const lessons = await this.lessonRepository.find({
       'section._id': id,
     });
@@ -37,32 +39,32 @@ export class SectionsService {
     return lessons;
   }
 
-  async store(createSection: CreateSection): Promise<Section> {
-    const course = await this.courseRepository.findById(
-      new Types.ObjectId(String(createSection.course_id)),
+  async store(addSectionDto: AddSection): Promise<Section> {
+    const courseDoc = await this.courseRepository.findById(
+      new Types.ObjectId(String(addSectionDto.course_id)),
     );
 
-    const courseSections: ICourseSections = {
-      _id: course._id,
-      author: course.author._id,
+    const course: ICourseSection = {
+      _id: courseDoc._id,
+      author: new Types.ObjectId(courseDoc.author._id),
     };
 
-    let sectionToCreate = {
-      sect_title: createSection.sect_title,
-      course: courseSections,
+    let data: Partial<Section> = {
+      sect_title: addSectionDto.sect_title,
+      course,
     };
 
-    return await this.sectionRepository.create(sectionToCreate);
+    return await this.sectionRepository.create(data);
   }
 
   async update(
     id: string,
-    editSection: EditSection,
+    editSectionDto: EditSection,
     authorId: string,
   ): Promise<Section> {
-    const section = await this.findById(id);
+    const section: Section = await this.findById(id);
 
-    if (String(section.course.author) !== authorId) {
+    if (String(section.course.author._id) !== authorId) {
       throw new ForbiddenException(
         "You can't update a section who don't belong to you",
       );
@@ -70,14 +72,14 @@ export class SectionsService {
 
     return this.sectionRepository.findByIdAndUpdate(
       new Types.ObjectId(id),
-      editSection,
+      editSectionDto,
     );
   }
 
   async delete(id: string, authorId: string): Promise<void> {
     const section = await this.findById(id);
 
-    if (String(section.course.author) !== authorId) {
+    if (String(section.course.author._id) !== authorId) {
       throw new ForbiddenException(
         "You can't delete a section who don't belong to you",
       );

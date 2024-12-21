@@ -1,6 +1,5 @@
-import { IsNotEmpty } from 'class-validator';
-import { Course } from '../../schemas/course.schema';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 export class SaveSection {
   @ApiProperty({ example: 'Introduction', description: 'Section Title' })

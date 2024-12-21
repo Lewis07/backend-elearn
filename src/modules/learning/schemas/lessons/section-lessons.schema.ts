@@ -1,12 +1,12 @@
 import { Schema as MongooseSchema, Types } from 'mongoose';
-import { CourseSections } from 'src/modules/learning/schemas/sections/course-sections.schema';
+import { CourseSection } from 'src/modules/learning/schemas/sections/course-section.schema';
 
 export const SectionLessons = new MongooseSchema({
   _id: {
     type: Types.ObjectId,
   },
   course: {
-    type: CourseSections,
+    type: CourseSection,
     required: true,
   },
 });

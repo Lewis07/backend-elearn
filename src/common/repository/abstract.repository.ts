@@ -22,6 +22,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     this.logger.log(
       `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}, ${document}`,
     );
+
     return document;
   }
 

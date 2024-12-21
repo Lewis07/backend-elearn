@@ -24,7 +24,7 @@ import { Lesson } from 'src/modules/learning/schemas/lessons/lesson.schema';
 import { SectionsService } from '../services/sections.service';
 import { Section } from '../schemas/sections/section.schema';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-import { CreateSection } from '../dtos/sections/create-section.dto';
+import { AddSection } from '../dtos/sections/add-section.dto';
 import { EditSection } from '../dtos/sections/edit-section.dto';
 
 @Controller('sections')
@@ -77,8 +77,8 @@ export class SectionsController {
   @ApiCreatedResponse({
     description: 'The section has been successfully created.',
   })
-  async add(@Body() createSection: CreateSection): Promise<Section> {
-    return await this.sectionService.store(createSection);
+  async add(@Body() addSectionDto: AddSection): Promise<Section> {
+    return await this.sectionService.store(addSectionDto);
   }
 
   @Patch(':id')
