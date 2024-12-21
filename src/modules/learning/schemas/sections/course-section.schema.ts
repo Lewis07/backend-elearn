@@ -1,6 +1,6 @@
 import { Schema as MongooseSchema, Types } from 'mongoose';
 
-export const CourseSections = new MongooseSchema({
+export const CourseSection = new MongooseSchema({
   _id: {
     type: Types.ObjectId,
   },

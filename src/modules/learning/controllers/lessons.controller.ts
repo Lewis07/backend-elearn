@@ -62,38 +62,38 @@ export class LessonsController {
     return await this.lessonsService.findById(id);
   }
 
-  @Post()
-  @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
-  @ApiConsumes('multipart/form-data')
-  @ApiCreatedResponse({
-    description: 'The lesson has been successfully created.',
-  })
-  @ApiBadRequestResponse({
-    description: 'Bad request.',
-  })
-  @ApiForbiddenResponse({
-    description: 'You are not authorized to update the lesson.',
-  })
-  @ApiUnprocessableEntityResponse({
-    description: 'File is required.',
-  })
-  async add(
-    @Body() addLesson: AddLesson,
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addValidator(
-          new CustomUploadFileTypeValidatorOptions({
-            fileType: VALID_VIDEO_MIME_TYPES,
-          }),
-        )
-        .addMaxSizeValidator({ maxSize: MAX_SIZE_IN_BYTES_UPLOAD_VIDEO })
-        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
-    )
-    file: Express.Multer.File,
-  ): Promise<Lesson> {
-    return await this.lessonsService.store(addLesson, file);
-  }
+  // @Post()
+  // @UseGuards(AuthGuard)
+  // @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  // @ApiConsumes('multipart/form-data')
+  // @ApiCreatedResponse({
+  //   description: 'The lesson has been successfully created.',
+  // })
+  // @ApiBadRequestResponse({
+  //   description: 'Bad request.',
+  // })
+  // @ApiForbiddenResponse({
+  //   description: 'You are not authorized to update the lesson.',
+  // })
+  // @ApiUnprocessableEntityResponse({
+  //   description: 'File is required.',
+  // })
+  // async add(
+  //   @Body() addLesson: AddLesson,
+  //   @UploadedFile(
+  //     new ParseFilePipeBuilder()
+  //       .addValidator(
+  //         new CustomUploadFileTypeValidatorOptions({
+  //           fileType: VALID_VIDEO_MIME_TYPES,
+  //         }),
+  //       )
+  //       .addMaxSizeValidator({ maxSize: MAX_SIZE_IN_BYTES_UPLOAD_VIDEO })
+  //       .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+  //   )
+  //   file: Express.Multer.File,
+  // ): Promise<Lesson> {
+  //   return await this.lessonsService.store(addLesson, file);
+  // }
 
   @Patch(':id')
   @UseGuards(AuthGuard)
