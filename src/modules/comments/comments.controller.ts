@@ -27,30 +27,10 @@ import { AddCommentCourse } from './dto/add-comment-course.dto';
 import { AddCommentLesson } from './dto/add-comment-lesson.dto';
 import { EditCommentCourse } from './dto/edit-comment-course.dto';
 import { EditCommentLesson } from './dto/edit-comment-lesson.dto';
-import { Comment } from './schemas/comment.schema';
 
 @Controller('comments')
 export class CommentsController {
   constructor(private commentsService: CommentsService) {}
-
-  @Get()
-  @ApiOkResponse({
-    description: 'The comments have been successfully retrieved.',
-  })
-  async list(): Promise<Comment[]> {
-    return await this.commentsService.findAll();
-  }
-
-  @Get(':id')
-  @ApiOkResponse({
-    description: 'The comment have been successfully retrieved.',
-  })
-  @ApiNotFoundResponse({
-    description: 'The comment is not found.',
-  })
-  async show(@Param('id') id: string): Promise<Comment> {
-    return await this.commentsService.findById(id);
-  }
 
   @Get('by/course/:courseId')
   @ApiOkResponse({

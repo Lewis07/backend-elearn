@@ -1,8 +1,8 @@
 import mongoose, { Schema as SchemaMongoose, Types } from 'mongoose';
-import { ICommentAuthor } from 'src/interfaces/comments/ICommentAuthor';
-import { ICommentCourse } from 'src/interfaces/comments/ICommentCourse';
-import { ICommentLesson } from 'src/interfaces/comments/ICommentLesson';
 import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { CommentAuthor } from './comment-author.schema';
+import { CommentCourse } from './comment-course.schema';
+import { CommentLesson } from './comment-lesson.schema';
 
 export const CommentReplies = new SchemaMongoose({
   _id: {
@@ -19,37 +19,16 @@ export const CommentReplies = new SchemaMongoose({
     enum: Object.values(CommentEnum),
   },
   author: {
-    type: Types.ObjectId,
+    type: CommentAuthor,
     required: true,
-    ref: 'User',
-    validate: {
-      validator: function (value: ICommentAuthor) {
-        return value && value._id && value.usr_username;
-      },
-      message: 'Invalid author details',
-    },
   },
   course: {
-    type: Types.ObjectId,
+    type: CommentCourse,
     required: true,
-    ref: 'Course',
-    validate: {
-      validator: function (value: ICommentCourse) {
-        return value && value._id && value.crs_title;
-      },
-      message: 'Invalid author details',
-    },
   },
   lesson: {
-    type: Types.ObjectId,
+    type: CommentLesson,
     required: true,
-    ref: 'Lesson',
-    validate: {
-      validator: function (value: ICommentLesson) {
-        return value && value._id && value.lssn_title;
-      },
-      message: 'Invalid author details',
-    },
   },
   comm_count_like: {
     type: Number,

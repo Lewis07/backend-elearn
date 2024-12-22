@@ -18,6 +18,7 @@ import { CourseRepository } from '../learning/repositories/course.repository';
 import { IAddCommentDto } from 'src/interfaces/comments/IAddCommentDto';
 import { LessonRepository } from '../learning/repositories/lesson.repository';
 import { Lesson } from '../learning/schemas/lessons/lesson.schema';
+import { ICommentReplies } from 'src/interfaces/comments/ICommentReplies';
 
 @Injectable()
 export class CommentsService {
@@ -27,10 +28,6 @@ export class CommentsService {
     private courseRepository: CourseRepository,
     private lessonRepository: LessonRepository,
   ) {}
-
-  async findAll(): Promise<Comment[]> {
-    return this.commentRepository.find({ parentComment: null });
-  }
 
   async findById(id: string): Promise<Comment> {
     return await this.commentRepository.findById(new Types.ObjectId(id));
@@ -81,8 +78,8 @@ export class CommentsService {
   ): Promise<Comment[]> {
     let filterCommentByLesson: any = {
       ...(Number(source) === Number(CommentEnum.COURSE)
-        ? { course: id }
-        : { lesson: id }),
+        ? { 'course._id': id }
+        : { 'lesson._id': id }),
     };
 
     if (withReplies) {
@@ -90,21 +87,6 @@ export class CommentsService {
     }
 
     const comments = await this.commentRepository.find(filterCommentByLesson);
-    // .populate({
-    //   path: 'author',
-    //   select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
-    // })
-    // .populate({
-    //   path: 'replies',
-    //   options: {
-    //     sort: { createdAt: -1 },
-    //   },
-    //   populate: {
-    //     path: 'author',
-    //     select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
-    //   },
-    // })
-    // .sort({ createdAt: -1 });
 
     return comments;
   }
@@ -175,9 +157,28 @@ export class CommentsService {
     let comment: Comment = await this.commentRepository.create(data);
 
     if (parentComment) {
-      let commentDetailed: Comment = await this.commentRepository.findById(
+      const commentSaved: Comment = await this.commentRepository.findById(
         comment._id,
       );
+
+      const commentDetailed: ICommentReplies = {
+        _id: commentSaved._id,
+        comm_content: commentSaved.comm_content,
+        comm_source: commentSaved.comm_source,
+        author: {
+          _id: commentSaved._id,
+          usr_photo: commentSaved.author.usr_photo,
+          usr_username: commentSaved.author.usr_username,
+          usr_firstname: commentSaved.author.usr_firstname,
+          usr_lastname: commentSaved.author.usr_lastname,
+        },
+        course: commentSaved.course,
+        lesson: commentSaved.lesson,
+        comm_count_like: commentSaved.comm_count_like,
+        comm_liked_by: commentSaved.comm_liked_by,
+        comm_count_dislike: commentSaved.comm_count_dislike,
+        comm_disliked_by: commentSaved.comm_disliked_by,
+      };
 
       await this.commentRepository.findByIdAndUpdate(parentComment._id, {
         $push: {
@@ -185,19 +186,7 @@ export class CommentsService {
         },
       });
 
-      let replyComment = await this.commentRepository.findById(
-        parentComment._id,
-      );
-
-      // .populate({
-      //   path: 'replies',
-      //   populate: {
-      //     path: 'author',
-      //     select: ['_id', 'usr_username', 'usr_firstname', 'usr_lastname'],
-      //   },
-      // });
-
-      return replyComment;
+      return parentComment;
     } else {
       return comment;
     }

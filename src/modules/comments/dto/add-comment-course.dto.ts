@@ -31,8 +31,9 @@ export class AddCommentCourse implements IAddCommentDto {
   comm_content: string;
 
   @ApiProperty({
-    example: '6761b8ab3f368c5bd724e580 or null',
-    description: 'Comment Id',
+    example: null,
+    description:
+      'Comment Id<br /> if there is parent , ex: 676728c1cd6b56b41c8f1b55',
   })
   comment_id: Types.ObjectId | null;
 

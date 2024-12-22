@@ -10,6 +10,7 @@ import { CommentAuthor } from './comment-author.schema';
 import { CommentCourse } from './comment-course.schema';
 import { CommentLesson } from './comment-lesson.schema';
 import { CommentReplies } from './comment-replies.schema';
+import { ICommentReplies } from 'src/interfaces/comments/ICommentReplies';
 
 @Schema({
   collection: 'comments',
@@ -36,8 +37,8 @@ export class Comment extends AbstractDocument {
   @Prop({ type: mongoose.Schema.ObjectId, ref: 'Comment', default: null })
   parent_comment: Comment;
 
-  @Prop({ type: [CommentReplies] })
-  replies: Comment[];
+  @Prop({ type: CommentReplies })
+  replies: [ICommentReplies];
 
   @Prop({ default: 0 })
   comm_count_like: number;
