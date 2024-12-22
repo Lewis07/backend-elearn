@@ -34,43 +34,43 @@ export class LessonsService {
     return this.lessonRepository.findById(new Types.ObjectId(id));
   }
 
-  // async store(
-  //   addLesson: AddLesson,
-  //   file: Express.Multer.File,
-  // ): Promise<Lesson> {
-  //   const video: IExpressMulterFile = UploadMulter(
-  //     file,
-  //     PATH_UPLOAD_LESSON_VIDEOS,
-  //   );
-  //   const videoLink: string = video.filename;
-  //   const prefixFilename: string = 'lssn-pht';
-  //   const lessonPhotoFilename: string = await getPhotoFilenameAfterVideoUpload(
-  //     video,
-  //     prefixFilename,
-  //     PATH_UPLOAD_LESSON_PHOTOS,
-  //   );
+  async store(
+    addLesson: AddLesson,
+    file: Express.Multer.File,
+  ): Promise<Lesson> {
+    const video: IExpressMulterFile = UploadMulter(
+      file,
+      PATH_UPLOAD_LESSON_VIDEOS,
+    );
+    const videoLink: string = video.filename;
+    const prefixFilename: string = 'lssn-pht';
+    const lessonPhotoFilename: string = await getPhotoFilenameAfterVideoUpload(
+      video,
+      prefixFilename,
+      PATH_UPLOAD_LESSON_PHOTOS,
+    );
 
-  //   const sectionData = await this.sectionRepository.findById(
-  //     new Types.ObjectId(addLesson.section_id),
-  //   );
+    const sectionData = await this.sectionRepository.findById(
+      new Types.ObjectId(addLesson.section_id),
+    );
 
-  //   const section: ISectionLessons = {
-  //     _id: sectionData._id,
-  //     course: {
-  //       _id: sectionData.course._id,
-  //       author: sectionData.course.author,
-  //     },
-  //   };
+    const section: ISectionLessons = {
+      _id: sectionData._id,
+      course: {
+        _id: sectionData.course._id,
+        author: sectionData.course.author,
+      },
+    };
 
-  //   let data: IAddLesson = {
-  //     ...addLesson,
-  //     section,
-  //     lssn_video_link: videoLink,
-  //     lssn_video_photo: lessonPhotoFilename,
-  //   };
+    let data: IAddLesson = {
+      ...addLesson,
+      section,
+      lssn_video_link: videoLink,
+      lssn_video_photo: lessonPhotoFilename,
+    };
 
-  //   return await this.lessonRepository.create(data);
-  // }
+    return await this.lessonRepository.create(data);
+  }
 
   async update(
     id: string,

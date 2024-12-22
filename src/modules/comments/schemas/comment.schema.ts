@@ -37,7 +37,7 @@ export class Comment extends AbstractDocument {
   @Prop({ type: mongoose.Schema.ObjectId, ref: 'Comment', default: null })
   parent_comment: Comment;
 
-  @Prop({ type: CommentReplies })
+  @Prop({ type: [CommentReplies] })
   replies: [ICommentReplies];
 
   @Prop({ default: 0 })

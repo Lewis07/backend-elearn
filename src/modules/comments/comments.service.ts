@@ -37,18 +37,11 @@ export class CommentsService {
     const comments: Comment[] = await this.findByCommentSource(
       String(CommentEnum.COURSE),
       courseId,
-      false,
-    );
-
-    const commentsWithReplies: Comment[] = await this.findByCommentSource(
-      String(CommentEnum.COURSE),
-      courseId,
-      true,
     );
 
     return {
       comments,
-      totalComment: commentsWithReplies.length,
+      totalComment: comments.length,
     };
   }
 
@@ -56,39 +49,23 @@ export class CommentsService {
     const comments = await this.findByCommentSource(
       String(CommentEnum.LESSON),
       lessonId,
-      true,
-    );
-
-    const commentsWithReplies = await this.findByCommentSource(
-      String(CommentEnum.LESSON),
-      lessonId,
-      false,
     );
 
     return {
       comments,
-      totalComment: commentsWithReplies.length,
+      totalComment: comments.length,
     };
   }
 
-  async findByCommentSource(
-    source: string,
-    id: string,
-    withReplies: boolean,
-  ): Promise<Comment[]> {
-    let filterCommentByLesson: any = {
+  async findByCommentSource(source: string, id: string): Promise<Comment[]> {
+    const filterCommentByLesson = {
+      parent_comment: null,
       ...(Number(source) === Number(CommentEnum.COURSE)
         ? { 'course._id': id }
         : { 'lesson._id': id }),
     };
 
-    if (withReplies) {
-      filterCommentByLesson.parentComment = null;
-    }
-
-    const comments = await this.commentRepository.find(filterCommentByLesson);
-
-    return comments;
+    return await this.commentRepository.find(filterCommentByLesson);
   }
 
   async store(
@@ -165,13 +142,7 @@ export class CommentsService {
         _id: commentSaved._id,
         comm_content: commentSaved.comm_content,
         comm_source: commentSaved.comm_source,
-        author: {
-          _id: commentSaved._id,
-          usr_photo: commentSaved.author.usr_photo,
-          usr_username: commentSaved.author.usr_username,
-          usr_firstname: commentSaved.author.usr_firstname,
-          usr_lastname: commentSaved.author.usr_lastname,
-        },
+        author: commentSaved.author,
         course: commentSaved.course,
         lesson: commentSaved.lesson,
         comm_count_like: commentSaved.comm_count_like,
@@ -180,16 +151,14 @@ export class CommentsService {
         comm_disliked_by: commentSaved.comm_disliked_by,
       };
 
-      await this.commentRepository.findByIdAndUpdate(parentComment._id, {
+      return await this.commentRepository.findByIdAndUpdate(parentComment._id, {
         $push: {
           replies: commentDetailed,
         },
       });
-
-      return parentComment;
-    } else {
-      return comment;
     }
+
+    return comment;
   }
 
   async update(
