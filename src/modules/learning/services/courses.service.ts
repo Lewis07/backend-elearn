@@ -197,24 +197,28 @@ export class CoursesService {
   async getContent(
     courseId: string,
   ): Promise<ICourseContentsWithTotalSectionsLessonsDuration> {
-    await this.findById(courseId);
+    const course = await this.findById(courseId);
     let courseContents: ICourseContents[] = [];
 
     const sections: Section[] = await this.sectionRepository.find({
-      course_id: courseId,
+      course: {
+        _id: new Types.ObjectId(courseId),
+        author: new Types.ObjectId(course.author._id),
+      },
     });
-    // .select('_id sect_title');
 
     const totalSections: number = sections.length;
     let totalLessons: number = 0;
     let totalDuration: number = 0;
 
     for (const section of sections) {
-      const sectionId: string = String(section._id);
+      const sectionDoc: Section = await this.sectionRepository.findById(
+        new Types.ObjectId(section._id),
+      );
+
       let lessonsInSection: Lesson[] = await this.lessonRepository.find({
-        section: sectionId,
+        'section._id': sectionDoc._id,
       });
-      // .select('_id lssn_title lssn_video_link lssn_is_free');
 
       totalLessons += lessonsInSection.length;
 
