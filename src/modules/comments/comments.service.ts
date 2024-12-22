@@ -1,24 +1,21 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { IAddComment } from 'src/interfaces/comments/IAddComment';
+import { IAddCommentDto } from 'src/interfaces/comments/IAddCommentDto';
 import { ICommentBySource } from 'src/interfaces/comments/ICommentBySource';
+import { ICommentReplies } from 'src/interfaces/comments/ICommentReplies';
 import { IReactionTypeAndReacter } from 'src/interfaces/comments/IReactionTypeAndReacter';
 import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { CourseRepository } from '../learning/repositories/course.repository';
+import { LessonRepository } from '../learning/repositories/lesson.repository';
+import { Course } from '../learning/schemas/course.schema';
+import { Lesson } from '../learning/schemas/lessons/lesson.schema';
 import { UserRepository } from '../users/repository/user.repository';
 import { User } from '../users/schemas/user.schema';
-import { AddCommentCourse } from './dto/add-comment-course.dto';
-import { AddCommentLesson } from './dto/add-comment-lesson.dto';
 import { EditCommentCourse } from './dto/edit-comment-course.dto';
 import { EditCommentLesson } from './dto/edit-comment-lesson.dto';
 import { CommentRepository } from './repository/comment.repository';
 import { Comment } from './schemas/comment.schema';
 import { ReactionComment } from './types/TReactionComment';
-import { Course } from '../learning/schemas/course.schema';
-import { CourseRepository } from '../learning/repositories/course.repository';
-import { IAddCommentDto } from 'src/interfaces/comments/IAddCommentDto';
-import { LessonRepository } from '../learning/repositories/lesson.repository';
-import { Lesson } from '../learning/schemas/lessons/lesson.schema';
-import { ICommentReplies } from 'src/interfaces/comments/ICommentReplies';
 
 @Injectable()
 export class CommentsService {
@@ -165,9 +162,24 @@ export class CommentsService {
     id: string,
     editCommentDto: EditCommentCourse | EditCommentLesson,
   ): Promise<Comment> {
-    await this.findById(id);
+    const comment = await this.findById(id);
+    const parentCommentId = comment.parent_comment;
 
-    return this.commentRepository.findByIdAndUpdate(
+    if (parentCommentId !== null) {
+      const commentParent = await this.findById(String(parentCommentId));
+      const commentReplyIndex = commentParent.replies.findIndex(
+        (reply) => reply._id,
+      );
+      commentParent.replies[commentReplyIndex].comm_content =
+        editCommentDto.comm_content;
+
+      return await this.commentRepository.findByIdAndUpdate(
+        new Types.ObjectId(String(parentCommentId)),
+        commentParent,
+      );
+    }
+
+    return await this.commentRepository.findByIdAndUpdate(
       new Types.ObjectId(id),
       editCommentDto,
     );
@@ -176,7 +188,7 @@ export class CommentsService {
   async delete(id: string, authorId: string): Promise<void> {
     const comment: Comment = await this.findById(id);
 
-    if (String(comment.author) !== authorId) {
+    if (String(comment.author._id) !== authorId) {
       throw new ForbiddenException(
         "You can't remove a comment who don't belong to you",
       );
