@@ -6,8 +6,8 @@ export class AbstractDocument {
   _id: Types.ObjectId;
 
   @Prop({ required: true, default: new Date().toISOString() })
-  created_at: Date;
+  created_at?: Date;
 
   @Prop({ required: true, default: new Date().toISOString() })
-  updated_at: Date;
+  updated_at?: Date;
 }
