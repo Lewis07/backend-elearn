@@ -227,7 +227,7 @@ export class CommentsService {
   ): Promise<Comment> {
     await this.userRepository.findById(new Types.ObjectId(userId));
 
-    const comment: Comment = await this.findById(commentId);
+    let comment: Comment = await this.findById(commentId);
     const parentCommentId: Types.ObjectId = comment.parent_comment;
 
     if (parentCommentId !== null) {
@@ -287,9 +287,29 @@ export class CommentsService {
       reactionType,
     );
 
+    let data: Comment = {
+      _id: comment._id,
+      comm_content: comment.comm_content,
+      comm_source: comment.comm_source,
+      author: comment.author,
+      course: comment.course,
+      lesson: comment.lesson,
+      parent_comment: comment.parent_comment,
+      replies: comment.replies,
+      comm_count_like:
+        updateReactionAndReacter.comm_count_like ?? comment.comm_count_like,
+      comm_liked_by:
+        updateReactionAndReacter.comm_liked_by ?? comment.comm_liked_by,
+      comm_count_dislike:
+        updateReactionAndReacter.comm_count_dislike ??
+        comment.comm_count_dislike,
+      comm_disliked_by:
+        updateReactionAndReacter.comm_disliked_by ?? comment.comm_disliked_by,
+    };
+
     return await this.commentRepository.findByIdAndUpdate(
       new Types.ObjectId(commentId),
-      updateReactionAndReacter,
+      data,
     );
   }
 
