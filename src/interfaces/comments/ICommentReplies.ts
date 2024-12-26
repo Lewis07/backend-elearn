@@ -1,13 +1,13 @@
-import mongoose, { Types } from 'mongoose';
+import { Types } from 'mongoose';
+import { User } from 'src/modules/users/schemas/user.schema';
 import { CommentEnum } from 'src/utils/enums/comment.enum';
 import { ICommentAuthor } from './ICommentAuthor';
 import { ICommentCourse } from './ICommentCourse';
 import { ICommentLesson } from './ICommentLesson';
-import { User } from 'src/modules/users/schemas/user.schema';
 
 export interface ICommentReplies {
   _id: Types.ObjectId;
-  comm_rating?: string;
+  comm_rating?: number;
   comm_content: string;
   comm_source: CommentEnum;
   author: ICommentAuthor;
@@ -17,4 +17,8 @@ export interface ICommentReplies {
   comm_liked_by: User[];
   comm_count_dislike: number;
   comm_disliked_by: User[];
+  parent_comment: Types.ObjectId;
+  replies: [ICommentReplies];
+  created_at?: Date;
+  updated_at?: Date;
 }
