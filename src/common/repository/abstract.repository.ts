@@ -20,7 +20,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     }
 
     this.logger.log(
-      `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}, ${document}`,
+      `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}`,
     );
 
     return document;
@@ -33,7 +33,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
       throw new NotFoundException(`${this.model.modelName} not found`);
     } else {
       this.logger.log(
-        `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}, ${document}`,
+        `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}`,
       );
     }
 
