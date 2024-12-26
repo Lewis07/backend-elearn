@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { AbstractDocument } from 'src/common/document/abstract.document';
 import { ICommentAuthor } from 'src/interfaces/comments/ICommentAuthor';
 import { ICommentCourse } from 'src/interfaces/comments/ICommentCourse';
@@ -17,7 +17,7 @@ import { ICommentReplies } from 'src/interfaces/comments/ICommentReplies';
 })
 export class Comment extends AbstractDocument {
   @Prop({ default: null })
-  comm_rating: number;
+  comm_rating?: number;
 
   @Prop({ trim: true, required: true })
   comm_content: string;
@@ -34,8 +34,8 @@ export class Comment extends AbstractDocument {
   @Prop({ type: CommentLesson })
   lesson: ICommentLesson;
 
-  @Prop({ type: mongoose.Schema.ObjectId, ref: 'Comment', default: null })
-  parent_comment: Comment;
+  @Prop({ type: Types.ObjectId, ref: 'Comment', default: null })
+  parent_comment: Types.ObjectId;
 
   @Prop({ type: [CommentReplies] })
   replies: [ICommentReplies];

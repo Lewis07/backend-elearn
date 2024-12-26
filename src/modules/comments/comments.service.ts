@@ -135,7 +135,7 @@ export class CommentsService {
         comment._id,
       );
 
-      const commentDetailed: ICommentReplies = {
+      const commentDetailed: Partial<ICommentReplies> = {
         _id: commentSaved._id,
         comm_content: commentSaved.comm_content,
         comm_source: commentSaved.comm_source,
@@ -221,13 +221,83 @@ export class CommentsService {
   }
 
   async handleLikeDislike(
-    id: string,
+    commentId: string,
     userId: string,
     reactionType: ReactionComment,
   ): Promise<Comment> {
     await this.userRepository.findById(new Types.ObjectId(userId));
 
-    const comment: Comment = await this.findById(id);
+    const comment: Comment = await this.findById(commentId);
+    const parentCommentId: Types.ObjectId = comment.parent_comment;
+
+    if (parentCommentId !== null) {
+      const parentComment = await this.findById(String(parentCommentId));
+
+      const commentReplyIndex = parentComment.replies.findIndex(
+        (commentReply) => String(commentReply._id) === commentId,
+      );
+
+      if (commentReplyIndex >= 0) {
+        const replyComment: ICommentReplies =
+          parentComment.replies[commentReplyIndex];
+
+        const updateReactionAndReacter = this.updateReactionAndReacter(
+          replyComment,
+          userId,
+          reactionType,
+        );
+
+        const commentReply: ICommentReplies = {
+          _id: replyComment._id,
+          comm_content: replyComment.comm_content,
+          comm_source: replyComment.comm_source,
+          author: replyComment.author,
+          course: replyComment.course,
+          lesson: replyComment.lesson,
+          parent_comment: replyComment.parent_comment,
+          replies: replyComment.replies,
+          comm_count_like:
+            updateReactionAndReacter.comm_count_like ??
+            replyComment.comm_count_like,
+          comm_liked_by:
+            updateReactionAndReacter.comm_liked_by ??
+            replyComment.comm_liked_by,
+          comm_count_dislike:
+            updateReactionAndReacter.comm_count_dislike ??
+            replyComment.comm_count_dislike,
+          comm_disliked_by:
+            updateReactionAndReacter.comm_disliked_by ??
+            replyComment.comm_disliked_by,
+        };
+
+        parentComment.replies[commentReplyIndex] = commentReply;
+
+        await this.commentRepository.findByIdAndUpdate(
+          new Types.ObjectId(String(parentCommentId)),
+          { replies: parentComment.replies },
+        );
+      }
+
+      return parentComment;
+    }
+
+    let updateReactionAndReacter = this.updateReactionAndReacter(
+      comment,
+      userId,
+      reactionType,
+    );
+
+    return await this.commentRepository.findByIdAndUpdate(
+      new Types.ObjectId(commentId),
+      updateReactionAndReacter,
+    );
+  }
+
+  updateReactionAndReacter = (
+    comment: Comment,
+    userId: string,
+    reactionType: ReactionComment,
+  ) => {
     const reactionTypeAndReacter: IReactionTypeAndReacter = {
       like: { count: 'comm_count_like', users: 'comm_liked_by' },
       dislike: { count: 'comm_count_dislike', users: 'comm_disliked_by' },
@@ -243,9 +313,14 @@ export class CommentsService {
     };
 
     if (hasReacted) {
-      updateReactionAndReacter.$pull = { [currentReaction.users]: userId };
+      comment[currentReaction.users] = [
+        ...comment[currentReaction.users],
+      ].filter((reacter) => String(reacter) !== userId);
     } else {
-      updateReactionAndReacter.$push = { [currentReaction.users]: userId };
+      comment[currentReaction.users] = [
+        ...comment[currentReaction.users],
+        userId,
+      ];
     }
 
     const oppositeReaction =
@@ -255,15 +330,13 @@ export class CommentsService {
     if (hasOppositeReacted) {
       updateReactionAndReacter[oppositeReaction.count] =
         comment[oppositeReaction.count] - 1;
+
       updateReactionAndReacter.$pull = {
         ...updateReactionAndReacter.$pull,
         [oppositeReaction.users]: userId,
       };
     }
 
-    return await this.commentRepository.findByIdAndUpdate(
-      new Types.ObjectId(id),
-      updateReactionAndReacter,
-    );
-  }
+    return updateReactionAndReacter;
+  };
 }
