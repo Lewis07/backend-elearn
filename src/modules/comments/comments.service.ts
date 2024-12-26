@@ -331,10 +331,9 @@ export class CommentsService {
       updateReactionAndReacter[oppositeReaction.count] =
         comment[oppositeReaction.count] - 1;
 
-      updateReactionAndReacter.$pull = {
-        ...updateReactionAndReacter.$pull,
-        [oppositeReaction.users]: userId,
-      };
+      comment[oppositeReaction.users] = [
+        ...comment[oppositeReaction.users],
+      ].filter((reacter) => String(reacter) !== userId);
     }
 
     return updateReactionAndReacter;
