@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Res } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 @Controller('config')
+@ApiExcludeController()
 export class ConfigController {
   @Get()
   getPublishableKey() {
