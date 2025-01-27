@@ -9,13 +9,8 @@ import {
   Patch,
   Post,
   Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
-import { TeachersService } from './teachers.service';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { SaveTeacherDto } from './dto/save-teacher.dto';
-import { Response } from 'express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -24,6 +19,9 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { SaveTeacherDto } from './dto/save-teacher.dto';
+import { TeachersService } from './teachers.service';
 
 @Controller('teachers')
 export class TeachersController {
