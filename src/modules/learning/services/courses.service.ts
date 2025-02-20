@@ -227,9 +227,10 @@ export class CoursesService {
       let lessonsInSectionWithDuration: ILessonInSectionWithDuration[] =
         await Promise.all(
           [...lessonsInSection].map(async (lesson) => {
-            let duration = await getVideoDuration(
+            let duration: number = await getVideoDuration(
               `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
             );
+
             totalDurationLessonBySection += Number(duration);
 
             return {
@@ -237,11 +238,7 @@ export class CoursesService {
               lssn_title: lesson.lssn_title,
               lssn_video_link: lesson.lssn_video_link,
               lssn_is_free: lesson.lssn_is_free,
-              lssn_duration_in_min_sec: getMinuteAndSecond(
-                await getVideoDuration(
-                  `${PATH_UPLOAD_LESSON_VIDEOS}/${lesson.lssn_video_link}`,
-                ),
-              ),
+              lssn_duration_in_min_sec: getMinuteAndSecond(duration),
             };
           }),
         );

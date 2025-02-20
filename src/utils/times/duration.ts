@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import * as ffmpeg from 'fluent-ffmpeg';
 
 export const getHourMinuteSecond = (duration: number = null): string => {
   if (duration === null) return null;
@@ -48,7 +49,9 @@ export const getMinuteAndSecond = (
   return `${minutes}:${seconds}`;
 };
 
-export const getVideoDuration = async (filePath: string): Promise<number> => {
+export const getVideoDurationByBuffer = async (
+  filePath: string,
+): Promise<number> => {
   const buff = Buffer.alloc(100);
   const header = Buffer.from('mvhd');
 
@@ -63,4 +66,20 @@ export const getVideoDuration = async (filePath: string): Promise<number> => {
   const videoDuration = duration / timescale;
 
   return videoDuration;
+};
+
+export const getVideoDuration = async (
+  filePath: string,
+): Promise<number | null> => {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(filePath, (err: any, metadata: any) => {
+      if (err) {
+        reject(err);
+      } else {
+        const durationInSeconds = metadata.format.duration;
+
+        resolve(durationInSeconds || null);
+      }
+    });
+  });
 };
