@@ -1,16 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
-import { AbstractDocument } from 'src/common/document/abstract.document';
-import { ICommentAuthor } from 'src/interfaces/comments/ICommentAuthor';
-import { ICommentCourse } from 'src/interfaces/comments/ICommentCourse';
-import { ICommentLesson } from 'src/interfaces/comments/ICommentLesson';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { AbstractDocument } from '../../../common/document/abstract.document';
+import { ICommentAuthor } from '../../../interfaces/comments/ICommentAuthor';
+import { ICommentCourse } from '../../../interfaces/comments/ICommentCourse';
+import { ICommentLesson } from '../../../interfaces/comments/ICommentLesson';
+import { CommentEnum } from '../../../utils/enums/comment.enum';
 import { User } from '../../users/schemas/user.schema';
 import { CommentAuthor } from './comment-author.schema';
 import { CommentCourse } from './comment-course.schema';
 import { CommentLesson } from './comment-lesson.schema';
 import { CommentReplies } from './comment-replies.schema';
-import { ICommentReplies } from 'src/interfaces/comments/ICommentReplies';
+import { ICommentReplies } from '../../../interfaces/comments/ICommentReplies';
 
 @Schema({
   collection: 'comments',

@@ -19,7 +19,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { SaveTeacherDto } from './dto/save-teacher.dto';
 import { TeachersService } from './teachers.service';
 

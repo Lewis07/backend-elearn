@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { ICourseSection } from 'src/interfaces/sections/ICourseSection';
-import { CourseRepository } from 'src/modules/learning/repositories/course.repository';
+import { ICourseSection } from '../../../interfaces/sections/ICourseSection';
+import { CourseRepository } from '../../../modules/learning/repositories/course.repository';
 import { EditSection } from '../dtos/sections/edit-section.dto';
 import { LessonRepository } from '../repositories/lesson.repository';
 import { SectionRepository } from '../repositories/section.repository';

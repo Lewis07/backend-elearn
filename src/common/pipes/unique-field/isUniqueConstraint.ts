@@ -7,7 +7,7 @@ import {
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { IsUniqueConstraintInput } from './IsUnique';
-import { ModelSchema } from 'src/utils/schema/modelSchema';
+import { ModelSchema } from '../../../utils/schema/modelSchema';
 
 @ValidatorConstraint({ name: 'is-already-exist-constraint', async: true })
 @Injectable()

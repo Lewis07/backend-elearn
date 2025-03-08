@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { IUserUpdateProfile } from 'src/interfaces/users/IUserUpdateProfile';
+import { IUserUpdateProfile } from '../../interfaces/users/IUserUpdateProfile';
 import { hashPassword } from '../../utils/auths/hashPassword';
 import { UserResetRepository } from './repository/user-reset.repository';
 import { UserRepository } from './repository/user.repository';

@@ -1,10 +1,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { IAddCommentDto } from 'src/interfaces/comments/IAddCommentDto';
-import { ICommentBySource } from 'src/interfaces/comments/ICommentBySource';
-import { ICommentReplies } from 'src/interfaces/comments/ICommentReplies';
-import { IReactionTypeAndReacter } from 'src/interfaces/comments/IReactionTypeAndReacter';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { IAddCommentDto } from '../../interfaces/comments/IAddCommentDto';
+import { ICommentBySource } from '../../interfaces/comments/ICommentBySource';
+import { ICommentReplies } from '../../interfaces/comments/ICommentReplies';
+import { IReactionTypeAndReacter } from '../../interfaces/comments/IReactionTypeAndReacter';
+import { CommentEnum } from '../../utils/enums/comment.enum';
 import { CourseRepository } from '../learning/repositories/course.repository';
 import { LessonRepository } from '../learning/repositories/lesson.repository';
 import { Course } from '../learning/schemas/course.schema';

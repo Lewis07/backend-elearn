@@ -1,6 +1,6 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
-import { uppercaseFirstLetter } from 'src/utils/string/uppercaseFirstLetter';
+import { uppercaseFirstLetter } from '../../utils/string/uppercaseFirstLetter';
 import { AbstractDocument } from '../document/abstract.document';
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument> {

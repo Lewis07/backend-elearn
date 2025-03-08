@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PurchaseRepository } from 'src/modules/purchases/repository/purchase.repository';
+import { PurchaseRepository } from '../../../modules/purchases/repository/purchase.repository';
 
 @Injectable()
 export class LearningService {

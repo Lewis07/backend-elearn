@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { AbstractDocument } from 'src/common/document/abstract.document';
+import { AbstractDocument } from '../../../common/document/abstract.document';
 
 @Schema()
 export class UserReset extends AbstractDocument {

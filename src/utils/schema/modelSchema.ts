@@ -1,7 +1,7 @@
 import { InjectConnection, SchemaFactory } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
-import { User } from 'src/modules/users/schemas/user.schema';
+import { User } from '../../modules/users/schemas/user.schema';
 
 export interface IModelSchema {
   generate(collectionName: string): any;

@@ -4,14 +4,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   Lesson,
   LessonSchema,
-} from 'src/modules/learning/schemas/lessons/lesson.schema';
+} from '../../../modules/learning/schemas/lessons/lesson.schema';
 import { Section, sectionSchema } from '../schemas/sections/section.schema';
 import { SectionsService } from '../services/sections.service';
-import { CourseRepository } from 'src/modules/learning/repositories/course.repository';
+import { CourseRepository } from '../../../modules/learning/repositories/course.repository';
 import {
   Course,
   CourseSchema,
-} from 'src/modules/learning/schemas/course.schema';
+} from '../../../modules/learning/schemas/course.schema';
 import { SectionRepository } from '../repositories/section.repository';
 import { LessonRepository } from '../repositories/lesson.repository';
 import { SectionsController } from '../controllers/sections.controller';

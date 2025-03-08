@@ -1,5 +1,5 @@
 import mongoose, { Schema as SchemaMongoose, Types } from 'mongoose';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { CommentEnum } from '../../../utils/enums/comment.enum';
 import { CommentAuthor } from './comment-author.schema';
 import { CommentCourse } from './comment-course.schema';
 import { CommentLesson } from './comment-lesson.schema';

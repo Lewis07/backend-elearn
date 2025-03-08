@@ -1,4 +1,4 @@
-import { AbstractRepository } from 'src/common/repository/abstract.repository';
+import { AbstractRepository } from '../../../common/repository/abstract.repository';
 import { Course } from '../schemas/course.schema';
 import { Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';

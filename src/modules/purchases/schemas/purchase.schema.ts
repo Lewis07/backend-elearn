@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as SchemaMongoose } from 'mongoose';
-import { AbstractDocument } from 'src/common/document/abstract.document';
+import { AbstractDocument } from '../../../common/document/abstract.document';
 import { PaymentMethodEnum } from '../../../utils/enums/payment-method.enum';
 
 export interface ICourse {

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { Types } from 'mongoose';
-import { IAddCommentDto } from 'src/interfaces/comments/IAddCommentDto';
+import { IAddCommentDto } from '../../../interfaces/comments/IAddCommentDto';
 
 export class AddCommentLesson implements IAddCommentDto {
   @ApiProperty({

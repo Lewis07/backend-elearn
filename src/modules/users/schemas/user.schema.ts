@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { AbstractDocument } from 'src/common/document/abstract.document';
-import { RoleEnum } from 'src/utils/enums/role.enum';
+import { AbstractDocument } from '../../../common/document/abstract.document';
+import { RoleEnum } from '../../../utils/enums/role.enum';
 import { UserTypeEnum } from '../../../utils/enums/user-type.enum';
 
 @Schema({

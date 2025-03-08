@@ -1,5 +1,5 @@
 import { Schema as MongooseSchema, Types } from 'mongoose';
-import { CourseSection } from 'src/modules/learning/schemas/sections/course-section.schema';
+import { CourseSection } from '../../../../modules/learning/schemas/sections/course-section.schema';
 
 export const SectionLessons = new MongooseSchema({
   _id: {

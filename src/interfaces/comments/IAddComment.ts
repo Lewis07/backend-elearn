@@ -1,8 +1,8 @@
-import { Comment } from 'src/modules/comments/schemas/comment.schema';
-import { Course } from 'src/modules/learning/schemas/course.schema';
-import { Lesson } from 'src/modules/learning/schemas/lessons/lesson.schema';
-import { User } from 'src/modules/users/schemas/user.schema';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { Comment } from '../../modules/comments/schemas/comment.schema';
+import { Course } from '../../modules/learning/schemas/course.schema';
+import { Lesson } from '../../modules/learning/schemas/lessons/lesson.schema';
+import { User } from '../../modules/users/schemas/user.schema';
+import { CommentEnum } from '../../utils/enums/comment.enum';
 import { ICommentAuthor } from './ICommentAuthor';
 
 export interface IAddComment {

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { AbstractDocument } from 'src/common/document/abstract.document';
-import { ICourseSection } from 'src/interfaces/sections/ICourseSection';
+import { AbstractDocument } from '../../../../common/document/abstract.document';
+import { ICourseSection } from '../../../../interfaces/sections/ICourseSection';
 import { CourseSection } from './course-section.schema';
 
 @Schema({

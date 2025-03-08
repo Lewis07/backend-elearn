@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { StripeService } from 'src/modules/payment/service/stripe.service';
+import { StripeService } from '../../modules/payment/service/stripe.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { SavePurchaseDto } from './dto/save-purchase.dto';
 import { PurchasesService } from './purchases.service';

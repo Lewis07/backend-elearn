@@ -6,7 +6,7 @@ import { Lesson, LessonSchema } from '../schemas/lessons/lesson.schema';
 import {
   Section,
   sectionSchema,
-} from 'src/modules/learning/schemas/sections/section.schema';
+} from '../../../modules/learning/schemas/sections/section.schema';
 import { LessonRepository } from '../repositories/lesson.repository';
 import { SectionRepository } from '../repositories/section.repository';
 import { LessonsController } from '../controllers/lessons.controller';

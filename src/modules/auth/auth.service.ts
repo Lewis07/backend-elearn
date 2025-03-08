@@ -7,14 +7,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IRegistration } from 'src/interfaces/users/IRegistration';
-import { StripeCustomer } from 'src/modules/payment/schemas/stripe-customer.schema';
-import { resetPasswordTemplate } from 'src/templates/reset-password';
-import { UserResetRepository } from 'src/modules/users/repository/user-reset.repository';
-import { UserRepository } from 'src/modules/users/repository/user.repository';
-import { SUBJECT_RESET_PASSWORD } from 'src/utils/constants/mailing/email';
-import { TOKEN_AUTH_EXPIRED_AT } from 'src/utils/constants/token/token-expiration';
-import { generateToken } from 'src/utils/randoms/generateToken';
+import { IRegistration } from '../../interfaces/users/IRegistration';
+import { StripeCustomer } from '../../modules/payment/schemas/stripe-customer.schema';
+import { resetPasswordTemplate } from '../../templates/reset-password';
+import { UserResetRepository } from '../../modules/users/repository/user-reset.repository';
+import { UserRepository } from '../../modules/users/repository/user.repository';
+import { SUBJECT_RESET_PASSWORD } from '../../utils/constants/mailing/email';
+import { TOKEN_AUTH_EXPIRED_AT } from '../../utils/constants/token/token-expiration';
+import { generateToken } from '../../utils/randoms/generateToken';
 import { UserReset } from '../users/schemas/user-reset.schema';
 import { User } from '../users/schemas/user.schema';
 import { hashPassword } from '../../utils/auths/hashPassword';
@@ -24,7 +24,7 @@ import { SignIn } from './dto/singIn.dto';
 import { StripeCustomerService } from './stripe-customer.service';
 import { ForgotPassword } from './dto/forgot-password.dto';
 import { Response } from 'express';
-import { UsersService } from 'src/modules/users/users.service';
+import { UsersService } from '../../modules/users/users.service';
 import * as moment from 'moment';
 
 @Injectable()

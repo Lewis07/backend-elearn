@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
-import { User } from 'src/modules/users/schemas/user.schema';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { User } from '../../modules/users/schemas/user.schema';
+import { CommentEnum } from '../../utils/enums/comment.enum';
 import { ICommentAuthor } from './ICommentAuthor';
 import { ICommentCourse } from './ICommentCourse';
 import { ICommentLesson } from './ICommentLesson';

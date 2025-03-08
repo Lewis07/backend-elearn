@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, Max, Min, ValidateIf } from 'class-validator';
 import { Types } from 'mongoose';
-import { IAddCommentDto } from 'src/interfaces/comments/IAddCommentDto';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { IAddCommentDto } from '../../../interfaces/comments/IAddCommentDto';
+import { CommentEnum } from '../../../utils/enums/comment.enum';
 
 export class AddCommentCourse implements IAddCommentDto {
   @ApiProperty({ example: 4, description: 'Comment Rating' })

@@ -20,7 +20,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { CommentEnum } from '../../utils/enums/comment.enum';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CommentsService } from './comments.service';
 import { AddCommentCourse } from './dto/add-comment-course.dto';

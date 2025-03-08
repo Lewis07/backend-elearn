@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, Max, Min, ValidateIf } from 'class-validator';
-import { CommentEnum } from 'src/utils/enums/comment.enum';
+import { CommentEnum } from '../../../utils/enums/comment.enum';
 
 export class EditCommentCourse {
   @ApiProperty({ example: 4, description: 'Comment Rating' })

@@ -6,8 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   Purchase,
   PurchaseSchema,
-} from 'src/modules/purchases/schemas/purchase.schema';
-import { PurchaseRepository } from 'src/modules/purchases/repository/purchase.repository';
+} from '../../../modules/purchases/schemas/purchase.schema';
+import { PurchaseRepository } from '../../../modules/purchases/repository/purchase.repository';
 
 @Module({
   imports: [

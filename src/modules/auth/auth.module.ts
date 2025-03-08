@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { StripeCustomerService } from 'src/modules/auth/stripe-customer.service';
-import { UserRepository } from 'src/modules/users/repository/user.repository';
-import { UsersModule } from 'src/modules/users/users.module';
+import { StripeCustomerService } from '../../modules/auth/stripe-customer.service';
+import { UserRepository } from '../../modules/users/repository/user.repository';
+import { UsersModule } from '../../modules/users/users.module';
 import { SendMailModule } from '../../shared/mailer/send-mail.module';
 import {
   StripeCustomer,
@@ -13,8 +13,8 @@ import { UserReset, UserResetSchema } from '../users/schemas/user-reset.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { StripeCustomerRepository } from 'src/modules/users/repository/stripe-customer.repository';
-import { UserResetRepository } from 'src/modules/users/repository/user-reset.repository';
+import { StripeCustomerRepository } from '../../modules/users/repository/stripe-customer.repository';
+import { UserResetRepository } from '../../modules/users/repository/user-reset.repository';
 
 @Module({
   imports: [

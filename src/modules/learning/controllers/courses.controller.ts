@@ -26,7 +26,7 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
-import { ICourseWithAverageRating } from 'src/interfaces/courses/ICourseWithAverageRating';
+import { ICourseWithAverageRating } from '../../../interfaces/courses/ICourseWithAverageRating';
 import { AuthGuard } from '../../../common/guards/auth.guard';
 import { MAX_SIZE_IN_BYTES_UPLOAD_PHOTO } from '../../../utils/constants/uploads/max-size-upload';
 import { VALID_IMAGE_MIME_TYPES } from '../../../utils/constants/files/mime-types';
@@ -34,8 +34,8 @@ import { CoursesService } from '../services/courses.service';
 import { CreateCourse } from '../dtos/courses/create-course.dto';
 import { EditCourse } from '../dtos/courses/edit-course.dto';
 import { Course } from '../schemas/course.schema';
-import { ICourseContentsWithTotalSectionsLessonsDuration } from 'src/interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
-import { CustomUploadFileTypeValidatorOptions } from 'src/common/validators/files/CustomUploadFileTypeValidator';
+import { ICourseContentsWithTotalSectionsLessonsDuration } from '../../../interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
+import { CustomUploadFileTypeValidatorOptions } from '../../../common/validators/files/CustomUploadFileTypeValidator';
 
 @Controller('courses')
 export class CoursesController {

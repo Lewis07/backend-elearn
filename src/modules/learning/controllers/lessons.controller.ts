@@ -28,13 +28,13 @@ import {
 } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 import { LessonsService } from '../services/lessons.service';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { AuthGuard } from '../../../common/guards/auth.guard';
 import { Lesson } from '../schemas/lessons/lesson.schema';
-import { VALID_VIDEO_MIME_TYPES } from 'src/utils/constants/files/mime-types';
+import { VALID_VIDEO_MIME_TYPES } from '../../../utils/constants/files/mime-types';
 import { AddLesson } from '../dtos/lessons/add-lesson.dto';
-import { MAX_SIZE_IN_BYTES_UPLOAD_VIDEO } from 'src/utils/constants/uploads/max-size-upload';
+import { MAX_SIZE_IN_BYTES_UPLOAD_VIDEO } from '../../../utils/constants/uploads/max-size-upload';
 import { EditLesson } from '../dtos/lessons/edit-lesson.dto';
-import { CustomUploadFileTypeValidatorOptions } from 'src/common/validators/files/CustomUploadFileTypeValidator';
+import { CustomUploadFileTypeValidatorOptions } from '../../../common/validators/files/CustomUploadFileTypeValidator';
 
 @Controller('lessons')
 @ApiBearerAuth()

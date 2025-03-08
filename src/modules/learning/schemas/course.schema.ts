@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { AbstractDocument } from 'src/common/document/abstract.document';
+import { AbstractDocument } from '../../../common/document/abstract.document';
 import { User } from '../../users/schemas/user.schema';
 import { LevelEnum } from '../../../utils/enums/level.enum';
 

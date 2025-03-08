@@ -3,25 +3,25 @@ import { existsSync } from 'fs';
 import { Types } from 'mongoose';
 import { join } from 'path';
 import slugify from 'slugify';
-import { CommentRepository } from 'src/modules/comments/repository/comment.repository';
-import { IAddCourse } from 'src/interfaces/courses/IAddCourse';
-import { ICourseContents } from 'src/interfaces/courses/ICourseContents';
-import { ICourseContentsWithTotalSectionsLessonsDuration } from 'src/interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
-import { ICourseWithAverageRating } from 'src/interfaces/courses/ICourseWithAverageRating';
-import { IEditCourse } from 'src/interfaces/courses/IEditCourse';
-import { ILessonInSectionWithDuration } from 'src/interfaces/lessons/ILessonInSectionWithDuration';
-import { IExpressMulterFile } from 'src/interfaces/medias/IExpressMulterFile';
-import { Lesson } from 'src/modules/learning/schemas/lessons/lesson.schema';
-import { Section } from 'src/modules/learning/schemas/sections/section.schema';
-import { UserRepository } from 'src/modules/users/repository/user.repository';
-import { User } from 'src/modules/users/schemas/user.schema';
+import { CommentRepository } from '../../../modules/comments/repository/comment.repository';
+import { IAddCourse } from '../../../interfaces/courses/IAddCourse';
+import { ICourseContents } from '../../../interfaces/courses/ICourseContents';
+import { ICourseContentsWithTotalSectionsLessonsDuration } from '../../../interfaces/courses/ICourseContentsWithTotalSectionsLessonsDuration';
+import { ICourseWithAverageRating } from '../../../interfaces/courses/ICourseWithAverageRating';
+import { IEditCourse } from '../../../interfaces/courses/IEditCourse';
+import { ILessonInSectionWithDuration } from '../../../interfaces/lessons/ILessonInSectionWithDuration';
+import { IExpressMulterFile } from '../../../interfaces/medias/IExpressMulterFile';
+import { Lesson } from '../../../modules/learning/schemas/lessons/lesson.schema';
+import { Section } from '../../../modules/learning/schemas/sections/section.schema';
+import { UserRepository } from '../../../modules/users/repository/user.repository';
+import { User } from '../../../modules/users/schemas/user.schema';
 import {
   getHourMinute,
   getMinute,
   getMinuteAndSecond,
   getVideoDuration,
-} from 'src/utils/times/duration';
-import { UploadMulter } from 'src/utils/uploads/upload-multer';
+} from '../../../utils/times/duration';
+import { UploadMulter } from '../../../utils/uploads/upload-multer';
 import { Comment } from '../../comments/schemas/comment.schema';
 import {
   PATH_UPLOAD_COURSE,

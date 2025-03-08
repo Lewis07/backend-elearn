@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { StripeCustomerRepository } from 'src/modules/users/repository/stripe-customer.repository';
+import { StripeCustomerRepository } from '../../modules/users/repository/stripe-customer.repository';
 import { StripeService } from '../payment/service/stripe.service';
 
 @Injectable()

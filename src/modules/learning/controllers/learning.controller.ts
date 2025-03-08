@@ -1,6 +1,6 @@
-import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { LearningService } from '../services/learning.service';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { AuthGuard } from '../../../common/guards/auth.guard';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 
 @Controller('learning')

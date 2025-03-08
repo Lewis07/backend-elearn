@@ -2,10 +2,10 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { existsSync } from 'fs';
 import { Types } from 'mongoose';
 import { join } from 'path';
-import { IAddLesson } from 'src/interfaces/lessons/IAddLesson';
-import { IEditLesson } from 'src/interfaces/lessons/IEditLesson';
-import { IExpressMulterFile } from 'src/interfaces/medias/IExpressMulterFile';
-import { getPhotoFilenameAfterVideoUpload } from 'src/utils/files/getPhotoAfterVideoUpload';
+import { IAddLesson } from '../../../interfaces/lessons/IAddLesson';
+import { IEditLesson } from '../../../interfaces/lessons/IEditLesson';
+import { IExpressMulterFile } from '../../../interfaces/medias/IExpressMulterFile';
+import { getPhotoFilenameAfterVideoUpload } from '../../../utils/files/getPhotoAfterVideoUpload';
 import {
   PATH_UPLOAD_LESSON_PHOTOS,
   PATH_UPLOAD_LESSON_VIDEOS,
@@ -15,7 +15,7 @@ import { UploadMulter } from '../../../utils/uploads/upload-multer';
 import { AddLesson } from '../dtos/lessons/add-lesson.dto';
 import { EditLesson } from '../dtos/lessons/edit-lesson.dto';
 import { Lesson } from '../schemas/lessons/lesson.schema';
-import { ISectionLessons } from 'src/interfaces/lessons/ISectionLessons';
+import { ISectionLessons } from '../../../interfaces/lessons/ISectionLessons';
 import { LessonRepository } from '../repositories/lesson.repository';
 import { SectionRepository } from '../repositories/section.repository';
 

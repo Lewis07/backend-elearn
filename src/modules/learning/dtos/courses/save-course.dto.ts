@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { LevelEnum } from '../../../../utils/enums/level.enum';
-import { uppercaseFirstLetter } from 'src/utils/string/uppercaseFirstLetter';
+import { uppercaseFirstLetter } from '../../../../utils/string/uppercaseFirstLetter';
 
 const levels = Object.entries(LevelEnum).slice(
   0,

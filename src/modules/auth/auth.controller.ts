@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { UserReset } from 'src/modules/users/schemas/user-reset.schema';
-import { User } from 'src/modules/users/schemas/user.schema';
+import { UserReset } from '../../modules/users/schemas/user-reset.schema';
+import { User } from '../../modules/users/schemas/user.schema';
 import { AuthService } from './auth.service';
 import { ForgotPassword } from './dto/forgot-password.dto';
 import { Registration } from './dto/registration.dto';
