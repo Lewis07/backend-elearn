@@ -7,6 +7,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { FRONTEND_URL } from './utils/constants/urls/url';
 import * as express from 'express';
 import * as path from 'path';
+import { Request, Response, NextFunction } from 'express';
 
 export const LOGO = process.env.API_URL + '/assets/img/elearn-light.png';
 
@@ -62,6 +63,13 @@ async function bootstrap() {
       path.resolve(__dirname, '../src/assets/img/elearn-light.png'),
     ),
   );
+
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (req.path === '/') {
+      return res.redirect('/api');
+    }
+    next();
+  });
 
   await app.listen(port);
 }
