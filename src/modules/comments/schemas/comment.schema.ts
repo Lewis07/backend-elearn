@@ -16,13 +16,13 @@ import { ICommentReplies } from '../../../interfaces/comments/ICommentReplies';
   collection: 'comments',
 })
 export class Comment extends AbstractDocument {
-  @Prop({ default: null })
+  @Prop({ type: Number, default: null })
   comm_rating?: number;
 
-  @Prop({ trim: true, required: true })
+  @Prop({ type: String, trim: true, required: true })
   comm_content: string;
 
-  @Prop({ trim: true, required: true, enum: CommentEnum })
+  @Prop({ type: String, trim: true, required: true, enum: CommentEnum })
   comm_source: CommentEnum;
 
   @Prop({ type: CommentAuthor })
@@ -40,13 +40,13 @@ export class Comment extends AbstractDocument {
   @Prop({ type: [CommentReplies] })
   replies: [ICommentReplies];
 
-  @Prop({ default: 0 })
+  @Prop({ type: Number, default: 0 })
   comm_count_like: number;
 
   @Prop({ type: [mongoose.Schema.ObjectId], ref: 'User' })
   comm_liked_by: User[];
 
-  @Prop({ default: 0 })
+  @Prop({ type: Number, default: 0 })
   comm_count_dislike: number;
 
   @Prop({ type: [mongoose.Schema.ObjectId], ref: 'User' })
