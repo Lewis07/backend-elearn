@@ -55,7 +55,7 @@ const UserInfoSchema = new SchemaMongoose({
   collection: 'purchases',
 })
 export class Purchase extends AbstractDocument {
-  @Prop({ trim: true, required: true })
+  @Prop({ type: String, trim: true, required: true })
   purch_reference: string;
 
   @Prop({ type: String, enum: PaymentMethodEnum })
@@ -67,7 +67,7 @@ export class Purchase extends AbstractDocument {
   @Prop()
   purchaseItems: ICourse[];
 
-  @Prop({ default: new Date().toISOString() })
+  @Prop({ type: Date, default: new Date().toISOString() })
   purch_date_at: Date;
 }
 
