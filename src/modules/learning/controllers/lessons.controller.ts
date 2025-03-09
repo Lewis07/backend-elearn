@@ -18,6 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -75,6 +76,7 @@ export class LessonsController {
   @ApiForbiddenResponse({
     description: 'You are not authorized to update the lesson.',
   })
+  @ApiBody({ type: AddLesson })
   @ApiUnprocessableEntityResponse({
     description: 'File is required.',
   })
@@ -108,6 +110,7 @@ export class LessonsController {
   @ApiForbiddenResponse({
     description: 'You are not authorized to update the lesson.',
   })
+  @ApiBody({ type: EditLesson })
   @ApiUnprocessableEntityResponse({
     description: 'File is required.',
   })

@@ -18,6 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -97,6 +98,7 @@ export class CoursesController {
   @ApiBadRequestResponse({
     description: 'Bad request.',
   })
+  @ApiBody({ type: CreateCourse })
   @ApiUnprocessableEntityResponse({
     description: 'File is required.',
   })
@@ -129,6 +131,7 @@ export class CoursesController {
   @ApiBadRequestResponse({
     description: 'Bad request.',
   })
+  @ApiBody({ type: EditCourse })
   @ApiUnprocessableEntityResponse({
     description: 'File is required.',
   })
