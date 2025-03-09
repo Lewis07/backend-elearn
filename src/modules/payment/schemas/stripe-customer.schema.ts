@@ -5,34 +5,34 @@ import { AbstractDocument } from '../../../common/document/abstract.document';
   timestamps: true,
 })
 export class StripeCustomer extends AbstractDocument {
-  @Prop()
+  @Prop({ type: String })
   customer_id: string;
 
-  @Prop()
+  @Prop({ type: String })
   strp_cus_email: string;
 
-  @Prop()
+  @Prop({ type: String })
   strp_cus_name: string;
 
-  @Prop()
+  @Prop({ type: String })
   strp_cus_city?: string;
 
-  @Prop()
+  @Prop({ type: String })
   strp_cus_country?: string;
 
-  @Prop()
+  @Prop({ type: String })
   strp_cus_postal_code?: string;
 
-  @Prop()
+  @Prop({ type: String })
   strp_cus_phone?: string;
 
-  @Prop()
+  @Prop({ type: String })
   strp_cus_postal_address_line1?: string;
 
-  @Prop()
+  @Prop({ type: String })
   strp_cus_postal_address_line2?: string;
 
-  @Prop({ default: new Date().toISOString() })
+  @Prop({ type: Date, default: new Date().toISOString() })
   strp_cus_created: Date;
 }
 
