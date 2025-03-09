@@ -7,7 +7,7 @@ import { CourseSection } from './course-section.schema';
   collection: 'sections',
 })
 export class Section extends AbstractDocument {
-  @Prop({ required: true, trim: true })
+  @Prop({ type: String, required: true, trim: true })
   sect_title: string;
 
   @Prop({ type: CourseSection })

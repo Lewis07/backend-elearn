@@ -8,25 +8,25 @@ import { LevelEnum } from '../../../utils/enums/level.enum';
   collection: 'courses',
 })
 export class Course extends AbstractDocument {
-  @Prop({ trim: true, required: true })
+  @Prop({ type: String, trim: true, required: true })
   crs_title: string;
 
-  @Prop({ trim: true, required: true })
+  @Prop({ type: String, trim: true, required: true })
   crs_slug: string;
 
-  @Prop({ trim: true, required: true })
+  @Prop({ type: String, trim: true, required: true })
   crs_description: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Number, required: true })
   crs_price: number;
 
-  @Prop({ default: 0 })
+  @Prop({ type: Number, default: 0 })
   crs_new_price: number;
 
-  @Prop({ default: false })
+  @Prop({ type: Boolean, default: false })
   crs_isPaid: boolean;
 
-  @Prop()
+  @Prop({ type: String })
   crs_photo: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
