@@ -14,5 +14,6 @@ export class EditCourse extends SaveCourseDto {
     format: 'binary',
     required: false,
   })
-  file?: File;
+  // file?: File;
+  file?: any;
 }

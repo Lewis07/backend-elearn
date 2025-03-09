@@ -7,7 +7,8 @@ export class CreateCourse extends SaveCourseDto {
     type: 'string',
     format: 'binary',
   })
-  file: File;
+  file: any;
+  // file: File;
 
   author_id: string;
 }
