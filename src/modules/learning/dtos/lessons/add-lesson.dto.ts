@@ -15,5 +15,5 @@ export class AddLesson extends SaveLessonDto {
     type: 'string',
     format: 'binary',
   })
-  file: File;
+  file: any;
 }
