@@ -59,7 +59,7 @@ export class Purchase extends AbstractDocument {
   @Prop({ type: String, trim: true, required: true })
   purch_reference: string;
 
-  @Prop({ type: String, enum: PaymentMethodEnum })
+  @Prop({ type: Number, enum: PaymentMethodEnum })
   payment_method: PaymentMethodEnum;
 
   @Prop({ type: UserInfoSchema })

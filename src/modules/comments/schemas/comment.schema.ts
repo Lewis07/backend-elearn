@@ -22,7 +22,7 @@ export class Comment extends AbstractDocument {
   @Prop({ type: String, trim: true, required: true })
   comm_content: string;
 
-  @Prop({ type: String, trim: true, required: true, enum: CommentEnum })
+  @Prop({ type: Number, trim: true, required: true, enum: CommentEnum })
   comm_source: CommentEnum;
 
   @Prop({ type: CommentAuthor })

@@ -32,14 +32,14 @@ export class User extends AbstractDocument {
 
   updatedAt: Date;
 
-  @Prop({ type: String, default: UserTypeEnum.STUDENT })
+  @Prop({ type: Number, default: UserTypeEnum.STUDENT })
   usr_type: UserTypeEnum;
 
   @Prop({ type: String, trim: true })
   stripe_customer_id: string;
 
   @Prop({
-    type: String,
+    type: Number,
     required: true,
     enum: RoleEnum,
     default: RoleEnum.USER,

@@ -32,7 +32,7 @@ export class Course extends AbstractDocument {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   author: Omit<User, 'usr_password'>;
 
-  @Prop({ type: String, enum: LevelEnum })
+  @Prop({ type: Number, enum: LevelEnum })
   level_id: LevelEnum;
 
   createdAt: Date;
