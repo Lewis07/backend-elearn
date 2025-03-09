@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as SchemaMongoose } from 'mongoose';
 import { AbstractDocument } from '../../../common/document/abstract.document';
 import { PaymentMethodEnum } from '../../../utils/enums/payment-method.enum';
+import { CourseSchema } from 'src/modules/learning/schemas/course.schema';
 
 export interface ICourse {
   id: string;
@@ -64,7 +65,7 @@ export class Purchase extends AbstractDocument {
   @Prop({ type: UserInfoSchema })
   user: IUserInfo;
 
-  @Prop()
+  @Prop({ type: [CourseSchema] })
   purchaseItems: ICourse[];
 
   @Prop({ type: Date, default: new Date().toISOString() })
