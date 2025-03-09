@@ -7,8 +7,7 @@ export class CreateCourse extends SaveCourseDto {
     type: 'string',
     format: 'binary',
   })
-  file: any;
-  // file: File;
+  file: Express.Multer.File;
 
   author_id: string;
 }

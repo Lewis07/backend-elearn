@@ -14,6 +14,5 @@ export class EditCourse extends SaveCourseDto {
     format: 'binary',
     required: false,
   })
-  // file?: File;
-  file?: any;
+  file?: Express.Multer.File;
 }

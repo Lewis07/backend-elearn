@@ -8,5 +8,5 @@ export class EditLesson extends SaveLessonDto {
     format: 'binary',
     required: false,
   })
-  file: any;
+  file: Express.Multer.File;
 }
