@@ -7,38 +7,43 @@ import { UserTypeEnum } from '../../../utils/enums/user-type.enum';
   timestamps: true,
 })
 export class User extends AbstractDocument {
-  @Prop({ trim: true })
+  @Prop({ type: String, trim: true })
   usr_photo?: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ type: String, required: true, trim: true })
   usr_username: string;
 
-  @Prop({ trim: true })
+  @Prop({ type: String, trim: true })
   usr_firstname?: string;
 
-  @Prop({ trim: true })
+  @Prop({ type: String, trim: true })
   usr_lastname?: string;
 
-  @Prop({ required: true, unique: true, trim: true })
+  @Prop({ type: String, required: true, unique: true, trim: true })
   usr_email: string;
 
-  @Prop({ required: true, trim: true, minlength: 8 })
+  @Prop({ type: String, required: true, trim: true, minlength: 8 })
   usr_password: string;
 
-  @Prop({ required: true, default: new Date().toISOString() })
+  @Prop({ type: Date, required: true, default: new Date().toISOString() })
   usr_registered_date: Date;
 
   createdAt: Date;
 
   updatedAt: Date;
 
-  @Prop({ default: UserTypeEnum.STUDENT })
+  @Prop({ type: String, default: UserTypeEnum.STUDENT })
   usr_type: UserTypeEnum;
 
-  @Prop({ trim: true })
+  @Prop({ type: String, trim: true })
   stripe_customer_id: string;
 
-  @Prop({ required: true, enum: RoleEnum, default: RoleEnum.USER })
+  @Prop({
+    type: String,
+    required: true,
+    enum: RoleEnum,
+    default: RoleEnum.USER,
+  })
   usr_role: RoleEnum;
 }
 
