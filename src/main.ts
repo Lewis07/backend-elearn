@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ValidationError, useContainer } from 'class-validator';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { FRONTEND_URL } from './utils/constants/urls/url';
+// import { FRONTEND_URL } from './utils/constants/urls/url';
 import * as express from 'express';
 import * as path from 'path';
 import { Request, Response, NextFunction } from 'express';
@@ -17,7 +17,7 @@ async function bootstrap() {
   const port = process.env.PORT || 4000;
 
   app.setGlobalPrefix('/api');
-  app.enableCors({ origin: [FRONTEND_URL] });
+  app.enableCors({ origin: [process.env.FRONTEND_URL] });
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory: (validationErrors: ValidationError[] = []) => {
