@@ -1,6 +1,5 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
-import { uppercaseFirstLetter } from '../../utils/string/uppercaseFirstLetter';
 import { AbstractDocument } from '../document/abstract.document';
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument> {
@@ -19,10 +18,6 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
       throw new NotFoundException(`${this.model.modelName} not found`);
     }
 
-    this.logger.log(
-      `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}`,
-    );
-
     return document;
   }
 
@@ -31,10 +26,6 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
 
     if (!document) {
       throw new NotFoundException(`${this.model.modelName} not found`);
-    } else {
-      this.logger.log(
-        `Document ${uppercaseFirstLetter(this.model.modelName)} with id ${document.toJSON()._id}`,
-      );
     }
 
     return document;
@@ -48,10 +39,6 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
 
     const createdDocument = await documentToCreate.save();
 
-    this.logger.log(
-      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${createdDocument.toJSON()._id} saved successfully`,
-    );
-
     return createdDocument.toJSON() as unknown as TDocument;
   }
 
@@ -62,10 +49,6 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     const updatedDocument = await this.model.findByIdAndUpdate(id, data, {
       new: true,
     });
-
-    this.logger.log(
-      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${updatedDocument._id} updated successfully`,
-    );
 
     return updatedDocument as TDocument | null;
   }
@@ -82,33 +65,18 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
       },
     );
 
-    this.logger.log(
-      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${updatedDocument._id} updated successfully`,
-    );
-
     return updatedDocument as TDocument | null;
   }
 
   async findByIdAndDelete(id: Types.ObjectId): Promise<void> {
-    this.logger.log(
-      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${id} deleted successfully`,
-    );
-
     await this.model.findByIdAndDelete(id);
   }
 
   async findOneAndDelete(filterQuery: FilterQuery<TDocument>): Promise<void> {
     const document = await this.model.findOneAndDelete(filterQuery);
-    this.logger.log(
-      `Document ${uppercaseFirstLetter(this.model.modelName)} with id : ${document._id} deleted successfully`,
-    );
   }
 
   async deleteMany(filterQuery: FilterQuery<TDocument>): Promise<void> {
     await this.model.deleteMany(filterQuery);
-
-    this.logger.log(
-      `Document ${uppercaseFirstLetter(this.model.modelName)} deleted successfully`,
-    );
   }
 }
