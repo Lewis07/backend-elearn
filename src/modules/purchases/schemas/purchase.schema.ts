@@ -7,6 +7,7 @@ import { CourseSchema } from 'src/modules/learning/schemas/course.schema';
 export interface ICourse {
   id: string;
   title: string;
+  slug: string;
   image: string;
   price: number;
   qty: number;
