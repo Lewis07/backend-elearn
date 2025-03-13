@@ -53,6 +53,33 @@ const UserInfoSchema = new SchemaMongoose({
   },
 });
 
+const CourseInfoSchema = new SchemaMongoose({
+  id: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  slug: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: String,
+    required: true,
+  },
+  qty: {
+    type: Number,
+    required: true,
+  },
+});
+
 @Schema({
   collection: 'purchases',
 })
@@ -66,7 +93,7 @@ export class Purchase extends AbstractDocument {
   @Prop({ type: UserInfoSchema })
   user: IUserInfo;
 
-  @Prop({ type: [CourseSchema] })
+  @Prop({ type: [CourseInfoSchema] })
   purchaseItems: ICourse[];
 
   @Prop({ type: Date, default: new Date().toISOString() })
