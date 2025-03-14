@@ -1,5 +1,6 @@
 import internal from 'stream';
-import * as ffmpeg from 'fluent-ffmpeg';
+import * as _ffmpeg from 'fluent-ffmpeg';
+const ffmpeg = _ffmpeg.default;
 
 interface IVideoLink {
   filename: string;
